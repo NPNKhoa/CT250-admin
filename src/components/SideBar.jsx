@@ -15,7 +15,7 @@ const SideBar = ({ ...props }) => {
 
       <SideBarItemList />
 
-      <div className='absolute bottom-0 left-0 w-full pb-6'>
+      <div className='absolute bottom-0 left-0 w-full pb-6 pt-4'>
         <Button className='w-full' sx={{ padding: '1rem' }} variant='text'>
           <span className=' w-1/2 flex justify-between items-center'>
             Đăng xuất <LogoutIcon />
