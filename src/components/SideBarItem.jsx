@@ -2,15 +2,8 @@ import PropTypes from 'prop-types';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { memo } from 'react';
 
-const SideBarItem = memo(function SideBarItem({
-  icon,
-  title,
-  childItems,
-  isToggled,
-  onClick,
-}) {
+const SideBarItem = ({ icon, title, childItems, isToggled, onClick }) => {
   console.log('render', title);
 
   return (
@@ -41,7 +34,7 @@ const SideBarItem = memo(function SideBarItem({
       )}
     </>
   );
-});
+};
 
 SideBarItem.propTypes = {
   icon: PropTypes.node.isRequired,
