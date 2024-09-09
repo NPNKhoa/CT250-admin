@@ -1,0 +1,29 @@
+import { Button } from '@mui/material';
+import SideBarItemList from './SideBarItemList';
+import LogoutIcon from '@mui/icons-material/Logout';
+
+const SideBar = ({ ...props }) => {
+  return (
+    <div
+      {...props}
+      className='h-screen flex flex-col justify-start items-start bg-slate-100 py-6 relative'
+    >
+      <div className='w-full flex items-center justify-between px-6'>
+        <img className='w-20' src='/logo.svg' alt='logo' />
+        <h1 className='uppercase text-xl font-bold'>KaTuBa Shop</h1>
+      </div>
+
+      <SideBarItemList />
+
+      <div className='absolute bottom-0 left-0 w-full pb-6'>
+        <Button className='w-full' sx={{ padding: '1rem' }} variant='text'>
+          <span className=' w-1/2 flex justify-between items-center'>
+            Đăng xuất <LogoutIcon />
+          </span>
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default SideBar;
