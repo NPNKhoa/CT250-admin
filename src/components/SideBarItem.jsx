@@ -4,8 +4,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 const SideBarItem = ({ icon, title, childItems, isToggled, onClick }) => {
-  console.log('render', title);
-
   return (
     <>
       <div

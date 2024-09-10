@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import HomeIcon from '@mui/icons-material/Home';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
@@ -21,6 +23,7 @@ const SideBarItemList = () => {
       childItems: [
         'Ưu đãi',
         'Giảm giá',
+        'Sản phẩm',
         'Nhãn hàng',
         'Loại thông số',
         'Loại sản phẩm',
@@ -30,7 +33,7 @@ const SideBarItemList = () => {
       icon: <ListAltIcon />,
       title: 'Quản lý Đơn hàng',
       label: 'order',
-      childItems: ['Trạng thái', 'Thanh toán', 'Vận chuyển'],
+      childItems: ['Đơn hàng', 'Trạng thái', 'Thanh toán', 'Vận chuyển'],
     },
     {
       icon: <PeopleIcon />,
@@ -63,7 +66,7 @@ const SideBarItemList = () => {
   };
 
   return (
-    <div className='overflow-auto h-3/4 mt-4 w-full pr-6 pl-4 no-scrollbar'>
+    <div className='overflow-auto h-3/4 w-full pt-2 pr-6 pl-4 no-scrollbar'>
       {itemList.map(({ icon, title, label, childItems }, index) => (
         <SideBarItem
           key={index}
