@@ -5,29 +5,33 @@ import itemList from '../configs/sidebarElements.jsx';
 const SideBarItemList = () => {
   const [isToggled, setIsToggled] = useState({});
 
-  const handleClickedItem = (label) => {
-    label !== '' &&
+  const handleCLickedItem = (key) => {
+    key !== '' &&
       setIsToggled((prevState) => ({
         ...prevState,
-        [label]: !prevState[label],
+        [key]: !prevState[key],
       }));
   };
 
   return (
     <div className='overflow-auto h-3/4 w-full pt-2 pr-6 pl-4 no-scrollbar'>
-      {itemList.map(({ icon, label, path, childItems }, index) => (
-        <SideBarItem
-          key={`child-${index}`}
-          icon={icon}
-          label={label}
-          path={path}
-          childItems={childItems}
-          isToggled={isToggled[label] || false}
-          onClick={() => {
-            childItems.length !== 0 && handleClickedItem(label);
-          }}
-        />
-      ))}
+      {itemList.map(({ icon, label, path, childItems }) => {
+        const key = path.split('/')[1];
+
+        return (
+          <SideBarItem
+            key={`child-${key}`}
+            icon={icon}
+            label={label}
+            path={path}
+            childItems={childItems}
+            isToggled={isToggled[key] || false}
+            onClick={() => {
+              childItems.length !== 0 && handleCLickedItem(key);
+            }}
+          />
+        );
+      })}
     </div>
   );
 };
