@@ -4,13 +4,11 @@ import Header from '../components/Header';
 
 const CommonLayout = ({ children }) => {
   return (
-    <div className='w-screen h-screen flex justify-start items-center overflow-hidden'>
-      <div className='block w-1/5'>
-        <SideBar className='w-full' />
-      </div>
-      <div className='w-4/5 flex flex-col relative'>
+    <div className='w-screen h-screen flex justify-start items-center'>
+      <SideBar />
+      <div className='w-4/5'>
         <Header currentPage={'Trang chủ'} loggedInUserName={'Khoa'} />
-        {children}
+        <div className='w-full h-screen ps-4'>{children}</div>
       </div>
     </div>
   );

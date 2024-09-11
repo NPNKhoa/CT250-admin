@@ -1,57 +1,8 @@
-import HomeIcon from '@mui/icons-material/Home';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import ListAltIcon from '@mui/icons-material/ListAlt';
-import PeopleIcon from '@mui/icons-material/People';
-import SettingsIcon from '@mui/icons-material/Settings';
+import { useState } from 'react';
 import SideBarItem from './SideBarItem';
-import RedeemIcon from '@mui/icons-material/Redeem';
+import itemList from '../configs/sidebarElements.jsx';
 
 const SideBarItemList = () => {
-  const itemList = [
-    {
-      icon: <HomeIcon />,
-      title: 'Trang chủ',
-      label: 'home',
-      childItems: [],
-    },
-    {
-      icon: <InventoryIcon />,
-      title: 'Quản lý Sản phẩm',
-      label: 'product',
-      childItems: [
-        'Ưu đãi',
-        'Giảm giá',
-        'Nhãn hàng',
-        'Loại thông số',
-        'Loại sản phẩm',
-      ],
-    },
-    {
-      icon: <ListAltIcon />,
-      title: 'Quản lý Đơn hàng',
-      label: 'order',
-      childItems: ['Trạng thái', 'Thanh toán', 'Vận chuyển'],
-    },
-    {
-      icon: <PeopleIcon />,
-      title: 'Quản lý Người dùng',
-      label: 'user',
-      childItems: [],
-    },
-    {
-      icon: <RedeemIcon />,
-      title: 'Voucher',
-      label: 'voucher',
-      childItems: [],
-    },
-    {
-      icon: <SettingsIcon />,
-      title: 'Cấu hình hệ thống',
-      label: 'settings',
-      childItems: [],
-    },
-  ];
-
   const [isToggled, setIsToggled] = useState({});
 
   const handleClickedItem = (label) => {
@@ -63,13 +14,13 @@ const SideBarItemList = () => {
   };
 
   return (
-    <div className='overflow-auto h-3/4 mt-4 w-full pr-6 pl-4 no-scrollbar'>
-      {itemList.map(({ icon, title, label, childItems }, index) => (
+    <div className='overflow-auto h-3/4 w-full pt-2 pr-6 pl-4 no-scrollbar'>
+      {itemList.map(({ icon, label, path, childItems }, index) => (
         <SideBarItem
-          key={index}
-          label={label}
+          key={`child-${index}`}
           icon={icon}
-          title={title}
+          label={label}
+          path={path}
           childItems={childItems}
           isToggled={isToggled[label] || false}
           onClick={() => {
