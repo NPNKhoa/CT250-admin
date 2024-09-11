@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { commonRouter, authRouter } from '../router';
+import { authRouter } from '../configs/router';
+import commonRouter from '../configs/sidebarElements.jsx';
 import { CommonLayout, AuthLayout } from '../layouts';
 
 import { LoadingPage, NotFoundPage } from '../pages';
@@ -11,13 +12,27 @@ const Router = () => {
     <Suspense fallback={<LoadingPage />}>
       <BrowserRouter>
         <Routes>
-          {commonRouter.map(({ id, path, element }) => (
-            <Route
-              key={id}
-              path={path}
-              element={<CommonLayout>{element}</CommonLayout>}
-            />
-          ))}
+          {commonRouter.map(({ id, path, element, childItems }) => {
+            return (
+              <>
+                <Route
+                  key={id}
+                  path={path}
+                  element={<CommonLayout>{element}</CommonLayout>}
+                />
+                {childItems?.length > 0 &&
+                  childItems.map(({ childId, path, element }) => {
+                    return (
+                      <Route
+                        key={childId}
+                        path={path}
+                        element={<CommonLayout>{element}</CommonLayout>}
+                      />
+                    );
+                  })}
+              </>
+            );
+          })}
 
           {authRouter.map(({ id, path, element }) => (
             <Route

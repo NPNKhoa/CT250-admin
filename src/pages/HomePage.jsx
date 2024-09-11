@@ -1,6 +1,6 @@
 const HomePage = () => {
   return (
-    <div className='w-full h-screen'>
+    <div>
       <h1>Home nè</h1>
     </div>
   );
