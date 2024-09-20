@@ -6,6 +6,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RedeemIcon from '@mui/icons-material/Redeem';
+import AccessibilityIcon from '@mui/icons-material/Accessibility';
 
 import {
   BrandPage,
@@ -23,6 +24,7 @@ import {
   UserPage,
   VoucherPage,
 } from '../pages';
+import AuthorizationPage from '../pages/AuthorizationPage';
 
 export default [
   {
@@ -110,6 +112,14 @@ export default [
     element: <VoucherPage />,
     icon: <RedeemIcon />,
     label: 'Voucher',
+    childItems: [],
+  },
+  {
+    id: uuidv4(),
+    path: '/authorization',
+    element: <AuthorizationPage />,
+    icon: <AccessibilityIcon />,
+    label: 'Phân quyền người dùng',
     childItems: [],
   },
   {
