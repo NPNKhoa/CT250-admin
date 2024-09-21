@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import HomeIcon from '@mui/icons-material/Home';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
-import RedeemIcon from '@mui/icons-material/Redeem';
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
 
 import {
@@ -25,6 +25,7 @@ import {
   VoucherPage,
 } from '../pages';
 import AuthorizationPage from '../pages/AuthorizationPage';
+import StatPage from '../pages/StatPage';
 
 export default [
   {
@@ -33,6 +34,14 @@ export default [
     element: <HomePage />,
     icon: <HomeIcon />,
     label: 'Trang chủ',
+    childItems: [],
+  },
+  {
+    id: uuidv4(),
+    path: '/statistics',
+    element: <StatPage />,
+    icon: <AssessmentIcon />,
+    label: 'Thống kê',
     childItems: [],
   },
   {
@@ -47,6 +56,12 @@ export default [
         label: 'Ưu đãi',
         path: '/promotion',
         element: <PromotionPage />,
+      },
+      {
+        childId: `${uuidv4()}-child`,
+        label: 'Voucher',
+        path: '/voucher',
+        element: <VoucherPage />,
       },
       {
         childId: `${uuidv4()}-child`,
@@ -104,14 +119,6 @@ export default [
     element: <UserPage />,
     icon: <PeopleIcon />,
     label: 'Quản lý Người dùng',
-    childItems: [],
-  },
-  {
-    id: uuidv4(),
-    path: '/voucher',
-    element: <VoucherPage />,
-    icon: <RedeemIcon />,
-    label: 'Voucher',
     childItems: [],
   },
   {

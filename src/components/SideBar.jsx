@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 const SideBar = () => {
   return (
     <div className="relative flex h-screen w-1/5 flex-col items-start justify-start bg-slate-200 py-2">
-      <Logo />
+      <Logo className={'w-full'} />
 
       <SideBarItemList />
 
