@@ -6,3 +6,9 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.clearfix::after {
+  content: '';
+  clear: both;
+  display: table;
+}
