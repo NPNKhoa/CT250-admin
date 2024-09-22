@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom';
 
 const SideBar = () => {
   return (
-    <div className="relative flex h-screen w-1/5 flex-col items-start justify-start bg-slate-200 py-2">
-      <Logo className={'w-full'} />
+    <div className="absolute left-0 top-0 flex h-screen w-1/5 flex-col items-start justify-start bg-slate-200">
+      <Logo className={'h-1/6 w-full border-b-2 border-slate-400'} />
 
       <SideBarItemList />
 
