@@ -8,7 +8,7 @@ const CommonLayout = ({ children }) => {
       <SideBar />
       <div>
         <Header currentPage={'Trang chủ'} loggedInUserName={'Khoa'} />
-        <div className="absolute bottom-0 right-0 h-5/6 w-4/5 overflow-auto py-4 ps-4">
+        <div className="h-6/7 absolute bottom-0 right-0 w-4/5 overflow-auto py-4 ps-4">
           {children}
         </div>
       </div>
