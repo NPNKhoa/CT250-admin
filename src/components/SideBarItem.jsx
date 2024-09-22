@@ -1,13 +1,12 @@
 import PropTypes from 'prop-types';
+import { Link, useLocation } from 'react-router-dom';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { Link, useLocation } from 'react-router-dom';
 
 const SideBarItem = ({ icon, label, path, childItems, isToggled, onClick }) => {
   const currentPath = useLocation().pathname;
 
-  // prevent the child list shrink when move from a child item to parent item
   if (isToggled === true && currentPath !== path) {
     onClick = () => {};
   }
@@ -16,13 +15,13 @@ const SideBarItem = ({ icon, label, path, childItems, isToggled, onClick }) => {
     <>
       <Link
         to={path}
-        className={`flex justify-between items-center hover:cursor-pointer hover:bg-slate-300 rounded-md pr-2 ${
+        className={`flex items-center justify-between rounded-md pr-2 hover:cursor-pointer hover:bg-slate-300 ${
           currentPath === path &&
-          'text-white font-semibold bg-[#e95221] hover:bg-[#e78212]'
+          'bg-primary font-semibold text-white hover:bg-hover-primary'
         }`}
         onClick={() => onClick()}
       >
-        <div className='flex justify-start items-center gap-4 rounded-2xl p-4'>
+        <div className="flex items-center justify-start gap-4 rounded-2xl p-4">
           {icon}
           {label}
         </div>
@@ -36,9 +35,9 @@ const SideBarItem = ({ icon, label, path, childItems, isToggled, onClick }) => {
             <Link
               key={childId}
               to={childPath}
-              className={`p-4 block hover:cursor-pointer hover:bg-slate-300 rounded-md ps-14 ${
+              className={`block rounded-md p-4 ps-14 hover:cursor-pointer hover:bg-slate-300 ${
                 currentPath === childPath &&
-                'text-white font-semibold bg-[#e95221] hover:bg-[#e78212]'
+                'bg-[#e95221] font-semibold text-white hover:bg-[#e78212]'
               }`}
             >
               {label}
