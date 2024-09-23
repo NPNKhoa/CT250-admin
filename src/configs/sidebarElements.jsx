@@ -25,8 +25,8 @@ import {
   VoucherPage,
   AuthorizationPage,
   StatPage,
+  RevenueDashboard,
 } from '../pages';
-
 export default [
   {
     id: uuidv4(),
@@ -42,7 +42,23 @@ export default [
     element: <StatPage />,
     icon: <AssessmentIcon />,
     label: 'Thống kê',
-    childItems: [],
+    childItems: [
+      {
+        label: 'Doanh Thu',
+        path: '/revenue',
+        element: <RevenueDashboard />,
+      },
+      {
+        label: 'Đơn hàng',
+        path: '/payment',
+        element: <PaymentPage />,
+      },
+      {
+        label: 'Sản phẩm',
+        path: '/delivery',
+        element: <DeliveryPage />,
+      },
+    ],
   },
   {
     id: uuidv4(),
