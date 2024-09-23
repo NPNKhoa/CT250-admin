@@ -15,6 +15,9 @@ import SettingsPage from './SettingsPage';
 import SpecificationPage from './SpecificationPage';
 import UserPage from './UserPage';
 import VoucherPage from './VoucherPage';
+import LoginPage from './LoginPage';
+import AuthorizationPage from './AuthorizationPage';
+import StatPage from './StatPage';
 
 export {
   NotFoundPage,
@@ -33,4 +36,7 @@ export {
   SpecificationPage,
   UserPage,
   VoucherPage,
+  LoginPage,
+  AuthorizationPage,
+  StatPage,
 };

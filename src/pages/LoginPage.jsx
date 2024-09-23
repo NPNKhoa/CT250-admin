@@ -1,5 +1,5 @@
 import Paper from '@mui/material/Paper';
-import Logo from '../components/Logo';
+import Logo from '../components/common/Logo';
 import {
   Button,
   FormControl,
@@ -72,7 +72,7 @@ const LoginPage = () => {
   return (
     <Paper elevation={2} className="w-2/5 p-8">
       <Logo className="mx-auto w-1/2" />
-      <h2 className="text-primary my-4 text-center text-2xl font-bold uppercase">
+      <h2 className="my-4 text-center text-2xl font-bold uppercase text-primary">
         Đăng nhập
       </h2>
       <form onSubmit={handleSubmit} className="mt-4 w-full">
