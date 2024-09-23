@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import SideBarItem from './SideBarItem';
-import itemList from '../configs/sidebarElements.jsx';
+import itemList from '../../configs/sidebarElements.jsx';
 
 const SideBarItemList = () => {
   const [isToggled, setIsToggled] = useState({});
@@ -14,7 +14,7 @@ const SideBarItemList = () => {
   };
 
   return (
-    <div className='overflow-auto h-3/4 w-full pt-2 pr-6 pl-4 no-scrollbar'>
+    <div className="no-scrollbar h-3/4 w-full overflow-auto pl-4 pr-6 pt-2">
       {itemList.map(({ icon, label, path, childItems }) => {
         const key = path.split('/')[1];
 

@@ -23,9 +23,9 @@ import {
   SpecificationPage,
   UserPage,
   VoucherPage,
+  AuthorizationPage,
+  StatPage,
 } from '../pages';
-import AuthorizationPage from '../pages/AuthorizationPage';
-import StatPage from '../pages/StatPage';
 
 export default [
   {

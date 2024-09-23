@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { authRouter } from '../configs/router';
-import commonRouter from '../configs/sidebarElements.jsx';
-import { CommonLayout, AuthLayout } from '../layouts';
+import { authRouter } from '../../configs/router/index.js';
+import commonRouter from '../../configs/sidebarElements.jsx';
+import { CommonLayout, AuthLayout } from '../../layouts/index.js';
 
-import { LoadingPage, NotFoundPage } from '../pages';
+import { LoadingPage, NotFoundPage } from '../../pages/index.js';
 
 const Router = () => {
   return (
@@ -42,7 +42,7 @@ const Router = () => {
             />
           ))}
 
-          <Route path='*' element={<NotFoundPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </Suspense>

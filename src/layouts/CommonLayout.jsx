@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import SideBar from '../components/SideBar';
-import Header from '../components/Header';
+import SideBar from '../components/common/SideBar';
+import Header from '../components/common/Header';
 import { useLocation } from 'react-router-dom';
 import pages from '../configs/sidebarElements';
 
