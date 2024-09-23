@@ -6,7 +6,10 @@ import { Link } from 'react-router-dom';
 
 const SideBar = () => {
   return (
-    <div className="absolute left-0 top-0 flex h-screen w-1/5 flex-col items-start justify-start bg-slate-200">
+    <div
+      className="absolute left-0 top-0 flex h-screen w-1/5 flex-col items-start justify-start bg-slate-200"
+      style={{ zIndex: 1000000000 }}
+    >
       <Logo className={'h-1/7 w-full border-b-2 border-slate-400'} />
 
       <SideBarItemList />

@@ -1,95 +1,28 @@
+import { useState } from 'react';
+import EditableView from '../components/Settings/EditableView';
+import ReadOnlyView from '../components/Settings/ReadOnlyView';
+import { Button, Divider, Switch, Typography } from '@mui/material';
+
 const SettingsPage = () => {
+  const [isEditable, setIsEditable] = useState(false);
+
+  const handleChangeEditMode = () => {
+    setIsEditable((prevState) => !prevState);
+  };
+
   return (
     <div>
-      <div className="w-28 rounded-full border-4 border-solid border-[primary]">
-        <img src="/logo.svg" alt="logo" className="w-full p-4" />
+      <div className="flex items-center justify-between pb-4">
+        <div className="flex items-center gap-2">
+          <Typography variant="h6">Chế độ chỉnh sửa: </Typography>
+          <Switch checked={isEditable} onChange={handleChangeEditMode} />
+        </div>
+        <Button variant="contained" size="large">
+          Lưu thay đổi
+        </Button>
       </div>
-      <div>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-        <h1>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt
-          pariatur consequatur animi. Animi cumque voluptas sunt exercitationem,
-          expedita possimus et nam reprehenderit totam ab excepturi! Doloremque
-          est dignissimos ullam minus!
-        </h1>
-      </div>
+      <Divider />
+      {isEditable ? <EditableView /> : <ReadOnlyView />}
     </div>
   );
 };
