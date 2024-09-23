@@ -45,17 +45,17 @@ export default [
     childItems: [
       {
         label: 'Doanh Thu',
-        path: '/revenue',
+        path: '/revenue-stats',
         element: <RevenueDashboard />,
       },
       {
         label: 'Đơn hàng',
-        path: '/payment',
+        path: '/payment-stats',
         element: <PaymentPage />,
       },
       {
         label: 'Sản phẩm',
-        path: '/delivery',
+        path: '/product-stats',
         element: <DeliveryPage />,
       },
     ],
