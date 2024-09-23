@@ -17,7 +17,8 @@ import UserPage from './UserPage';
 import VoucherPage from './VoucherPage';
 import LoginPage from './LoginPage';
 import AuthorizationPage from './AuthorizationPage';
-import StatPage from './StatPage';
+import StatPage from './Statistics/StatPage';
+import RevenueDashboard from './Statistics/RevenueDashboard';
 
 export {
   NotFoundPage,
@@ -39,4 +40,5 @@ export {
   LoginPage,
   AuthorizationPage,
   StatPage,
+  RevenueDashboard,
 };
