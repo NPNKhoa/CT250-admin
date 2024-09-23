@@ -1,4 +1,5 @@
 import Dashboard from '../components/Dashboard/Dashboard';
+import RecentOrders from '../components/Dashboard/RecentOrders ';
 import RevenueChart from '../components/Dashboard/RevenueChart ';
 import TotalSalesChart from '../components/Dashboard/TotalSalesChart';
 
@@ -19,7 +20,7 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-        {/* <RevenueChart /> */}
+        <RecentOrders />
       </div>
     </>
   );
