@@ -255,7 +255,10 @@ const OrderStatistics = () => {
             }`}
           />
           <CardContent>
-            <TableContainer component={Paper}>
+            <TableContainer
+              component={Paper}
+              style={{ maxHeight: 400, overflowY: 'auto' }}
+            >
               <Table aria-label="Chi tiết đơn hàng">
                 <TableHead>
                   <TableRow>
