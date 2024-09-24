@@ -20,6 +20,7 @@ import AuthorizationPage from './AuthorizationPage';
 import StatPage from './Statistics/StatPage';
 import RevenueStatistic from './Statistics/RevenueStatistic';
 import OrderStatistic from './Statistics/OrderStatistic';
+import ProductStatistic from './Statistics/ProductStatistic';
 
 export {
   NotFoundPage,
@@ -43,4 +44,5 @@ export {
   StatPage,
   RevenueStatistic,
   OrderStatistic,
+  ProductStatistic,
 };

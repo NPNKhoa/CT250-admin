@@ -251,7 +251,10 @@ const RevenueStatistic = () => {
             title={`Chi tiết doanh thu theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
           />
           <CardContent>
-            <TableContainer component={Paper}>
+            <TableContainer
+              component={Paper}
+              style={{ maxHeight: 400, overflowY: 'auto' }}
+            >
               <Table aria-label="Chi tiết doanh thu">
                 <TableHead>
                   <TableRow>
