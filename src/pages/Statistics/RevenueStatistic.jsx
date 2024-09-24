@@ -59,7 +59,6 @@ const revenueData = {
     data: generateRevenueData(12, 10),
   },
   year: {
-    labels: ['2023', '2024'],
     data: generateRevenueData(5, 100),
   },
 };

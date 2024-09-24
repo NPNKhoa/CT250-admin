@@ -48,10 +48,28 @@ ChartJS.register(
 // Tạo dữ liệu giả
 const generateOrderData = (days, multiplier) => {
   return Array.from({ length: days }, () => {
-    const total = Math.floor(Math.random() * (500 * multiplier)); // Tổng đơn hàng
+    // Tạo số ngẫu nhiên cho tổng đơn hàng với phân phối lệch
+    const total = Math.floor(
+      Math.random() * (50 * multiplier) + 25 * multiplier,
+    ); // Tổng đơn hàng có thể nằm trong khoảng 250 đến 750
+
+    // Tạo phân phối lệch cho trạng thái
     const statusOptions = ['Đã xử lý', 'Chờ xử lý', 'Đã hủy'];
-    const status =
-      statusOptions[Math.floor(Math.random() * statusOptions.length)];
+    let status;
+
+    // Sử dụng xác suất để xác định trạng thái
+    const randomValue = Math.random();
+    if (randomValue < 0.6) {
+      // 60% khả năng cho 'Đã xử lý'
+      status = statusOptions[0];
+    } else if (randomValue < 0.9) {
+      // 30% khả năng cho 'Chờ xử lý'
+      status = statusOptions[1];
+    } else {
+      // 10% khả năng cho 'Đã hủy'
+      status = statusOptions[2];
+    }
+
     return { total, status };
   });
 };

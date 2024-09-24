@@ -24,14 +24,14 @@ import { saveAs } from 'file-saver';
 
 // Dữ liệu giả cho sản phẩm
 const productData = [
-  { name: 'Vợt cầu lông', sold: 120 },
-  { name: 'Túi cầu lông', sold: 80 },
-  { name: 'Balo cầu lông', sold: 150 },
-  { name: 'Phụ kiện cầu lông', sold: 70 },
-  { name: 'Vợt tennis', sold: 20 },
-  { name: 'Túi tennis', sold: 60 },
-  { name: 'Balo tennis', sold: 100 },
-  { name: 'Phụ kiện tennis', sold: 90 },
+  { name: 'Vợt cầu lông', sold: 12 },
+  { name: 'Túi cầu lông', sold: 8 },
+  { name: 'Balo cầu lông', sold: 15 },
+  { name: 'Phụ kiện cầu lông', sold: 7 },
+  { name: 'Vợt tennis', sold: 2 },
+  { name: 'Túi tennis', sold: 6 },
+  { name: 'Balo tennis', sold: 10 },
+  { name: 'Phụ kiện tennis', sold: 9 },
 ];
 
 // Hàm tạo dữ liệu thống kê hợp lý hơn
@@ -50,7 +50,7 @@ const salesData = {
   day: {
     labels: Array.from({ length: 30 }, (_, i) => `Ngày ${i + 1}`),
     // Base factor cho mỗi ngày sẽ nhỏ hơn tháng
-    data: generateProductSalesData(30, productData, 10),
+    data: generateProductSalesData(30, productData, 3),
   },
   month: {
     labels: [
