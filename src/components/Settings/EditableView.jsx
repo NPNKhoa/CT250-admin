@@ -56,7 +56,11 @@ const EditableView = () => {
   };
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} className="mt-2">
+      <span className="italic text-zinc-700 opacity-70">
+        Sau khi thay đổi thông tin click vào nút
+        {'"Lưu"'} ở cuối trang để áp dụng các thay đổi
+      </span>
       <div className="flex w-full items-center justify-center">
         <div className="w-1/2">
           <Typography variant="h3" gutterBottom>
@@ -105,8 +109,13 @@ const EditableView = () => {
       </div>
       <Divider />
       <div>
-        <Typography variant="h3">Banner hiện tại</Typography>
-        <span className="italic text-zinc-900 opacity-80">
+        <div className="flex items-center justify-between">
+          <Typography variant="h3">Banner hiện tại</Typography>
+          <Button variant="contained" size="large">
+            Thêm Banner mới
+          </Button>
+        </div>
+        <span className="italic text-zinc-700 opacity-70">
           Bạn có thể kéo thả các ảnh để thay đổi thứ tự các banner, sau đó click{' '}
           {'"Lưu"'} để áp dụng thay đổi
         </span>
@@ -129,13 +138,25 @@ const EditableView = () => {
           Cài đặt khác
         </Typography>
         <div className="ml-8">
-          <Typography variant="h4" gutterBottom>
-            Bộ lọc theo giá
-          </Typography>
+          <div className="mb-6 flex items-center justify-between">
+            <Typography variant="h4" gutterBottom>
+              Bộ lọc theo giá
+            </Typography>
+            <Button variant="contained" size="large">
+              Thêm mới bộ lọc
+            </Button>
+          </div>
           <PriceFilterList />
         </div>
       </div>
       <Divider />
+      <Button
+        variant="contained"
+        sx={{ width: '30%', m: '1rem auto 2rem !important', p: '1rem' }}
+        size="large"
+      >
+        Lưu thay đổi
+      </Button>
     </Stack>
   );
 };

@@ -26,8 +26,8 @@ const priceFilterList = [
 
 const PriceFilterList = () => {
   return (
-    <div className="m-auto w-1/2">
-      <Paper elevation={2}>
+    <div className="m-auto mb-8 w-1/2">
+      <Paper elevation={4} className="p-6">
         {priceFilterList.map((filter, index) => {
           let fromPrice = filter.fromPrice;
           let toPrice = filter.toPrice;
@@ -47,6 +47,7 @@ const PriceFilterList = () => {
               key={`price-filter-${index}`}
               fromPrice={fromPrice}
               toPrice={toPrice}
+              index={index}
             />
           );
         })}

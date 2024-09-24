@@ -53,7 +53,7 @@ const CommonLayout = ({ children }) => {
       <SideBar />
       <div>
         <Header currentPage={currentPageName} loggedInUserName={'Khoa'} />
-        <div className="no-scrollbar absolute bottom-0 right-0 h-6/7 w-4/5 overflow-auto p-4">
+        <div className="no-scrollbar absolute bottom-0 right-0 h-6/7 w-4/5 overflow-auto p-4 pb-0">
           {children}
         </div>
       </div>
