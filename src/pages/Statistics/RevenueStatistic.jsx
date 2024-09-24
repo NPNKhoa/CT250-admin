@@ -64,7 +64,7 @@ const revenueData = {
   },
 };
 
-const RevenueDashboard = () => {
+const RevenueStatistic = () => {
   const [timeFrame, setTimeFrame] = useState('day');
 
   const exportPDF = () => {
@@ -285,4 +285,4 @@ const RevenueDashboard = () => {
   );
 };
 
-export default RevenueDashboard;
+export default RevenueStatistic;

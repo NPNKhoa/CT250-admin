@@ -25,8 +25,10 @@ import {
   VoucherPage,
   AuthorizationPage,
   StatPage,
-  RevenueDashboard,
+  RevenueStatistic,
+  OrderStatistic,
 } from '../pages';
+
 export default [
   {
     id: uuidv4(),
@@ -46,12 +48,12 @@ export default [
       {
         label: 'Doanh Thu',
         path: '/revenue-stats',
-        element: <RevenueDashboard />,
+        element: <RevenueStatistic />,
       },
       {
         label: 'Đơn hàng',
-        path: '/payment-stats',
-        element: <PaymentPage />,
+        path: '/order-stats',
+        element: <OrderStatistic />,
       },
       {
         label: 'Sản phẩm',
