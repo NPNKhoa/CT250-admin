@@ -19,7 +19,7 @@ import {
   ProductPage,
   ProductTypePage,
   PromotionPage,
-  SettingsPage,
+  SettingPageWrapper,
   SpecificationPage,
   UserPage,
   VoucherPage,
@@ -150,7 +150,7 @@ export default [
   {
     id: uuidv4(),
     path: '/settings',
-    element: <SettingsPage />,
+    element: <SettingPageWrapper />,
     icon: <SettingsIcon />,
     label: 'Cấu hình hệ thống',
     childItems: [],

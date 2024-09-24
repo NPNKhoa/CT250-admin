@@ -11,7 +11,7 @@ import PaymentPage from './PaymentPage';
 import ProductPage from './Products/ProductPage';
 import ProductTypePage from './Products/ProductTypePage';
 import PromotionPage from './Products/PromotionPage';
-import SettingsPage from './SettingsPage';
+import SettingPageWrapper from './SettingsPage';
 import SpecificationPage from './Products/SpecificationPage';
 import UserPage from './UserPage';
 import VoucherPage from './Products/VoucherPage';
@@ -34,7 +34,7 @@ export {
   ProductPage,
   ProductTypePage,
   PromotionPage,
-  SettingsPage,
+  SettingPageWrapper,
   SpecificationPage,
   UserPage,
   VoucherPage,
