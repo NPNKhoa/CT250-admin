@@ -23,11 +23,36 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
+// Đăng ký các thành phần Chart.js cần thiết
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+);
+
 // Tạo dữ liệu giả
 const generateOrderData = (days, multiplier) => {
   return Array.from({ length: days }, () => {
     const total = Math.floor(Math.random() * (500 * multiplier)); // Tổng đơn hàng
-    return total;
+    const statusOptions = ['Đã xử lý', 'Chờ xử lý', 'Đã hủy'];
+    const status =
+      statusOptions[Math.floor(Math.random() * statusOptions.length)];
+    return { total, status };
   });
 };
 
@@ -64,15 +89,18 @@ const orderData = {
 
 const OrderStatistics = () => {
   const [timeFrame, setTimeFrame] = useState('day');
+  const [statusFilter, setStatusFilter] = useState('Tất cả');
+  const [showDetails, setShowDetails] = useState(false);
 
   const exportPDF = () => {
     const doc = new jsPDF();
     doc.text('Chi tiết đơn hàng', 10, 10);
 
-    const tableColumn = ['Ngày/Tháng/Năm', 'Tổng đơn hàng'];
+    const tableColumn = ['Ngày/Tháng/Năm', 'Tổng đơn hàng', 'Trạng thái'];
     const tableRows = orderData[timeFrame].labels.map((label, index) => [
       label,
-      orderData[timeFrame].data[index].toLocaleString(),
+      orderData[timeFrame].data[index].total.toLocaleString(),
+      orderData[timeFrame].data[index].status,
     ]);
 
     doc.autoTable({
@@ -86,10 +114,11 @@ const OrderStatistics = () => {
   const exportExcel = () => {
     const workbook = XLSX.utils.book_new();
     const worksheetData = [
-      ['Ngày/Tháng/Năm', 'Tổng đơn hàng'],
+      ['Ngày/Tháng/Năm', 'Tổng đơn hàng', 'Trạng thái'],
       ...orderData[timeFrame].labels.map((label, index) => [
         label,
-        orderData[timeFrame].data[index],
+        orderData[timeFrame].data[index].total,
+        orderData[timeFrame].data[index].status,
       ]),
     ];
 
@@ -105,12 +134,16 @@ const OrderStatistics = () => {
     saveAs(data, `order_${timeFrame}.xlsx`);
   };
 
+  const filteredData = orderData[timeFrame].data.filter(
+    (item) => statusFilter === 'Tất cả' || item.status === statusFilter,
+  );
+
   const chartData = {
     labels: orderData[timeFrame].labels,
     datasets: [
       {
         label: 'Tổng đơn hàng',
-        data: orderData[timeFrame].data,
+        data: filteredData.map((item) => item.total),
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         fill: true,
@@ -149,7 +182,7 @@ const OrderStatistics = () => {
       </h1>
 
       {/* Lựa chọn thời gian */}
-      <div className="mb-6 flex justify-end">
+      <div className="mb-6 flex justify-between">
         <FormControl className="w-1/4">
           <InputLabel>Chọn thời gian</InputLabel>
           <Select
@@ -160,6 +193,21 @@ const OrderStatistics = () => {
             <MenuItem value="day">Theo ngày</MenuItem>
             <MenuItem value="month">Theo tháng</MenuItem>
             <MenuItem value="year">Theo năm</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* Lựa chọn trạng thái */}
+        <FormControl className="w-1/4">
+          <InputLabel>Lọc theo trạng thái</InputLabel>
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            label="Lọc theo trạng thái"
+          >
+            <MenuItem value="Tất cả">Tất cả</MenuItem>
+            <MenuItem value="Đã xử lý">Đã xử lý</MenuItem>
+            <MenuItem value="Chờ xử lý">Chờ xử lý</MenuItem>
+            <MenuItem value="Đã hủy">Đã hủy</MenuItem>
           </Select>
         </FormControl>
       </div>
@@ -183,43 +231,63 @@ const OrderStatistics = () => {
           className="ml-4"
         >
           Xuất file Excel
+        </Button>{' '}
+        <Button
+          variant="contained"
+          color="secondary"
+          className="ml-4"
+          onClick={() => setShowDetails(!showDetails)}
+        >
+          {showDetails ? 'Ẩn chi tiết' : 'Xem chi tiết'}
         </Button>
       </div>
 
       {/* Bảng chi tiết đơn hàng */}
-      <Card>
-        <CardHeader
-          title={`Chi tiết đơn hàng theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
-        />
-        <CardContent>
-          <TableContainer component={Paper}>
-            <Table aria-label="Chi tiết đơn hàng">
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    {timeFrame === 'day'
-                      ? 'Ngày'
-                      : timeFrame === 'month'
-                        ? 'Tháng'
-                        : 'Năm'}
-                  </TableCell>
-                  <TableCell align="right">Tổng đơn hàng</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {orderData[timeFrame].labels.map((label, index) => (
-                  <TableRow key={label}>
-                    <TableCell>{label}</TableCell>
-                    <TableCell align="right">
-                      {orderData[timeFrame].data[index].toLocaleString()}
+      {showDetails && (
+        <Card>
+          <CardHeader
+            title={`Chi tiết đơn hàng theo ${
+              timeFrame === 'day'
+                ? 'ngày'
+                : timeFrame === 'month'
+                  ? 'tháng'
+                  : 'năm'
+            }`}
+          />
+          <CardContent>
+            <TableContainer component={Paper}>
+              <Table aria-label="Chi tiết đơn hàng">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      {timeFrame === 'day'
+                        ? 'Ngày'
+                        : timeFrame === 'month'
+                          ? 'Tháng'
+                          : 'Năm'}
                     </TableCell>
+                    <TableCell align="right">Tổng đơn hàng</TableCell>
+                    <TableCell align="right">Trạng thái</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
+                </TableHead>
+                <TableBody>
+                  {filteredData.map((order, index) => (
+                    <TableRow key={orderData[timeFrame].labels[index]}>
+                      <TableCell>
+                        {orderData[timeFrame].labels[index]}
+                      </TableCell>
+                      <TableCell align="right">
+                        {order.total.toLocaleString()}
+                      </TableCell>
+                      <TableCell align="right">{order.status}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
