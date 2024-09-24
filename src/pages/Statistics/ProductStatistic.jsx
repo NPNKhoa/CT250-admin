@@ -34,22 +34,23 @@ const productData = [
   { name: 'Phụ kiện tennis', sold: 90 },
 ];
 
-// Tạo dữ liệu thống kê sản phẩm theo ngày, tháng, năm
-const generateProductSalesData = (days, products) => {
-  return Array.from({ length: days }, () => {
-    const sales = products.map((product) => ({
+// Hàm tạo dữ liệu thống kê hợp lý hơn
+const generateProductSalesData = (numPeriods, products, baseFactor) => {
+  return Array.from({ length: numPeriods }, () => {
+    return products.map((product, index) => ({
       name: product.name,
-      sold: Math.floor(Math.random() * 200),
+      sold: Math.floor(
+        baseFactor * (Math.random() * 0.5 + 0.5) * (1 + index * 0.3),
+      ), // Thay đổi để tạo sự lệch
     }));
-    return sales;
   });
 };
-
-// Dữ liệu thống kê sản phẩm giả
+// Dữ liệu thống kê sản phẩm giả với mức cơ sở hợp lý
 const salesData = {
   day: {
     labels: Array.from({ length: 30 }, (_, i) => `Ngày ${i + 1}`),
-    data: generateProductSalesData(30, productData),
+    // Base factor cho mỗi ngày sẽ nhỏ hơn tháng
+    data: generateProductSalesData(30, productData, 10),
   },
   month: {
     labels: [
@@ -66,11 +67,13 @@ const salesData = {
       'Tháng 11',
       'Tháng 12',
     ],
-    data: generateProductSalesData(12, productData),
+    // Base factor cho mỗi tháng lớn hơn ngày
+    data: generateProductSalesData(12, productData, 100),
   },
   year: {
     labels: ['2023', '2024'],
-    data: generateProductSalesData(2, productData),
+    // Base factor cho mỗi năm sẽ lớn hơn tháng
+    data: generateProductSalesData(2, productData, 1200),
   },
 };
 
@@ -87,23 +90,139 @@ const ProductStatistic = () => {
   };
 
   // Xuất dữ liệu sang Excel
+  // Xuất dữ liệu sang Excel
   const exportExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(
-      salesData[timeFrame].data.flat(),
-    );
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Doanh thu');
-    XLSX.writeFile(workbook, 'thong_ke_san_pham.xlsx');
+
+    // Dữ liệu cho worksheet
+    const worksheetData = [
+      [
+        'Thời gian', // Cột thời gian
+        'Tên sản phẩm', // Cột tên sản phẩm
+        'Số lượng bán', // Cột số lượng bán
+      ],
+    ];
+
+    // Lặp qua dữ liệu để tổ chức theo cách mong muốn
+    salesData[timeFrame].data.forEach((salesArray, dateIndex) => {
+      let firstProduct = true; // Biến để theo dõi sản phẩm đầu tiên của ngày
+
+      salesArray.forEach((item) => {
+        if (firstProduct) {
+          worksheetData.push([
+            timeFrame === 'day'
+              ? `Ngày ${dateIndex + 1}`
+              : timeFrame === 'month'
+                ? `Tháng ${dateIndex + 1}`
+                : `Năm ${2023 + dateIndex}`, // Gán thời gian tương ứng
+            item.name || '', // Tên sản phẩm
+            item.sold || 0, // Số lượng bán
+          ]);
+          firstProduct = false; // Đánh dấu rằng sản phẩm đầu tiên đã được thêm
+        } else {
+          worksheetData.push([
+            '', // Ô trống cho thời gian
+            item.name || '', // Tên sản phẩm
+            item.sold || 0, // Số lượng bán
+          ]);
+        }
+      });
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Gộp các ô cho thời gian
+    let rowIndex = 1; // Bắt đầu từ hàng thứ hai (hàng tiêu đề)
+    salesData[timeFrame].data.forEach((salesArray, dateIndex) => {
+      if (salesArray.length > 0) {
+        // Gộp ô cho ngày
+        const cellRange = XLSX.utils.encode_range({
+          s: { r: rowIndex, c: 0 }, // Cột thời gian
+          e: { r: rowIndex + salesArray.length - 1, c: 0 }, // Cột thời gian
+        });
+        worksheet[cellRange] = {
+          v:
+            timeFrame === 'day'
+              ? `Ngày ${dateIndex + 1}`
+              : timeFrame === 'month'
+                ? `Tháng ${dateIndex + 1}`
+                : `Năm ${2023 + dateIndex}`,
+          t: 's', // Kiểu dữ liệu là string
+        };
+        worksheet['!merges'] = worksheet['!merges'] || [];
+        worksheet['!merges'].push({
+          s: { r: rowIndex, c: 0 },
+          e: { r: rowIndex + salesArray.length - 1, c: 0 },
+        });
+        rowIndex += salesArray.length; // Cập nhật chỉ số hàng
+      }
+    });
+
+    // Tùy chỉnh chiều rộng cột
+    worksheet['!cols'] = [
+      { wch: 20 }, // Chiều rộng cột Thời gian
+      { wch: 30 }, // Chiều rộng cột Tên sản phẩm
+      { wch: 15 }, // Chiều rộng cột Số lượng bán
+    ];
+
+    // Tùy chỉnh kiểu chữ cho tiêu đề
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      const cell = worksheet[XLSX.utils.encode_cell({ r: 0, c: col })];
+      if (cell) {
+        cell.s = {
+          fill: { fgColor: { rgb: 'FFFF00' } }, // Màu nền vàng
+          font: { bold: true, color: { rgb: '000000' }, sz: 12 }, // Chữ đen, đậm và kích thước 12
+          alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa
+        };
+      }
+    }
+
+    // Căn giữa cho ô thời gian và các ô dữ liệu khác
+    for (let row = 1; row <= range.e.r; row++) {
+      for (let col = range.s.c; col <= range.e.c; col++) {
+        const cell = worksheet[XLSX.utils.encode_cell({ r: row, c: col })];
+        if (cell) {
+          cell.s = {
+            alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa cho ô dữ liệu
+          };
+        }
+      }
+    }
+
+    // Đặt căn giữa cho ô thời gian
+    for (let row = 1; row <= range.e.r; row++) {
+      const timeCell = worksheet[XLSX.utils.encode_cell({ r: row, c: 0 })];
+      if (timeCell) {
+        timeCell.s = {
+          alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa cho ô thời gian
+        };
+      }
+    }
+
+    // Thêm worksheet vào workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Thống kê sản phẩm');
+
+    // Xuất file Excel
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    const data = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    saveAs(data, `product_${timeFrame}.xlsx`);
   };
 
   // Chuẩn bị dữ liệu cho biểu đồ Line
   const lineChartData = {
-    labels: salesData[timeFrame].labels,
+    labels: salesData[timeFrame]?.labels || [], // Bổ sung xử lý nếu không có dữ liệu
     datasets: productData.map((product, index) => ({
       label: product.name,
-      data: salesData[timeFrame].data.map(
-        (sales) => sales.find((s) => s.name === product.name)?.sold || 0,
-      ),
+      data:
+        salesData[timeFrame]?.data.map(
+          (sales) => sales.find((s) => s.name === product.name)?.sold || 0,
+        ) || [], // Bổ sung xử lý nếu không có dữ liệu
       borderColor: `rgba(${75 + index * 20}, ${192 - index * 30}, 192, 1)`,
       backgroundColor: 'rgba(75, 192, 192, 0.2)',
       fill: true,
@@ -126,12 +245,18 @@ const ProductStatistic = () => {
       {
         data: totalSales.map((product) => product.sold),
         backgroundColor: [
-          'rgba(255, 99, 132, 0.6)',
-          'rgba(54, 162, 235, 0.6)',
-          'rgba(255, 206, 86, 0.6)',
-          'rgba(75, 192, 192, 0.6)',
-          'rgba(153, 102, 255, 0.6)',
-          'rgba(255, 159, 64, 0.6)',
+          'rgba(255, 99, 132, 0.6)', // Màu đỏ
+          'rgba(54, 162, 235, 0.6)', // Màu xanh dương
+          'rgba(255, 206, 86, 0.6)', // Màu vàng
+          'rgba(75, 192, 192, 0.6)', // Màu xanh ngọc
+          'rgba(153, 102, 255, 0.6)', // Màu tím
+          'rgba(255, 159, 64, 0.6)', // Màu cam
+          'rgba(255, 99, 71, 0.6)', // Màu đỏ nhạt
+          'rgba(54, 235, 162, 0.6)', // Màu xanh lá cây
+          'rgba(255, 86, 206, 0.6)', // Màu hồng
+          'rgba(102, 153, 255, 0.6)', // Màu xanh tím
+          'rgba(192, 75, 75, 0.6)', // Màu nâu
+          'rgba(86, 255, 159, 0.6)', // Màu xanh lá cây sáng
         ],
       },
     ],
@@ -142,6 +267,21 @@ const ProductStatistic = () => {
     plugins: {
       legend: {
         position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            return `${tooltipItem.raw.toLocaleString()} sản phẩm`;
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => value.toLocaleString(),
+        },
       },
     },
   };
@@ -177,43 +317,67 @@ const ProductStatistic = () => {
       </Card>
 
       {/* Biểu đồ donut thống kê số lượng sản phẩm */}
+
       <Card className="mb-6">
         <CardHeader title="Thống kê số lượng loại sản phẩm bán ra" />
-        <CardContent>
-          <div style={{ width: '300px', height: '300px', margin: '0 auto' }}>
-            <Doughnut
-              data={donutChartData}
-              options={{ ...chartOptions, maintainAspectRatio: false }}
-            />
+        <div className="flex items-start justify-between">
+          {/* Cột bên trái: Biểu đồ */}
+          <div className="w-1/2 p-4">
+            <CardContent>
+              <div
+                style={{ width: '450px', height: '450px', margin: '0 auto' }}
+              >
+                <Doughnut
+                  data={donutChartData}
+                  options={{ ...chartOptions, maintainAspectRatio: false }}
+                />
+              </div>
+            </CardContent>
           </div>
-        </CardContent>
-        <div className="mt-4 flex flex-col items-center justify-center">
-          <ul className="w-full space-y-2">
-            {totalSales.map((product, index) => {
-              const totalSold = totalSales.reduce(
-                (acc, prod) => acc + prod.sold,
-                0,
-              );
-              const percentage = totalSold
-                ? ((product.sold / totalSold) * 100).toFixed(2)
-                : 0; // Tính tỷ lệ phần trăm
-              return (
-                <li key={index} className="flex items-center text-gray-700">
-                  <span
-                    className={`mr-3 inline-block h-4 w-4 rounded-full`}
-                    style={{
-                      backgroundColor:
-                        donutChartData.datasets[0].backgroundColor[index], // Màu sắc cho từng sản phẩm
-                    }}
-                  ></span>
-                  <span className="text-sm font-medium">{`${product.name}`}</span>
-                  <span className="ml-auto text-gray-500">{`${product.sold} sản phẩm`}</span>
-                  <span className="ml-2 text-xs text-gray-400">{`(${percentage}%)`}</span>{' '}
-                  {/* Hiển thị tỷ lệ phần trăm */}
-                </li>
-              );
-            })}
-          </ul>
+
+          {/* Cột bên phải: Thông tin chi tiết */}
+          <div className="w-1/2 p-2">
+            <div className="mt-4 flex flex-col">
+              <ul className="w-full space-y-4">
+                {totalSales.map((product, index) => {
+                  const totalSold = totalSales.reduce(
+                    (acc, prod) => acc + prod.sold,
+                    0,
+                  );
+                  const percentage = totalSold
+                    ? ((product.sold / totalSold) * 100).toFixed(2)
+                    : 0; // Tính tỷ lệ phần trăm
+
+                  return (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between rounded-lg bg-gray-100 p-2 shadow-sm"
+                    >
+                      {/* Thông tin sản phẩm */}
+                      <div className="flex items-center">
+                        <span
+                          className={`mr-3 inline-block h-4 w-4 rounded-full`}
+                          style={{
+                            backgroundColor:
+                              donutChartData.datasets[0].backgroundColor[index], // Màu sắc cho từng sản phẩm
+                          }}
+                        ></span>
+                        <span className="text-sm font-medium">
+                          {product.name}
+                        </span>
+                      </div>
+
+                      {/* Số lượng bán ra và tỷ lệ phần trăm */}
+                      <div className="flex items-center">
+                        <span className="text-gray-500">{`${product.sold} sản phẩm`}</span>
+                        <span className="ml-2 text-xs text-gray-400">{`(${percentage}%)`}</span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -234,10 +398,10 @@ const ProductStatistic = () => {
       </div>
 
       {/* Bảng chi tiết sản phẩm bán chạy */}
-      {showDetails && (
+      {!showDetails ? (
         <Card>
           <CardHeader
-            title={`Chi tiết số lượng sản phẩm theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
+            title={`Chi tiết số lượng từng sản phẩm theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
           />
           <CardContent>
             <TableContainer component={Paper}>
@@ -253,6 +417,52 @@ const ProductStatistic = () => {
                     <TableRow key={index}>
                       <TableCell>{product.name}</TableCell>
                       <TableCell>{product.sold}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader
+            title={`Chi tiết số lượng sản phẩm theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
+          />
+          <CardContent>
+            <TableContainer
+              component={Paper}
+              style={{ maxHeight: 400, overflowY: 'auto' }}
+            >
+              <Table id="product-table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      {timeFrame === 'day'
+                        ? 'Ngày'
+                        : timeFrame === 'month'
+                          ? 'Tháng'
+                          : 'Năm'}
+                    </TableCell>
+                    {productData.map((product) => (
+                      <TableCell key={product.name} align="right">
+                        {product.name}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {salesData[timeFrame].data.map((sales, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        {salesData[timeFrame].labels[index]}
+                      </TableCell>
+                      {productData.map((product) => (
+                        <TableCell key={product.name} align="right">
+                          {sales.find((s) => s.name === product.name)?.sold ||
+                            0}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   ))}
                 </TableBody>
