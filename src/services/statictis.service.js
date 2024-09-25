@@ -26,6 +26,19 @@ class CartService {
       throw error;
     }
   }
+
+  async getRevenueByYear(year) {
+    try {
+      const response = await this.api.get('/totalrevenuebyyear', {
+        params: { year },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy doanh thu:', error);
+      throw error;
+    }
+  }
+
   async getTotalOrders() {
     try {
       const response = await this.api.get('/totalorders');

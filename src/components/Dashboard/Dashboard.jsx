@@ -21,7 +21,7 @@ const Dashboard = () => {
     const fetchTotalRevenue = async () => {
       try {
         const result = await statictisService.getMonthlyRevenue();
-        setTotalRevenue(`${result.totalRevenue.toLocaleString()}đ`);
+        setTotalRevenue(result.totalRevenue);
       } catch (error) {
         console.error('Lỗi khi lấy tổng doanh thu:', error);
       } finally {
@@ -110,16 +110,16 @@ const Dashboard = () => {
     totalOrdersLastMonth > 0
       ? ((totalOrders - totalOrdersLastMonth) / totalOrdersLastMonth) * 100
       : 100;
-  const growthPercentageUser =
+  const growthPercentageRevenue =
     totalOrdersLastMonth > 0
-      ? ((totalUsers - totalUsersLastMonth) / totalUsersLastMonth) * 100
+      ? ((totalRevenue - totalRevenueLastMonth) / totalRevenueLastMonth) * 100
       : 100;
+
   const statsData = [
     {
       title: `Doanh thu tháng ${currentMonth}`,
-      value: loading ? 'Đang tải...' : totalRevenue,
-      // description: `Doanh thu tháng ${currentMonth}/${currentYear}`,
-      description: `+${growthPercentageUser.toFixed(2)}% so với tháng trước`,
+      value: loading ? 'Đang tải...' : `${totalRevenue.toLocaleString()}đ`,
+      description: `${growthPercentageRevenue >= 0 ? '+' : ''}${growthPercentageRevenue.toFixed(2)}% so với tháng trước`,
       color: 'text-pink-500',
       icon: <LocalAtmIcon className="text-2xl text-white" />,
     },
@@ -133,7 +133,7 @@ const Dashboard = () => {
     {
       title: 'Tổng khách hàng',
       value: loading ? 'Đang tải...' : `${totalUsers} người dùng`,
-      description: `+${newUsers} người dùng mới so với tháng trước`,
+      description: `+${newUsers} so với tháng trước`,
       color: 'text-blue-500',
       icon: <PersonOutlineIcon className="text-2xl text-white" />,
     },
