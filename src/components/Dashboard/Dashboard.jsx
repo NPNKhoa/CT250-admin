@@ -1,32 +1,78 @@
+import { useEffect, useState } from 'react';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
-
-const statsData = [
-  {
-    title: 'Thu nhập',
-    value: '100.000.000đ',
-    description: 'Doanh thu hàng tháng',
-    color: 'text-pink-500',
-    icon: <LocalAtmIcon className="text-2xl text-white" />,
-  },
-  {
-    title: 'Tổng đơn hàng',
-    value: '1,339',
-    description: 'Hơn 35 lần bán hàng mới',
-    color: 'text-yellow-500',
-    icon: <NewspaperIcon className="text-2xl text-white" />,
-  },
-  {
-    title: 'Tổng khách hàng',
-    value: '1,354',
-    description: '30+ mới trong 7 ngày',
-    color: 'text-blue-500',
-    icon: <PersonOutlineIcon className="text-2xl text-white" />,
-  },
-];
+import statictisService from '../../services/statictis.service';
+// import { toast } from 'react-toastify';
 
 const Dashboard = () => {
+  const [totalRevenue, setTotalRevenue] = useState('0đ');
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    const fetchTotalRevenue = async () => {
+      try {
+        const result = await statictisService.getMonthlyRevenue();
+        setTotalRevenue(`${result.totalRevenue.toLocaleString()}đ`);
+        // toast.success(`${result.message}`);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng doanh thu:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTotalOrder = async () => {
+      try {
+        const result = await statictisService.getTotalOrdersByMonth(
+          currentMonth,
+          currentYear,
+        );
+
+        setTotalOrders(
+          `${result.totalOrdersByMonth.toLocaleString()} đơn hàng`,
+        );
+        // toast.success(`${result.message}`);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng số đơn hàng của tháng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTotalOrder();
+    fetchTotalRevenue();
+  }, [currentMonth, currentYear]);
+
+  const statsData = [
+    {
+      title: 'Thu nhập',
+      value: loading ? 'Đang tải...' : totalRevenue,
+      description: `Doanh thu tháng ${currentMonth}/${currentYear}`,
+      color: 'text-pink-500',
+      icon: <LocalAtmIcon className="text-2xl text-white" />,
+    },
+    {
+      title: 'Tổng đơn hàng',
+      value: loading ? 'Đang tải...' : totalOrders,
+      // description: 'Hơn 35 lần bán hàng mới',
+      description: 'Heheheh',
+      color: 'text-yellow-500',
+      icon: <NewspaperIcon className="text-2xl text-white" />,
+    },
+    {
+      title: 'Tổng khách hàng',
+      value: '1,354', // Giá trị này bạn cũng có thể cập nhật từ API
+      description: '30+ mới trong 7 ngày',
+      color: 'text-blue-500',
+      icon: <PersonOutlineIcon className="text-2xl text-white" />,
+    },
+  ];
+
   return (
     <div className="bg-gray-50">
       {/* Header */}
