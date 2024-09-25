@@ -7,7 +7,7 @@ class CartService {
 
   async getTotalRevenue() {
     try {
-      const response = await this.api.get('/');
+      const response = await this.api.get('/totalrevenue');
       return response.data;
     } catch (error) {
       console.error('Lỗi khi lấy doanh thu:', error);
@@ -15,9 +15,11 @@ class CartService {
     }
   }
 
-  async getMonthlyRevenue() {
+  async getMonthlyRevenue(month, year) {
     try {
-      const response = await this.api.get('/getmonthly');
+      const response = await this.api.get('/totalrevenuebymonth', {
+        params: { month, year },
+      });
       return response.data;
     } catch (error) {
       console.error('Lỗi khi lấy doanh thu:', error);
@@ -34,15 +36,34 @@ class CartService {
     }
   }
 
-  // Lấy tổng số đơn hàng theo tháng
   async getTotalOrdersByMonth(month, year) {
     try {
-      const response = await this.api.get(
-        `/totalordersbymonth?month=${month}&year=${year}`,
-      );
+      const response = await this.api.get(`/totalordersbymonth`, {
+        params: { month, year },
+      });
       return response.data;
     } catch (error) {
       console.error('Lỗi khi lấy tổng số đơn hàng theo tháng:', error);
+      throw error;
+    }
+  }
+
+  async getTotalUsers() {
+    try {
+      const response = await this.api.get('/totalusers');
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy tổng số tài khoản:', error);
+      throw error;
+    }
+  }
+
+  async getTotalUsersByMonth() {
+    try {
+      const response = await this.api.get(`/totalusersbymonth`);
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy tổng số tài khoảng theo tháng:', error);
       throw error;
     }
   }
