@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -8,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import statictisService from '../../services/statictis.service';
 
 ChartJS.register(
   CategoryScale,
@@ -19,6 +21,34 @@ ChartJS.register(
 );
 
 const RevenueChart = () => {
+  const [year, setYear] = useState(2024);
+  const [revenueData, setRevenueData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const startYear = 2024;
+  const currentYear = new Date().getFullYear();
+  const years = [];
+
+  for (let i = startYear; i <= currentYear; i++) {
+    years.push(i);
+  }
+
+  useEffect(() => {
+    const fetchRevenueData = async () => {
+      try {
+        setLoading(true);
+        const data = await statictisService.getRevenueByYear(year);
+        setRevenueData(data.revenueData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu doanh thu:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchRevenueData();
+  }, [year]);
+
   const barData = {
     labels: [
       'Tháng 1',
@@ -34,39 +64,31 @@ const RevenueChart = () => {
       'Tháng 11',
       'Tháng 12',
     ],
-
-    datasets: [
-      {
-        label: 'Tổng Doanh Thu',
-        data: [
-          20000000, 30000000, 40000000, 60000000, 50000000, 70000000, 120000000,
-          150000000, 130000000, 110000000, 90000000, 80000000,
-        ],
-        backgroundColor: 'rgba(0, 123, 255, 0.6)',
-        borderColor: 'rgba(0, 123, 255, 1)',
-        borderWidth: 1,
-      },
-      {
-        label: 'Đã Thanh Toán',
-        data: [
-          15000000, 20000000, 30000000, 40000000, 45000000, 60000000, 80000000,
-          100000000, 90000000, 70000000, 50000000, 40000000,
-        ],
-        backgroundColor: 'rgba(40, 167, 69, 0.6)',
-        borderColor: 'rgba(40, 167, 69, 1)',
-        borderWidth: 1,
-      },
-      {
-        label: 'Chưa Thanh Toán',
-        data: [
-          5000000, 10000000, 10000000, 20000000, 5000000, 10000000, 40000000,
-          50000000, 40000000, 40000000, 40000000, 40000000,
-        ],
-        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1,
-      },
-    ],
+    datasets: revenueData
+      ? [
+          {
+            label: 'Tổng Doanh Thu',
+            data: revenueData.totalRevenueData,
+            backgroundColor: 'rgba(0, 123, 255, 0.6)',
+            borderColor: 'rgba(0, 123, 255, 1)',
+            borderWidth: 1,
+          },
+          {
+            label: 'Đã Thanh Toán',
+            data: revenueData.paidRevenueData,
+            backgroundColor: 'rgba(40, 167, 69, 0.6)',
+            borderColor: 'rgba(40, 167, 69, 1)',
+            borderWidth: 1,
+          },
+          {
+            label: 'Chưa Thanh Toán',
+            data: revenueData.unpaidRevenueData,
+            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+          },
+        ]
+      : [],
   };
 
   const barOptions = {
@@ -128,13 +150,26 @@ const RevenueChart = () => {
         <h2 className="text-2xl font-bold text-gray-800">
           Doanh thu hàng tháng
         </h2>
-        <select className="rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option>2023</option>
-          <option>2024</option>
+        <select
+          className="rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={year}
+          onChange={(e) => setYear(e.target.value)} // Cập nhật năm khi chọn
+        >
+          {years.map((yearOption) => (
+            <option key={yearOption} value={yearOption}>
+              {yearOption}
+            </option>
+          ))}
         </select>
       </div>
-      <Bar data={barData} options={barOptions} />
-      <p className="mt-4 text-sm text-gray-500">(+63%) so với năm ngoái</p>
+
+      {loading ? (
+        <p>Đang tải dữ liệu...</p>
+      ) : (
+        <Bar data={barData} options={barOptions} />
+      )}
+
+      {/* <p className="mt-4 text-sm text-gray-500">(+63%) so với năm ngoái</p> */}
     </div>
   );
 };
