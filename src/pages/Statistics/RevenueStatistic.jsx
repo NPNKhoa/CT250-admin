@@ -59,13 +59,13 @@ const revenueData = {
     data: generateRevenueData(12, 10),
   },
   year: {
-    labels: ['2023', '2024'],
     data: generateRevenueData(5, 100),
   },
 };
 
 const RevenueStatistic = () => {
   const [timeFrame, setTimeFrame] = useState('day');
+  const [showDetails, setShowDetails] = useState(false);
 
   const exportPDF = () => {
     const doc = new jsPDF();
@@ -233,54 +233,69 @@ const RevenueStatistic = () => {
         >
           Xuất file Excel
         </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          className="ml-4"
+          onClick={() => setShowDetails(!showDetails)}
+        >
+          {showDetails ? 'Ẩn chi tiết' : 'Xem chi tiết'}
+        </Button>
       </div>
 
       {/* Bảng chi tiết doanh thu */}
-      <Card>
-        <CardHeader
-          title={`Chi tiết doanh thu theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
-        />
-        <CardContent>
-          <TableContainer component={Paper}>
-            <Table aria-label="Chi tiết doanh thu">
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    {timeFrame === 'day'
-                      ? 'Ngày'
-                      : timeFrame === 'month'
-                        ? 'Tháng'
-                        : 'Năm'}
-                  </TableCell>
-                  <TableCell align="right">Tổng doanh thu (VNĐ)</TableCell>
-                  <TableCell align="right">Chưa thanh toán (VNĐ)</TableCell>
-                  <TableCell align="right">Đã thanh toán (VNĐ)</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {revenueData[timeFrame].labels.map((label, index) => (
-                  <TableRow key={label}>
-                    <TableCell>{label}</TableCell>
-                    <TableCell align="right">
-                      {revenueData[timeFrame].data[
-                        index
-                      ].total.toLocaleString()}
+      {showDetails && (
+        <Card>
+          <CardHeader
+            title={`Chi tiết doanh thu theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
+          />
+          <CardContent>
+            <TableContainer
+              component={Paper}
+              style={{ maxHeight: 400, overflowY: 'auto' }}
+            >
+              <Table aria-label="Chi tiết doanh thu">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      {timeFrame === 'day'
+                        ? 'Ngày'
+                        : timeFrame === 'month'
+                          ? 'Tháng'
+                          : 'Năm'}
                     </TableCell>
-                    <TableCell align="right">
-                      {revenueData[timeFrame].data[
-                        index
-                      ].unpaid.toLocaleString()}
-                    </TableCell>
-                    <TableCell align="right">
-                      {revenueData[timeFrame].data[index].paid.toLocaleString()}
-                    </TableCell>
+                    <TableCell align="right">Tổng doanh thu (VNĐ)</TableCell>
+                    <TableCell align="right">Chưa thanh toán (VNĐ)</TableCell>
+                    <TableCell align="right">Đã thanh toán (VNĐ)</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
+                </TableHead>
+                <TableBody>
+                  {revenueData[timeFrame].labels.map((label, index) => (
+                    <TableRow key={label}>
+                      <TableCell>{label}</TableCell>
+                      <TableCell align="right">
+                        {revenueData[timeFrame].data[
+                          index
+                        ].total.toLocaleString()}
+                      </TableCell>
+                      <TableCell align="right">
+                        {revenueData[timeFrame].data[
+                          index
+                        ].unpaid.toLocaleString()}
+                      </TableCell>
+                      <TableCell align="right">
+                        {revenueData[timeFrame].data[
+                          index
+                        ].paid.toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

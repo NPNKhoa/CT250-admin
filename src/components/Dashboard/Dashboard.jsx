@@ -1,32 +1,144 @@
+import { useEffect, useState } from 'react';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
-
-const statsData = [
-  {
-    title: 'Thu nhập',
-    value: '100.000.000đ',
-    description: 'Doanh thu hàng tháng',
-    color: 'text-pink-500',
-    icon: <LocalAtmIcon className="text-2xl text-white" />,
-  },
-  {
-    title: 'Tổng đơn hàng',
-    value: '1,339',
-    description: 'Hơn 35 lần bán hàng mới',
-    color: 'text-yellow-500',
-    icon: <NewspaperIcon className="text-2xl text-white" />,
-  },
-  {
-    title: 'Tổng khách hàng',
-    value: '1,354',
-    description: '30+ mới trong 7 ngày',
-    color: 'text-blue-500',
-    icon: <PersonOutlineIcon className="text-2xl text-white" />,
-  },
-];
+import statictisService from '../../services/statictis.service';
+// import { toast } from 'react-toastify';
 
 const Dashboard = () => {
+  const [totalRevenue, setTotalRevenue] = useState('0đ');
+  const [totalRevenueLastMonth, setTotalRevenueLastMonth] = useState('0đ');
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalOrdersLastMonth, setTotalOrdersLastMonth] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalUsersLastMonth, setTotalUsersLastMonth] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    const fetchTotalRevenue = async () => {
+      try {
+        const result = await statictisService.getMonthlyRevenue();
+        setTotalRevenue(result.totalRevenue);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng doanh thu:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTotalRevenueLastMonth = async () => {
+      try {
+        const result = await statictisService.getMonthlyRevenue(
+          currentMonth - 1,
+          currentYear,
+        );
+
+        setTotalRevenueLastMonth(result.totalRevenue);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng số doanh thu của tháng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTotalOrders = async () => {
+      try {
+        const result = await statictisService.getTotalOrdersByMonth();
+
+        setTotalOrders(result.totalOrdersByMonth);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng số đơn hàng của tháng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTotalOrdersLastMonth = async () => {
+      try {
+        const result = await statictisService.getTotalOrdersByMonth(
+          currentMonth - 1,
+          currentYear,
+        );
+
+        setTotalOrdersLastMonth(result.totalOrdersByMonth);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng số đơn hàng của tháng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTotalUsers = async () => {
+      try {
+        const result = await statictisService.getTotalUsers();
+        setTotalUsers(result.totalUsers);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng số tài khoản của tháng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTotalUsersLastMonth = async () => {
+      try {
+        const result = await statictisService.getTotalUsersByMonth(
+          currentMonth - 1,
+          currentYear,
+        );
+
+        setTotalUsersLastMonth(result.newAccountsCount);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng số đơn hàng của tháng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTotalUsers();
+    fetchTotalRevenueLastMonth();
+    fetchTotalUsersLastMonth();
+    fetchTotalOrdersLastMonth();
+    fetchTotalOrders();
+    fetchTotalRevenue();
+  }, [currentMonth, currentYear]);
+
+  const newUsers = totalUsers - totalUsersLastMonth;
+  const growthPercentageOrder =
+    totalOrdersLastMonth > 0
+      ? ((totalOrders - totalOrdersLastMonth) / totalOrdersLastMonth) * 100
+      : 100;
+  const growthPercentageRevenue =
+    totalOrdersLastMonth > 0
+      ? ((totalRevenue - totalRevenueLastMonth) / totalRevenueLastMonth) * 100
+      : 100;
+
+  const statsData = [
+    {
+      title: `Doanh thu tháng ${currentMonth}`,
+      value: loading ? 'Đang tải...' : `${totalRevenue.toLocaleString()}đ`,
+      description: `${growthPercentageRevenue >= 0 ? '+' : ''}${growthPercentageRevenue.toFixed(2)}% so với tháng trước`,
+      color: 'text-pink-500',
+      icon: <LocalAtmIcon className="text-2xl text-white" />,
+    },
+    {
+      title: 'Tổng đơn hàng',
+      value: loading ? 'Đang tải...' : totalOrders,
+      description: `+${growthPercentageOrder.toFixed(2)}% so với tháng trước`,
+      color: 'text-yellow-500',
+      icon: <NewspaperIcon className="text-2xl text-white" />,
+    },
+    {
+      title: 'Tổng khách hàng',
+      value: loading ? 'Đang tải...' : `${totalUsers} người dùng`,
+      description: `+${newUsers} so với tháng trước`,
+      color: 'text-blue-500',
+      icon: <PersonOutlineIcon className="text-2xl text-white" />,
+    },
+  ];
+
   return (
     <div className="bg-gray-50">
       {/* Header */}

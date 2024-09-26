@@ -27,6 +27,7 @@ import {
   StatPage,
   RevenueStatistic,
   OrderStatistic,
+  ProductStatistic,
 } from '../pages';
 
 export default [
@@ -58,7 +59,7 @@ export default [
       {
         label: 'Sản phẩm',
         path: '/product-stats',
-        element: <DeliveryPage />,
+        element: <ProductStatistic />,
       },
     ],
   },
