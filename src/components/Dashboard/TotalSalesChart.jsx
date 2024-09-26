@@ -5,12 +5,19 @@ import statictisService from '../../services/statictis.service';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const getSoftColor = () => {
-  const r = Math.floor(Math.random() * 127 + 128); // Giá trị đỏ (128-255) để giữ màu sáng
-  const g = Math.floor(Math.random() * 127 + 128); // Giá trị xanh lá
-  const b = Math.floor(Math.random() * 127 + 128); // Giá trị xanh dương
-  return `rgb(${r}, ${g}, ${b})`;
-};
+const softColors = [
+  'rgba(255, 99, 71, 0.6)',
+  'rgba(54, 162, 235, 0.6)',
+  'rgba(255, 99, 132, 0.6)',
+  'rgba(75, 192, 192, 0.6)',
+  'rgba(153, 102, 255, 0.6)',
+  'rgba(255, 159, 64, 0.6)',
+  'rgba(54, 235, 162, 0.6)',
+  'rgba(255, 86, 206, 0.6)',
+  'rgba(102, 153, 255, 0.6)',
+  'rgba(192, 75, 75, 0.6)',
+  'rgba(86, 255, 159, 0.6)',
+];
 
 const TotalSalesChart = () => {
   const [productData, setProductData] = useState([]);
@@ -23,11 +30,11 @@ const TotalSalesChart = () => {
         const response = await statictisService.getQuantityPerProductType();
         const data = response.data;
 
-        const formattedData = data.map((item) => ({
+        const formattedData = data.map((item, index) => ({
           label: item.productType,
           value: item.totalSold,
           percentage: `${item.percentage}%`,
-          chartColor: getSoftColor(), // Hàm để tạo màu ngẫu nhiên hoặc chọn màu phù hợp
+          chartColor: softColors[index % softColors.length], // Lấy màu từ softColors theo index
         }));
 
         setProductData(formattedData);
