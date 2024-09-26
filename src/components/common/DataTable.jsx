@@ -83,11 +83,8 @@ const DataTable = ({
 
   return (
     <Paper elevation={3} className="my-4">
-      <Toolbar className="p-4">
-        <h3
-          id="tableTitle"
-          className="text-3xl font-bold uppercase text-primary"
-        >
+      <Toolbar className="py-2">
+        <h3 id="tableTitle" className="text-2xl font-bold uppercase text-black">
           {title}
         </h3>
         {filterable && (
