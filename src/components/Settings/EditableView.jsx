@@ -112,7 +112,7 @@ const EditableView = () => {
         <div className="flex items-center justify-between">
           <Typography variant="h3">Banner hiện tại</Typography>
           <Button variant="contained" size="large">
-            Thêm Banner mới
+            Cập nhật banner
           </Button>
         </div>
         <span className="italic text-zinc-700 opacity-70">

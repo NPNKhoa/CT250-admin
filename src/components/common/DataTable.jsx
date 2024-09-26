@@ -60,8 +60,8 @@ const DataTable = ({
   const filteredData =
     data?.filter((row) =>
       Object.values(row).some((value) =>
-        String(value).toLowerCase().includes(filter.toLowerCase())
-      )
+        String(value).toLowerCase().includes(filter.toLowerCase()),
+      ),
     ) || [];
 
   const sortedData = filteredData.sort((a, b) => {
@@ -78,65 +78,70 @@ const DataTable = ({
 
   const paginatedData = sortedData.slice(
     page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+    page * rowsPerPage + rowsPerPage,
   );
 
   return (
-    <Paper elevation={3} className='my-4'>
-      <Toolbar>
+    <Paper elevation={3} className="my-4">
+      <Toolbar className="p-4">
         <h3
-          id='tableTitle'
-          className='uppercase font-semibold text-2xl text-sky-500'
+          id="tableTitle"
+          className="text-3xl font-bold uppercase text-primary"
         >
           {title}
         </h3>
         {filterable && (
           <TextField
-            variant='outlined'
-            margin='normal'
+            variant="outlined"
+            margin="normal"
             placeholder={'Lọc...'}
             onChange={handleFilterChange}
             value={filter}
             style={{ marginLeft: 'auto' }}
-            size='small'
+            size="small"
           />
         )}
       </Toolbar>
       <TableContainer>
         <Table>
           <TableHead>
-            <TableRow className='bg-sky-100'>
+            <TableRow className="bg-primary">
               {showIndex && (
-                <TableCell align='center'>
-                  <span className='font-semibold text-base'>#</span>
+                <TableCell align="center">
+                  <span className="text-base font-semibold text-white">#</span>
                 </TableCell>
               )}
               {columns.map((column) => (
                 <TableCell
                   align={column.type === 'text' ? 'left' : 'center'}
                   key={column.id}
-                  className='text-nowrap'
+                  className="text-nowrap"
                 >
                   {sortable ? (
                     <TableSortLabel
                       active={orderBy === column.id}
                       direction={orderBy === column.id ? order : 'asc'}
+                      sx={{
+                        color: 'white',
+                      }}
                       onClick={() => handleRequestSort(column.id)}
                     >
-                      <span className='font-semibold text-base'>
+                      <span className="text-base font-semibold text-white">
                         {column.label}
                       </span>
                     </TableSortLabel>
                   ) : (
-                    <span className='font-semibold text-base'>
+                    <span className="text-base font-semibold text-white">
                       {column.label}
                     </span>
                   )}
                 </TableCell>
               ))}
               {Object.values(actions).some((value) => value) && (
-                <TableCell align='center' className='text-nowrap'>
-                  <span className='font-semibold text-base'>Thao tác</span>
+                <TableCell align="center" className="text-nowrap">
+                  <span className="text-base font-semibold text-white">
+                    Thao tác
+                  </span>
                 </TableCell>
               )}
             </TableRow>
@@ -155,9 +160,9 @@ const DataTable = ({
                     >
                       {column.type === 'boolean' ? (
                         row[column.id] ? (
-                          <CheckCircleIcon color='success' />
+                          <CheckCircleIcon color="success" />
                         ) : (
-                          <CancelIcon color='error' />
+                          <CancelIcon color="error" />
                         )
                       ) : column.type === 'image' ? (
                         <img
@@ -173,18 +178,18 @@ const DataTable = ({
                     </TableCell>
                   ))}
                   {Object.values(actions).some((value) => value) && (
-                    <TableCell align='center' className='text-nowrap'>
+                    <TableCell align="center" className="text-nowrap">
                       {actions.view && onView && (
                         <Tooltip title={'Xem'}>
                           <IconButton onClick={() => onView(row)}>
-                            <VisibilityIcon color='info' />
+                            <VisibilityIcon color="info" />
                           </IconButton>
                         </Tooltip>
                       )}
                       {actions.delete && onDelete && (
                         <Tooltip title={'Xóa'}>
                           <IconButton onClick={() => onDelete(row)}>
-                            <DeleteIcon color='info' />
+                            <DeleteIcon color="error" />
                           </IconButton>
                         </Tooltip>
                       )}
@@ -200,9 +205,9 @@ const DataTable = ({
                     (showIndex ? 1 : 0) +
                     (Object.values(actions).some((value) => value) ? 1 : 0)
                   }
-                  align='center'
+                  align="center"
                 >
-                  <span className='text-xl font-semibold'>
+                  <span className="text-xl font-semibold">
                     {'Không có dữ liệu'}
                   </span>
                 </TableCell>
@@ -213,7 +218,7 @@ const DataTable = ({
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={pagination.rowsPerPageOptions}
-        component='div'
+        component="div"
         count={filteredData.length}
         rowsPerPage={rowsPerPage}
         page={page}
@@ -231,7 +236,7 @@ DataTable.propTypes = {
       id: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       type: PropTypes.string,
-    })
+    }),
   ).isRequired,
   data: PropTypes.arrayOf(PropTypes.object),
   sortable: PropTypes.bool,
@@ -245,8 +250,8 @@ DataTable.propTypes = {
     defaultRowsPerPage: PropTypes.number,
   }),
   showIndex: PropTypes.bool,
-  onDelete: PropTypes.func,
-  onView: PropTypes.func,
+  onDelete: PropTypes.func.isRequired,
+  onView: PropTypes.func.isRequired,
 };
 
 export default DataTable;

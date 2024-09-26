@@ -3,12 +3,15 @@ import ReadOnlyView from '../components/Settings/ReadOnlyView';
 import { Switch, Typography } from '@mui/material';
 import { useEditMode } from '../hooks/useEditMode';
 import { EditModeProvider } from '../contexts/EditModeContext';
-import { useState } from 'react';
-import { useBeforeUnload } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useBeforeUnload, useNavigate } from 'react-router-dom';
 
 const SettingsPage = () => {
   const { isEditable, toggleEditMode } = useEditMode();
   const [shouldAlert, setShouldAlert] = useState(false);
+
+  const navigate = useNavigate();
+  const originalPushStateRef = useRef(null);
 
   const handleChangeEditMode = () => {
     if (isEditable && shouldAlert) {
@@ -30,6 +33,45 @@ const SettingsPage = () => {
       e.returnValue = 'Chắc chưa bạn êiii...';
     }
   });
+
+  const handleBlockedNavigation = useCallback(
+    (path) => {
+      if (shouldAlert) {
+        const confirmWindow = window.confirm('Chắc chưa bạn êiii');
+        console.log(confirmWindow);
+        if (confirmWindow) {
+          setShouldAlert(false);
+          window.history.pushState = originalPushStateRef.current;
+          navigate(path);
+          return true;
+        }
+        return false;
+      }
+      return true;
+    },
+    [navigate, shouldAlert],
+  );
+
+  useEffect(() => {
+    if (shouldAlert) {
+      originalPushStateRef.current = window.history.pushState;
+
+      window.history.pushState = function () {
+        if (handleBlockedNavigation(arguments[2])) {
+          originalPushStateRef.current.apply(this, arguments);
+        }
+      };
+
+      window.addEventListener('popstate', handleBlockedNavigation);
+    }
+
+    return () => {
+      if (shouldAlert) {
+        window.history.pushState = originalPushStateRef.current;
+        window.removeEventListener('popstate', handleBlockedNavigation);
+      }
+    };
+  }, [shouldAlert, handleBlockedNavigation, navigate]);
 
   return (
     <div>
