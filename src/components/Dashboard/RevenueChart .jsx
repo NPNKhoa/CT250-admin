@@ -166,7 +166,7 @@ const RevenueChart = () => {
       {loading ? (
         <p>Đang tải dữ liệu...</p>
       ) : (
-        <Bar data={barData} options={barOptions} />
+        <Bar data={barData} options={barOptions} height={180} />
       )}
 
       {/* <p className="mt-4 text-sm text-gray-500">(+63%) so với năm ngoái</p> */}
