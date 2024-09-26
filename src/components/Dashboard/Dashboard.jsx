@@ -3,6 +3,7 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import statictisService from '../../services/statictis.service';
+import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 // import { toast } from 'react-toastify';
 
 const Dashboard = () => {
@@ -118,7 +119,7 @@ const Dashboard = () => {
   const statsData = [
     {
       title: `Doanh thu tháng ${currentMonth}`,
-      value: loading ? 'Đang tải...' : `${totalRevenue.toLocaleString()}đ`,
+      value: loading ? 'Đang tải...' : toVietnamCurrencyFormat(totalRevenue),
       description: `${growthPercentageRevenue >= 0 ? '+' : ''}${growthPercentageRevenue.toFixed(2)}% so với tháng trước`,
       color: 'text-pink-500',
       icon: <LocalAtmIcon className="text-2xl text-white" />,

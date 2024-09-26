@@ -1,3 +1,4 @@
+import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 import DataTable from '../common/DataTable';
 
 const columns = [
@@ -35,7 +36,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD001',
       productName: 'Vợt cầu lông',
       orderDate: '2024-09-01',
-      price: 120000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đã giao',
     },
     {
@@ -43,7 +44,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD002',
       productName: 'Balo',
       orderDate: '2024-09-03',
-      price: 80000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đang vận chuyển',
     },
     {
@@ -51,7 +52,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD003',
       productName: 'Túi xách',
       orderDate: '2024-09-05',
-      price: 50000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đã hủy',
     },
     {
@@ -59,7 +60,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD004',
       productName: 'Vợt tennis',
       orderDate: '2024-09-07',
-      price: 200000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đã giao',
     },
     {
@@ -67,7 +68,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD004',
       productName: 'Vợt tennis',
       orderDate: '2024-09-07',
-      price: 200000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đã giao',
     },
     {
@@ -75,7 +76,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD001',
       productName: 'Vợt cầu lông',
       orderDate: '2024-09-01',
-      price: 120000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đã giao',
     },
     {
@@ -83,7 +84,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD002',
       productName: 'Balo',
       orderDate: '2024-09-03',
-      price: 80000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đang vận chuyển',
     },
     {
@@ -91,7 +92,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD003',
       productName: 'Túi xách',
       orderDate: '2024-09-05',
-      price: 50000,
+      price: toVietnamCurrencyFormat(500000),
       status: 'Đã hủy',
     },
     {
@@ -99,7 +100,7 @@ const RecentOrders = () => {
       orderNumber: 'ORD004',
       productName: 'Vợt tennis',
       orderDate: '2024-09-07',
-      price: 200000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đã giao',
     },
     {
@@ -107,13 +108,13 @@ const RecentOrders = () => {
       orderNumber: 'ORD004',
       productName: 'Vợt tennis',
       orderDate: '2024-09-07',
-      price: 200000,
+      price: toVietnamCurrencyFormat(200000),
       status: 'Đã giao',
     },
   ];
 
   return (
-    <div className="container mx-auto mt-5 px-4">
+    <div className="container mx-auto mt-5">
       <DataTable
         title={'Đơn hàng gần nhất'}
         columns={columns}

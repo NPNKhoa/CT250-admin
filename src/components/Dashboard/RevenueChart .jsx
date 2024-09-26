@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import statictisService from '../../services/statictis.service';
+import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 
 ChartJS.register(
   CategoryScale,
@@ -109,7 +110,7 @@ const RevenueChart = () => {
           label: (context) => {
             const label = context.dataset.label || '';
             const value = context.raw;
-            return `${label}: ₫${value.toLocaleString()}`;
+            return `${label}: ${toVietnamCurrencyFormat(value)}`;
           },
         },
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -138,7 +139,7 @@ const RevenueChart = () => {
           font: {
             size: 12,
           },
-          callback: (value) => `₫${value.toLocaleString()}`,
+          callback: (value) => ` ${toVietnamCurrencyFormat(value)}`,
         },
       },
     },

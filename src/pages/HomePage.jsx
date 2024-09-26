@@ -10,12 +10,12 @@ const HomePage = () => {
         <Dashboard />
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="col-span-2 flex flex-col">
-            <div className="flex-1">
+            <div className="h-full flex-1">
               <RevenueChart />
             </div>
           </div>
           <div className="col-span-1 flex flex-col">
-            <div className="flex-1">
+            <div className="h-full flex-1">
               <TotalSalesChart />
             </div>
           </div>
