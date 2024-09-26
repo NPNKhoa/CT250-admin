@@ -90,5 +90,15 @@ class StatictisService {
       throw error;
     }
   }
+
+  async getAllOrders(params) {
+    try {
+      const response = await this.api.get('/lastedorders', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy tất cả đơn hàng:', error);
+      throw error;
+    }
+  }
 }
 export default new StatictisService();
