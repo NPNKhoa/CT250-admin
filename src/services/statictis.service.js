@@ -1,6 +1,6 @@
 import createApiClient from './api1.service';
 
-class CartService {
+class StatictisService {
   constructor(path = '/stat') {
     this.api = createApiClient(path);
   }
@@ -80,5 +80,15 @@ class CartService {
       throw error;
     }
   }
+
+  async getQuantityPerProductType() {
+    try {
+      const response = await this.api.get(`/quantityperproducttype`);
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy số lượng từng loại sản phẩm', error);
+      throw error;
+    }
+  }
 }
-export default new CartService();
+export default new StatictisService();
