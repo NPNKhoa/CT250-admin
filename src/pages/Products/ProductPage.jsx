@@ -1,176 +1,75 @@
 import { useState } from 'react';
-import { Trash2, Pencil, CirclePlus } from 'lucide-react';
+import { Trash2, Pencil, CirclePlus, Delete, Import } from 'lucide-react';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ProductPopup from '../../components/Product/ProductPopup';
 
-const ProductTable = () => {
+const products = [
+  {
+    image:
+      'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
+    name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
+    type: 'Túi vợt cầu lông',
+    brand: 'Kason',
+    price: 18.0,
+  },
+  {
+    image:
+      'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
+    name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
+    type: 'Túi vợt cầu lông',
+    brand: 'Kason',
+    price: 24.0,
+  },
+  // Add more products here...
+];
+
+const ProductPage = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState(null);
-  const [sortOrder, setSortOrder] = useState('asc');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [sortConfig, setSortConfig] = useState({ field: null, order: 'asc' });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    itemsPerPage: 5,
+  });
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const products = [
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-      name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 18.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-      name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 24.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-      name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 18.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-      name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 24.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-      name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 18.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-      name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 24.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-      name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 18.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-      name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 24.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-      name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 18.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-      name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 24.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-      name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 18.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-      name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 24.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-      name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 18.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-      name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 24.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-      name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 18.0,
-    },
-    {
-      image:
-        'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-      name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-      type: 'Túi vợt cầu lông',
-      brand: 'Kason',
-      price: 24.0,
-    },
-    // Add more products here...
-  ];
+  const open = Boolean(anchorEl);
 
   const handleSelectProduct = (index) => {
-    const newSelectedProducts = [...selectedProducts];
-    if (newSelectedProducts.includes(index)) {
-      const indexToRemove = newSelectedProducts.indexOf(index);
-      newSelectedProducts.splice(indexToRemove, 1);
-    } else {
-      newSelectedProducts.push(index);
-    }
-    setSelectedProducts(newSelectedProducts);
+    setSelectedProducts((prevSelected) =>
+      prevSelected.includes(index)
+        ? prevSelected.filter((i) => i !== index)
+        : [...prevSelected, index],
+    );
   };
 
   const handleSelectAll = () => {
-    if (selectedProducts.length === products.length) {
-      setSelectedProducts([]);
-    } else {
-      setSelectedProducts(products.map((_, index) => index));
-    }
+    setSelectedProducts((prevSelected) =>
+      prevSelected.length === products.length
+        ? []
+        : products.map((_, index) => index),
+    );
   };
 
   const handleSort = (field) => {
-    const newSortOrder =
-      sortField === field && sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortField(field);
-    setSortOrder(newSortOrder);
+    setSortConfig((prevSortConfig) => ({
+      field,
+      order:
+        prevSortConfig.field === field && prevSortConfig.order === 'asc'
+          ? 'desc'
+          : 'asc',
+    }));
   };
 
   const sortedProducts = [...products].sort((a, b) => {
-    if (!sortField) return 0;
-    if (a[sortField] < b[sortField]) return sortOrder === 'asc' ? -1 : 1;
-    if (a[sortField] > b[sortField]) return sortOrder === 'asc' ? 1 : -1;
+    if (!sortConfig.field) return 0;
+    if (a[sortConfig.field] < b[sortConfig.field])
+      return sortConfig.order === 'asc' ? -1 : 1;
+    if (a[sortConfig.field] > b[sortConfig.field])
+      return sortConfig.order === 'asc' ? 1 : -1;
     return 0;
   });
 
@@ -181,8 +80,7 @@ const ProductTable = () => {
       product.brand.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const optionNumbers = [5, 10];
-
+  const { currentPage, itemsPerPage } = pagination;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredProducts.slice(
@@ -193,18 +91,109 @@ const ProductTable = () => {
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
+      setPagination((prevPagination) => ({
+        ...prevPagination,
+        currentPage: pageNumber,
+      }));
     }
   };
 
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      console.error('No file selected');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const fileContent = event.target.result;
+      try {
+        if (file.type === 'application/json') {
+          const data = JSON.parse(fileContent);
+          console.log(data); // Handle JSON data
+        } else if (file.type === 'text/csv') {
+          const data = fileContent.split('\n').map((row) => row.split(','));
+          console.log(data); // Handle CSV data
+        }
+      } catch (err) {
+        console.error('Error reading file:', err);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
-    <div className="p-4">
+    <div className="p-2">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Sản phẩm</h1>
-        <button className="flex items-center rounded bg-green-600 px-4 py-2 text-white">
-          <CirclePlus strokeWidth={1} className="mr-2" />
-          <span>Thêm sản phẩm</span>
-        </button>
+        <div className="ml-auto flex space-x-2">
+          <div>
+            <button
+              className="flex items-center rounded bg-green-600 px-4 py-2 text-white"
+              onClick={handleClick}
+            >
+              <CirclePlus strokeWidth={1} className="mr-2" />
+              <span>Thêm</span>
+            </button>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              <MenuItem onClick={handleClose}>
+                <label
+                  htmlFor="file-upload"
+                  className="flex cursor-pointer items-center"
+                >
+                  <Import strokeWidth={1} className="mr-2" />
+                  <span>Import từ file JSON hoặc CSV</span>
+                </label>
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  setSelectedProduct(null);
+                  setIsPopupOpen(true);
+                }}
+              ></MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  setIsPopupOpen(true);
+                }}
+              >
+                <CirclePlus strokeWidth={1} className="mr-2" />
+                <span>Thêm sản phẩm</span>
+              </MenuItem>
+            </Menu>
+            <input
+              id="file-upload"
+              type="file"
+              accept=".json, .csv"
+              style={{ display: 'none' }}
+              onChange={handleFileUpload}
+            />
+          </div>
+          <button
+            className="flex items-center rounded bg-red-600 px-4 py-2 text-white"
+            onClick={() => alert('Xoa')}
+          >
+            <Delete strokeWidth={1} className="mr-2" />
+            <span>Xóa</span>
+          </button>
+        </div>
       </div>
 
       <div className="mb-4 flex items-center justify-between">
@@ -220,9 +209,14 @@ const ProductTable = () => {
           <select
             className="w-20 rounded-lg border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-0 focus:ring-blue-500"
             value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(Number(e.target.value))}
+            onChange={(e) =>
+              setPagination({
+                ...pagination,
+                itemsPerPage: Number(e.target.value),
+              })
+            }
           >
-            {optionNumbers.map((number) => (
+            {[5, 10].map((number) => (
               <option key={number} value={number}>
                 {number}
               </option>
@@ -234,8 +228,8 @@ const ProductTable = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed bg-white">
           <thead>
-            <tr className="text-left">
-              <th className="w-10 px-4 py-2">
+            <tr>
+              <th className="w-2 p-2 text-center">
                 <input
                   className="h-4 w-4"
                   type="checkbox"
@@ -243,58 +237,69 @@ const ProductTable = () => {
                   checked={selectedProducts.length === products.length}
                 />
               </th>
-              <th className="w-24 px-4 py-2">Hình ảnh</th>
+              <th className="w-24 p-2 text-center">Hình ảnh</th>
               <th
-                className="w-48 cursor-pointer whitespace-nowrap px-4 py-2"
+                className="w-56 cursor-pointer whitespace-nowrap p-2 text-center"
                 onClick={() => handleSort('name')}
               >
-                <div className="flex items-center justify-between text-nowrap">
+                <div className="flex justify-between">
                   <span>Tên sản phẩm</span>
-                  {sortField === 'name' && (
-                    <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                  {sortConfig.field === 'name' && (
+                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
               </th>
               <th
-                className="w-32 cursor-pointer whitespace-nowrap px-4 py-2"
+                className="w-40 cursor-pointer whitespace-nowrap p-2 text-center"
                 onClick={() => handleSort('type')}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between">
                   <span>Loại sản phẩm</span>
-                  {sortField === 'type' && (
-                    <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                  {sortConfig.field === 'type' && (
+                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
               </th>
               <th
-                className="w-32 cursor-pointer whitespace-nowrap px-4 py-2"
+                className="w-40 cursor-pointer whitespace-nowrap p-2 text-center"
                 onClick={() => handleSort('brand')}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between">
                   <span>Thương hiệu</span>
-                  {sortField === 'brand' && (
-                    <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                  {sortConfig.field === 'brand' && (
+                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
               </th>
               <th
-                className="w-20 cursor-pointer whitespace-nowrap px-4 py-2"
-                onClick={() => handleSort('price')}
+                className="w-32 cursor-pointer whitespace-nowrap p-2 text-center"
+                onClick={() => handleSort('quantity')}
               >
-                <div className="flex items-center justify-between">
-                  <span>Giá</span>
-                  {sortField === 'price' && (
-                    <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                <div className="flex justify-between">
+                  <span>Số lượng</span>
+                  {sortConfig.field === 'quantity' && (
+                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
               </th>
-              <th className="w-24 px-4 py-2">Hành động</th>
+              <th
+                className="w-20 cursor-pointer whitespace-nowrap p-2 text-center"
+                onClick={() => handleSort('price')}
+              >
+                <div className="flex justify-between">
+                  <span>Giá</span>
+                  {sortConfig.field === 'price' && (
+                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
+                  )}
+                </div>
+              </th>
+              <th className="w-32 p-2 text-center">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {currentItems.map((product, index) => (
               <tr key={index} className="border-t">
-                <td className="px-4 py-2">
+                <td className="p-2 text-center">
                   <input
                     className="h-4 w-4"
                     type="checkbox"
@@ -302,21 +307,25 @@ const ProductTable = () => {
                     checked={selectedProducts.includes(index)}
                   />
                 </td>
-                <td className="px-4 py-2">
+                <td className="p-2 text-center">
                   <img
                     src={product.image}
                     alt={product.name}
                     className="h-12 w-12 object-contain"
                   />
                 </td>
-                <td className="px-4 py-2">{product.name}</td>
-                <td className="px-4 py-2">{product.type}</td>
-                <td className="px-4 py-2">{product.brand}</td>
-                <td className="px-4 py-2">${product.price.toFixed(2)}</td>
-                <td className="px-4 py-2">
+                <td className="p-2">{product.name}</td>
+                <td className="p-2 text-center">{product.type}</td>
+                <td className="p-2 text-center">{product.brand}</td>
+                <td className="p-2 text-center">{product.quantity || 0}</td>
+                <td className="p-2 text-center">${product.price.toFixed(2)}</td>
+                <td className="p-2 text-center">
                   <button
                     className="mx-2"
-                    onClick={() => alert('Thêm sản phẩm')}
+                    // onClick={() => {
+                    //   setSelectedProduct(product);
+                    //   setIsPopupOpen(true);
+                    // }}
                   >
                     <Pencil strokeWidth={1} color="green" />
                   </button>
@@ -355,8 +364,13 @@ const ProductTable = () => {
           </div>
         </div>
       </div>
+      <ProductPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        product={selectedProduct}
+      />
     </div>
   );
 };
 
-export default ProductTable;
+export default ProductPage;
