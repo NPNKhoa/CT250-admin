@@ -1,28 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Trash2, Pencil, CirclePlus, Delete, Import } from 'lucide-react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ProductPopup from '../../components/Product/ProductPopup';
-
-const products = [
-  {
-    image:
-      'https://cdn.shopvnb.com/uploads/san_pham/tui-vot-cau-long-kason-qbt1333-2010-1.webp',
-    name: 'Túi Vợt Cầu Lông Kason QBT1333-2010',
-    type: 'Túi vợt cầu lông',
-    brand: 'Kason',
-    price: 18.0,
-  },
-  {
-    image:
-      'https://cdn.shopvnb.com/uploads/san_pham/tui-dung-vot-cau-long-kason-fbjk022-2000-do-3.webp',
-    name: 'Túi Đựng Vợt Cầu Lông Kason FBJK022-2000 Đỏ',
-    type: 'Túi vợt cầu lông',
-    brand: 'Kason',
-    price: 24.0,
-  },
-  // Add more products here...
-];
+import productsService from '../../services/products.service';
+import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 
 const ProductPage = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -35,14 +17,29 @@ const ProductPage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const open = Boolean(anchorEl);
 
-  const handleSelectProduct = (index) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await productsService.getProducts();
+        setProducts(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách sản phẩm:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleSelectProduct = (id) => {
     setSelectedProducts((prevSelected) =>
-      prevSelected.includes(index)
-        ? prevSelected.filter((i) => i !== index)
-        : [...prevSelected, index],
+      prevSelected.includes(id)
+        ? prevSelected.filter((i) => i !== id)
+        : [...prevSelected, id],
     );
   };
 
@@ -50,7 +47,7 @@ const ProductPage = () => {
     setSelectedProducts((prevSelected) =>
       prevSelected.length === products.length
         ? []
-        : products.map((_, index) => index),
+        : products.map((product) => product._id),
     );
   };
 
@@ -64,6 +61,38 @@ const ProductPage = () => {
     }));
   };
 
+  const handleDelete = async (id, deletemany = false) => {
+    if (!deletemany) {
+      const isConfirmed = window.confirm(
+        'Bạn có chắc chắn muốn xóa sản phẩm này không?',
+      );
+      if (!isConfirmed) {
+        return;
+      }
+    }
+
+    try {
+      await productsService.deleteProduct(id);
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product._id !== id),
+      );
+    } catch (error) {
+      console.error('Lỗi khi xóa sản phẩm:', error);
+    }
+  };
+
+  const handleDeleteMany = (ids) => {
+    const isConfirmed = window.confirm(
+      'Bạn có chắc chắn muốn xóa những sản phẩm đã chọn không?',
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    ids.forEach((id) => {
+      handleDelete(id, true);
+    });
+  };
+
   const sortedProducts = [...products].sort((a, b) => {
     if (!sortConfig.field) return 0;
     if (a[sortConfig.field] < b[sortConfig.field])
@@ -75,9 +104,13 @@ const ProductPage = () => {
 
   const filteredProducts = sortedProducts.filter(
     (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brand.toLowerCase().includes(searchTerm.toLowerCase()),
+      product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.productTypeDetails.productTypeName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      product.brandDetails.brandName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()),
   );
 
   const { currentPage, itemsPerPage } = pagination;
@@ -112,13 +145,26 @@ const ProductPage = () => {
       console.error('No file selected');
       return;
     }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const fileContent = event.target.result;
       try {
         if (file.type === 'application/json') {
           const data = JSON.parse(fileContent);
-          console.log(data); // Handle JSON data
+          const addAllProducts = async (data) => {
+            try {
+              const promises = data.map((product) =>
+                productsService.createProduct(product),
+              );
+              await Promise.all(promises);
+              console.log('All products added successfully');
+            } catch (error) {
+              console.error('Error adding products:', error);
+            }
+          };
+
+          addAllProducts(data);
         } else if (file.type === 'text/csv') {
           const data = fileContent.split('\n').map((row) => row.split(','));
           console.log(data); // Handle CSV data
@@ -127,6 +173,7 @@ const ProductPage = () => {
         console.error('Error reading file:', err);
       }
     };
+
     reader.readAsText(file);
   };
 
@@ -188,10 +235,13 @@ const ProductPage = () => {
           </div>
           <button
             className="flex items-center rounded bg-red-600 px-4 py-2 text-white"
-            onClick={() => alert('Xoa')}
+            onClick={() => handleDeleteMany(selectedProducts)}
           >
             <Delete strokeWidth={1} className="mr-2" />
-            <span>Xóa</span>
+            <span>
+              Xóa{' '}
+              {selectedProducts.length > 0 && `(${selectedProducts.length})`}
+            </span>
           </button>
         </div>
       </div>
@@ -240,33 +290,33 @@ const ProductPage = () => {
               <th className="w-24 p-2 text-center">Hình ảnh</th>
               <th
                 className="w-56 cursor-pointer whitespace-nowrap p-2 text-center"
-                onClick={() => handleSort('name')}
+                onClick={() => handleSort('productName')}
               >
                 <div className="flex justify-between">
                   <span>Tên sản phẩm</span>
-                  {sortConfig.field === 'name' && (
+                  {sortConfig.field === 'productName' && (
                     <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
               </th>
               <th
                 className="w-40 cursor-pointer whitespace-nowrap p-2 text-center"
-                onClick={() => handleSort('type')}
+                onClick={() => handleSort('productType')}
               >
                 <div className="flex justify-between">
                   <span>Loại sản phẩm</span>
-                  {sortConfig.field === 'type' && (
+                  {sortConfig.field === 'productType' && (
                     <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
               </th>
               <th
                 className="w-40 cursor-pointer whitespace-nowrap p-2 text-center"
-                onClick={() => handleSort('brand')}
+                onClick={() => handleSort('productBrand')}
               >
                 <div className="flex justify-between">
                   <span>Thương hiệu</span>
-                  {sortConfig.field === 'brand' && (
+                  {sortConfig.field === 'productBrand' && (
                     <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
@@ -303,22 +353,28 @@ const ProductPage = () => {
                   <input
                     className="h-4 w-4"
                     type="checkbox"
-                    onChange={() => handleSelectProduct(index)}
-                    checked={selectedProducts.includes(index)}
+                    onChange={() => handleSelectProduct(product._id)}
+                    checked={selectedProducts.includes(product._id)}
                   />
                 </td>
                 <td className="p-2 text-center">
                   <img
-                    src={product.image}
-                    alt={product.name}
+                    src={product.productImagePath[0]}
+                    alt={product.productName}
                     className="h-12 w-12 object-contain"
                   />
                 </td>
-                <td className="p-2">{product.name}</td>
-                <td className="p-2 text-center">{product.type}</td>
-                <td className="p-2 text-center">{product.brand}</td>
-                <td className="p-2 text-center">{product.quantity || 0}</td>
-                <td className="p-2 text-center">${product.price.toFixed(2)}</td>
+                <td className="p-2">{product.productName}</td>
+                <td className="p-2 text-center">
+                  {product.productTypeDetails.productTypeName}
+                </td>
+                <td className="p-2 text-center">
+                  {product.brandDetails.brandName}
+                </td>
+                <td className="p-2 text-center">{product.countInStock || 0}</td>
+                <td className="p-2 text-center">
+                  {toVietnamCurrencyFormat(product.price)}
+                </td>
                 <td className="p-2 text-center">
                   <button
                     className="mx-2"
@@ -331,7 +387,7 @@ const ProductPage = () => {
                   </button>
                   <button
                     className="mx-2"
-                    onClick={() => alert('Xóa sản phẩm')}
+                    onClick={() => handleDelete(product._id)}
                   >
                     <Trash2 strokeWidth={1} color="red" />
                   </button>
@@ -369,6 +425,11 @@ const ProductPage = () => {
         onClose={() => setIsPopupOpen(false)}
         product={selectedProduct}
       />
+      {loading && (
+        <div className="flex h-16 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-dotted border-blue-400"></div>
+        </div>
+      )}
     </div>
   );
 };
