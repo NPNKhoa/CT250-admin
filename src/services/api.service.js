@@ -13,7 +13,7 @@ class ApiService {
     const options = {
       method,
       headers: {
-        Authorization: accessToken ? `Bear ${accessToken}` : '',
+        Authorization: accessToken ? `Bearer ${accessToken}` : '',
         ...headers,
       },
     };
@@ -21,7 +21,7 @@ class ApiService {
     if (body instanceof FormData) {
       options.body = body;
       delete options.headers['Content-Type'];
-    } else {
+    } else if (body && method !== 'GET' && method !== 'HEAD') {
       options.body = JSON.stringify(body);
       options.headers['Content-Type'] = 'application/json';
     }
@@ -101,7 +101,7 @@ class ApiService {
     if (body instanceof FormData) {
       options.body = body;
       delete options.headers['Content-Type'];
-    } else {
+    } else if (body && method !== 'GET' && method !== 'HEAD') {
       options.body = JSON.stringify(body);
       options.headers['Content-Type'] = 'application/json';
     }
@@ -131,8 +131,8 @@ class ApiService {
   }
 
   delete(endpoint, headers = {}) {
-    return this.request(endpoint, 'DELETE', headers);
+    return this.request(endpoint, 'DELETE', null, headers);
   }
 }
 
-export default new ApiService();
+export default ApiService;
