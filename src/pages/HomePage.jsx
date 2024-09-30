@@ -8,9 +8,9 @@ const HomePage = () => {
     <>
       <div className="px-6">
         <Dashboard />
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-6">
           <div className="col-span-2 flex flex-col">
-            <div className="h-full flex-1">
+            <div className="h-full">
               <RevenueChart />
             </div>
           </div>
