@@ -110,30 +110,35 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
     const oldImageUrls = product.productImagePath.filter(
       (url) => !url.startsWith('blob:'),
     );
-    setProduct((prevProduct) => ({
-      ...prevProduct,
-      productImagePath: [...oldImageUrls, ...uploadedImageUrls],
-    }));
 
-    handleProduct();
+    setProduct((prevProduct) => {
+      const updatedProduct = {
+        ...prevProduct,
+        productImagePath: [...oldImageUrls, ...uploadedImageUrls],
+      };
+
+      handleProduct(updatedProduct);
+
+      return updatedProduct;
+    });
 
     onClose();
   };
 
-  const handleProduct = async () => {
+  const handleProduct = async (updatedProduct) => {
     try {
       if (productData) {
-        await productsService.updateProduct(product._id, product);
+        await productsService.updateProduct(updatedProduct._id, updatedProduct);
         toast.success('Cập nhật sản phẩm thành công');
       } else {
-        await productsService.createProduct(product);
+        await productsService.createProduct(updatedProduct);
         toast.success('Thêm sản phẩm thành công');
       }
     } catch (error) {
       toast.error('Có lỗi xảy ra khi thêm sản phẩm');
       console.error(error);
     }
-  }
+  };
 
   console.log(product);
 
@@ -166,7 +171,7 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
         sx={{ maxHeight: '90vh' }}
       >
         <h1 className="mb-2 text-center text-2xl font-bold">
-        {productData ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
+          {productData ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}
         </h1>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -195,8 +200,9 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
                 product.productImagePath.map((imagePath, index) => (
                   <Box key={index} className="mb-2 mr-2">
                     <img
-                       src={
-                        imagePath.startsWith('http') || imagePath.startsWith('blob:')
+                      src={
+                        imagePath.startsWith('http') ||
+                        imagePath.startsWith('blob:')
                           ? imagePath
                           : `http://localhost:5000/${imagePath.replace(/\\/g, '/')}`
                       }
@@ -341,7 +347,7 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
               Hủy
             </Button>
             <Button variant="contained" color="primary" type="submit">
-            {productData ? "Cập nhật" : "Thêm"}
+              {productData ? 'Cập nhật' : 'Thêm'}
             </Button>
           </Box>
         </form>
