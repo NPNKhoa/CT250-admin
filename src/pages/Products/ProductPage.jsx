@@ -4,12 +4,15 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import ProductPopup from '../../components/Popup/ProductPopup';
-import productsService from '../../services/products.service';
 import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 import AlertDialog from '../../components/common/AlertDialog';
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProducts, deleteProduct, createProduct } from '../../redux/thunk/productThunk';
 
 const ProductPage = () => {
+  const dispatch = useDispatch();
+  const { products} = useSelector(state => state.product);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ field: null, order: 'asc' });
@@ -20,7 +23,6 @@ const ProductPage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const open = Boolean(anchorEl);
@@ -30,18 +32,10 @@ const ProductPage = () => {
   const [action, setAction] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await productsService.getProducts();
-        setProducts(data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách sản phẩm:', error);
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    setLoading(true);
+    dispatch(getProducts());
+    setLoading(false);
+  }, [dispatch]);
 
   const handleSelectProduct = (id) => {
     setSelectedProducts((prevSelected) =>
@@ -74,10 +68,7 @@ const ProductPage = () => {
     setOpenAlert(true);
     setAction(() => async () => {
       try {
-        await productsService.deleteProduct(id);
-        setProducts((prevProducts) =>
-          prevProducts.filter((product) => product._id !== id),
-        );
+        await dispatch(deleteProduct(id));
         toast.success('Xóa sản phẩm thành công');
       } catch (error) {
         console.error('Lỗi khi xóa sản phẩm:', error);
@@ -94,10 +85,7 @@ const ProductPage = () => {
     setOpenAlert(true);
     setAction(() => async () => {
       try {
-        await Promise.all(ids.map(id => productsService.deleteProduct(id)));
-        setProducts((prevProducts) =>
-          prevProducts.filter((product) => !ids.includes(product._id))
-        );
+        await Promise.all(ids.map(id => dispatch(deleteProduct(id))));
         setSelectedProducts([]);
         toast.success('Xóa sản phẩm thành công');
       } catch (error) {
@@ -168,7 +156,7 @@ const ProductPage = () => {
           const addAllProducts = async (data) => {
             try {
               const promises = data.map((product) =>
-                productsService.createProduct(product),
+                dispatch(createProduct(product)),
               );
               await Promise.all(promises);
               console.log('All products added successfully');
@@ -380,10 +368,10 @@ const ProductPage = () => {
                 </td>
                 <td className="p-2">{product.productName}</td>
                 <td className="p-2 text-center">
-                  {product.productTypeDetails.productTypeName}
+                  {product.productTypeDetails?.productTypeName || product.productType?.productTypeName}
                 </td>
                 <td className="p-2 text-center">
-                  {product.brandDetails.brandName}
+                  {product.brandDetails?.brandName || product.productBrand?.brandName}
                 </td>
                 <td className="p-2 text-center">{product.countInStock || 0}</td>
                 <td className="p-2 text-center">
