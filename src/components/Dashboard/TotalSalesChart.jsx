@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import statictisService from '../../services/statictis.service';
+import TopSellingProduct from './topSellingProduct';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -87,11 +88,11 @@ const TotalSalesChart = () => {
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-lg">
-      <h2 className="mb-4 text-2xl font-bold text-gray-800">
-        Tổng doanh số sản phẩm
-      </h2>
-      <div className="grid grid-cols-3">
+      <div className="grid gap-5">
         <div className="">
+          <h2 className="mb-4 text-2xl font-bold text-gray-800">
+            Tổng doanh số sản phẩm
+          </h2>
           <div className="relative flex h-[260px] w-full justify-center">
             <Doughnut data={doughnutData} options={doughnutOptions} />
             <div className="absolute top-36 flex items-center justify-center">
@@ -106,9 +107,12 @@ const TotalSalesChart = () => {
             </div>
           </div>
           <div className="mt-4 flex flex-col items-center justify-center">
-            <ul className="w-full space-y-2">
+            <ul className="w-full space-y-1">
               {productData.map((product, index) => (
-                <li key={index} className="flex items-center text-gray-700">
+                <li
+                  key={index}
+                  className="mx-auto flex items-center text-gray-700"
+                >
                   <span
                     className="mr-3 inline-block h-4 w-4 rounded-full"
                     style={{ backgroundColor: product.chartColor }}

@@ -82,7 +82,7 @@ const DataTable = ({
   );
 
   return (
-    <Paper elevation={3} className="my-4">
+    <Paper elevation={3} className="">
       <Toolbar className="py-2">
         <h3 id="tableTitle" className="text-2xl font-bold uppercase text-black">
           {title}
