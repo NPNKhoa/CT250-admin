@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { Trash2, Pencil, CirclePlus, Delete, Import } from 'lucide-react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import ProductPopup from '../../components/Product/ProductPopup';
+import Button from '@mui/material/Button';
+import ProductPopup from '../../components/Popup/ProductPopup';
 import productsService from '../../services/products.service';
 import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
+import AlertDialog from '../../components/common/AlertDialog';
+import { toast } from 'react-toastify';
 
 const ProductPage = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -22,6 +25,10 @@ const ProductPage = () => {
 
   const open = Boolean(anchorEl);
 
+  const [openAlert, setOpenAlert] = useState(false);
+  const [title, setTitle] = useState('');
+  const [action, setAction] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,6 +37,7 @@ const ProductPage = () => {
         setLoading(false);
       } catch (error) {
         console.error('Lỗi khi lấy danh sách sản phẩm:', error);
+        setLoading(false);
       }
     };
     fetchData();
@@ -61,35 +69,40 @@ const ProductPage = () => {
     }));
   };
 
-  const handleDelete = async (id, deletemany = false) => {
-    if (!deletemany) {
-      const isConfirmed = window.confirm(
-        'Bạn có chắc chắn muốn xóa sản phẩm này không?',
-      );
-      if (!isConfirmed) {
-        return;
+  const handleDelete = (id) => {
+    setTitle('Bạn có chắc chắn muốn xóa sản phẩm này không?');
+    setOpenAlert(true);
+    setAction(() => async () => {
+      try {
+        await productsService.deleteProduct(id);
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => product._id !== id),
+        );
+        toast.success('Xóa sản phẩm thành công');
+      } catch (error) {
+        console.error('Lỗi khi xóa sản phẩm:', error);
       }
-    }
-
-    try {
-      await productsService.deleteProduct(id);
-      setProducts((prevProducts) =>
-        prevProducts.filter((product) => product._id !== id),
-      );
-    } catch (error) {
-      console.error('Lỗi khi xóa sản phẩm:', error);
-    }
+    });
   };
 
   const handleDeleteMany = (ids) => {
-    const isConfirmed = window.confirm(
-      'Bạn có chắc chắn muốn xóa những sản phẩm đã chọn không?',
-    );
-    if (!isConfirmed) {
+    if (ids.length === 0) {
+      toast.error('Vui lòng chọn ít nhất một sản phẩm để xóa');
       return;
     }
-    ids.forEach((id) => {
-      handleDelete(id, true);
+    setTitle('Bạn có chắc chắn muốn xóa những sản phẩm đã chọn không?');
+    setOpenAlert(true);
+    setAction(() => async () => {
+      try {
+        await Promise.all(ids.map(id => productsService.deleteProduct(id)));
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => !ids.includes(product._id))
+        );
+        setSelectedProducts([]);
+        toast.success('Xóa sản phẩm thành công');
+      } catch (error) {
+        console.error('Lỗi khi xóa sản phẩm:', error);
+      }
     });
   };
 
@@ -218,6 +231,7 @@ const ProductPage = () => {
               <MenuItem
                 onClick={() => {
                   handleClose();
+                  setSelectedProduct(null);
                   setIsPopupOpen(true);
                 }}
               >
@@ -378,10 +392,10 @@ const ProductPage = () => {
                 <td className="p-2 text-center">
                   <button
                     className="mx-2"
-                    // onClick={() => {
-                    //   setSelectedProduct(product);
-                    //   setIsPopupOpen(true);
-                    // }}
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setIsPopupOpen(true);
+                    }}
                   >
                     <Pencil strokeWidth={1} color="green" />
                   </button>
@@ -423,13 +437,32 @@ const ProductPage = () => {
       <ProductPopup
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
-        product={selectedProduct}
+        productData={selectedProduct}
       />
       {loading && (
         <div className="flex h-16 items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-dotted border-blue-400"></div>
         </div>
       )}
+      <AlertDialog
+        open={openAlert}
+        onClose={() => setOpenAlert(false)}
+        title={title}
+        actions={
+          <Fragment>
+            <Button onClick={() => setOpenAlert(false)}>Hủy</Button>
+            <Button
+              onClick={() => {
+                setOpenAlert(false);
+                action && action();
+              }}
+              autoFocus
+            >
+              Chắc chắn
+            </Button>
+          </Fragment>
+        }
+      />
     </div>
   );
 };

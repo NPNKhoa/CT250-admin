@@ -56,6 +56,20 @@ class ProductsService {
             throw error;
         }
     }
+
+    async uploadImage(files) {
+        const formData = new FormData();
+        files.forEach((file) => {
+            formData.append("images", file);
+        });
+        try {
+            const response = await this.api.request("/upload-image", "POST", formData);
+            return response.data;
+        } catch (error) {
+            console.error("Lỗi khi tải ảnh lên:", error);
+            throw error;
+        }
+    }
 }
 
 export default new ProductsService();
