@@ -14,8 +14,12 @@ import productsService from '../../services/products.service';
 import brandService from '../../services/brand.service';
 import productTypeService from '../../services/productType.service';
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { createProduct, updateProduct } from '../../redux/thunk/productThunk';
 
 const ProductPopup = ({ isOpen, onClose, productData }) => {
+  const dispatch = useDispatch();
+  const { error } = useSelector((state) => state.product);
   const [product, setProduct] = useState({});
   const [newFiles, setNewFiles] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -45,9 +49,15 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
       fetchData();
       setProduct(productData || initialProduct);
       setProductTypeName(
-        productData?.productTypeDetails?.productTypeName || '',
+        productData?.productTypeDetails?.productTypeName ||
+          productData.productType?.productTypeName ||
+          '',
       );
-      setProductBrandName(productData?.brandDetails?.brandName || '');
+      setProductBrandName(
+        productData?.brandDetails?.brandName ||
+          productData.productBrand?.brandName ||
+          '',
+      );
       setNewFiles([]);
     }
   }, [isOpen, productData]);
@@ -92,7 +102,7 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
     const { value } = e.target;
     setProduct((prevProduct) => ({
       ...prevProduct,
-      price: value,
+      price: parseInt(value),
     }));
   };
 
@@ -100,7 +110,7 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
     const { value } = e.target;
     setProduct((prevProduct) => ({
       ...prevProduct,
-      countInStock: value,
+      countInStock: parseInt(value),
     }));
   };
 
@@ -111,11 +121,29 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
       (url) => !url.startsWith('blob:'),
     );
 
+    const propertiesToUpdate = [
+      { key: 'productBrand', value: product.productBrand._id },
+      { key: 'productType', value: product.productType._id },
+      { key: 'promotion', value: product.promotion._id },
+      { key: 'discount', value: product.discount._id },
+    ];
+
+    propertiesToUpdate.forEach(({ key, value }) => {
+      if (value) {
+        setProduct((prevProduct) => ({
+          ...prevProduct,
+          [key]: value,
+        }));
+      }
+    });
+
     setProduct((prevProduct) => {
       const updatedProduct = {
         ...prevProduct,
         productImagePath: [...oldImageUrls, ...uploadedImageUrls],
       };
+
+      console.log(updatedProduct);
 
       handleProduct(updatedProduct);
 
@@ -125,22 +153,18 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
     onClose();
   };
 
-  const handleProduct = async (updatedProduct) => {
-    try {
-      if (productData) {
-        await productsService.updateProduct(updatedProduct._id, updatedProduct);
-        toast.success('Cập nhật sản phẩm thành công');
-      } else {
-        await productsService.createProduct(updatedProduct);
-        toast.success('Thêm sản phẩm thành công');
-      }
-    } catch (error) {
-      toast.error('Có lỗi xảy ra khi thêm sản phẩm');
-      console.error(error);
+  const handleProduct = (updatedProduct) => {
+    if (productData) {
+      dispatch(updateProduct(updatedProduct));
+      if (error === null) toast.success('Cập nhật sản phẩm thành công');
+    } else {
+      dispatch(createProduct(updatedProduct));
+      if (error === null) toast.success('Thêm sản phẩm thành công');
     }
+    if (error) toast.error('Có lỗi xảy ra');
   };
 
-  console.log(product);
+  // console.log(product);
 
   const modules = {
     toolbar: [
