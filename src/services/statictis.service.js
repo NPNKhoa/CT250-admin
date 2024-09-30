@@ -15,6 +15,21 @@ class StatictisService {
     }
   }
 
+  async getRevenueByTime(startDate, endDate) {
+    try {
+      const response = await this.api.get('/totalrevenuebytime', {
+        params: { startDate, endDate },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        'Lỗi khi lấy doanh thu và trạng thái thanh toán theo ngày:',
+        error,
+      );
+      throw error;
+    }
+  }
+
   async getMonthlyRevenue(month, year) {
     try {
       const response = await this.api.get('/totalrevenuebymonth', {

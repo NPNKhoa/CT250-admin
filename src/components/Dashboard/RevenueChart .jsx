@@ -22,13 +22,12 @@ ChartJS.register(
 );
 
 const RevenueChart = () => {
-  const [year, setYear] = useState(2024);
-  const [revenueData, setRevenueData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const startYear = 2024;
+  const startYear = 2023;
   const currentYear = new Date().getFullYear();
   const years = [];
+  const [year, setYear] = useState(currentYear);
+  const [revenueData, setRevenueData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   for (let i = startYear; i <= currentYear; i++) {
     years.push(i);

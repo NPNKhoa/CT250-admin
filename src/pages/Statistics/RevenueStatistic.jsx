@@ -38,12 +38,34 @@ const RevenueStatistic = () => {
 
   const [timeFrame, setTimeFrame] = useState('day');
   const [showDetails, setShowDetails] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [year, setYear] = useState(currentYear);
   const [revenue, setRevenue] = useState(null);
+  const [revenueByTime, setRevenueByTime] = useState(null);
   const [revenueAllYears, setRevenueAllYears] = useState(null);
-  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Lấy ngày hiện tại
+    const today = new Date();
+
+    // Ngày đầu tháng
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    // Định dạng dd mm yyyy cho startDate
+    const formatDate = (date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng 0-11
+      const year = date.getFullYear();
+      return `${year}/${month}/${day}`;
+    };
+
+    setStartDate(formatDate(firstDayOfMonth));
+    setEndDate(formatDate(today));
+  }, []);
+
+  console.log('Start Date:', startDate);
+  console.log('End Date:', endDate);
 
   for (let i = startYear; i <= currentYear; i++) {
     years.push(i);
@@ -79,11 +101,35 @@ const RevenueStatistic = () => {
       }
     };
 
+    const fetchRevenueByTime = async () => {
+      try {
+        const response = await statictisService.getRevenueByTime(
+          startDate,
+          endDate,
+        );
+        // console.log('hehe' + response);
+
+        if (response) {
+          setRevenueByTime(response);
+        } else {
+          console.error('Không có dữ liệu doanh thu.');
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy doanh thu:', error);
+      }
+    };
+
     if (timeFrame === 'month' || timeFrame === 'year') {
       fetchRevenueYear();
       fetchRevenueAllYear();
+    } else {
+      fetchRevenueByTime();
     }
-  }, [year, timeFrame]);
+  }, [year, timeFrame, startDate, endDate]);
+
+  useEffect(() => {
+    console.log('Updated revenueByTime:', revenueByTime);
+  }, [revenueByTime]);
 
   const revenueDataDay = {
     labels: Array.from({ length: 30 }, (_, i) =>
@@ -127,21 +173,6 @@ const RevenueStatistic = () => {
     return revenueDataDay;
   };
 
-  // const revenueResults = [
-  //   {
-  //     year: 2023,
-  //     totalRevenue: 739000,
-  //     paidRevenue: 0,
-  //     unpaidRevenue: 739000,
-  //   },
-  //   {
-  //     year: 2024,
-  //     totalRevenue: 7430100,
-  //     paidRevenue: 4631000,
-  //     unpaidRevenue: 2799100,
-  //   },
-  // ];
-
   // Hàm để lấy nhãn năm từ revenueResults
   const getYearLabels = (data) => data.map((item) => item.year);
 
@@ -160,7 +191,36 @@ const RevenueStatistic = () => {
     'Tháng 12',
   ];
 
-  const getDayLabels = (data) => data.map((d) => `Ngày ${d.day}`);
+  // const hehe = {
+  //   message: 'Thống kê doanh thu và trạng thái thanh toán thành công',
+  //   data: [
+  //     {
+  //       orderDate: '2024-09-27',
+  //       totalRevenue: 0,
+  //       paidOrders: 0,
+  //       unpaidOrders: 0,
+  //     },
+  //     {
+  //       orderDate: '2024-09-28',
+  //       totalRevenue: 4865450,
+  //       paidOrders: 2,
+  //       unpaidOrders: 3,
+  //     },
+  //     {
+  //       orderDate: '2024-09-29',
+  //       totalRevenue: 1733000,
+  //       paidOrders: 1,
+  //       unpaidOrders: 1,
+  //     },
+  //   ],
+  //   startDate: '2024/09/28',
+  //   endDate: '2024/09/30',
+  // };
+
+  // Lấy danh sách các ngày từ `orderDate`
+  const labels = revenueByTime
+    ? revenueByTime.data.map((item) => item.orderDate)
+    : '';
 
   const getDataset = (data, label, backgroundColor, borderColor) => ({
     label,
@@ -177,7 +237,7 @@ const RevenueStatistic = () => {
         : timeFrame === 'year'
           ? getYearLabels(revenueAllYears.revenueResults) // Sử dụng hàm getYearLabels
           : revenueDataDay
-            ? getDayLabels(revenueDataDay.data)
+            ? labels
             : [],
 
     datasets:
@@ -227,19 +287,25 @@ const RevenueStatistic = () => {
             ]
           : [
               getDataset(
-                revenueDataDay.data.map((d) => d.total),
+                revenueByTime
+                  ? revenueByTime.data.map((item) => item.totalRevenue)
+                  : '',
                 'Tổng Doanh Thu',
                 'rgba(0, 123, 255, 0.6)',
                 'rgba(0, 123, 255, 1)',
               ),
               getDataset(
-                revenueDataDay.data.map((d) => d.paid),
+                revenueByTime
+                  ? revenueByTime.data.map((item) => item.paidOrders)
+                  : '',
                 'Đã Thanh Toán',
                 'rgba(40, 167, 69, 0.6)',
                 'rgba(40, 167, 69, 1)',
               ),
               getDataset(
-                revenueDataDay.data.map((d) => d.unpaid),
+                revenueByTime
+                  ? revenueByTime.data.map((item) => item.unpaidOrders)
+                  : '',
                 'Chưa Thanh Toán',
                 'rgba(255, 99, 132, 0.6)',
                 'rgba(255, 99, 132, 1)',
