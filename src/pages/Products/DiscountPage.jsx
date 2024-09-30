@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Trash2, Pencil, CirclePlus, Delete, Import } from 'lucide-react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import ProductPopup from '../../components/Product/ProductPopup';
+import ProductPopup from '../../components/Popup/ProductPopup';
 
 const products = [
   {
