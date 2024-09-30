@@ -118,6 +118,18 @@ class StatictisService {
     }
   }
 
+  async getTotalSoldPerMonth(month, year) {
+    try {
+      const response = await this.api.get(`/totalsoldpermonth`, {
+        params: { month, year },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy tổng số sản phẩm bán ra theo tháng:', error);
+      throw error;
+    }
+  }
+
   async getAllOrders(params) {
     try {
       const response = await this.api.get('/lastedorders', { params });

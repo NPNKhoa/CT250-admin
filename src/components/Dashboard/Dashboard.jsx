@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import SportsTennisIcon from '@mui/icons-material/SportsTennis';
 import statictisService from '../../services/statictis.service';
 import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 // import { toast } from 'react-toastify';
@@ -12,7 +13,9 @@ const Dashboard = () => {
   const [totalOrders, setTotalOrders] = useState(0);
   const [totalOrdersLastMonth, setTotalOrdersLastMonth] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [totalSold, setTotalSold] = useState(0);
   const [totalUsersLastMonth, setTotalUsersLastMonth] = useState(0);
+  const [totalSoldLastMonth, setTotalSoldLastMonth] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const currentMonth = new Date().getMonth() + 1;
@@ -83,6 +86,31 @@ const Dashboard = () => {
       }
     };
 
+    const fetchTotalSoldPerMonth = async () => {
+      try {
+        const result = await statictisService.getTotalSoldPerMonth();
+        setTotalSold(result.data);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng số tài khoản của tháng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchTotalSoldLastMonth = async () => {
+      try {
+        const result = await statictisService.getTotalSoldPerMonth(
+          currentMonth - 1,
+          currentYear,
+        );
+        setTotalSoldLastMonth(result.data.totalProductsSold);
+      } catch (error) {
+        console.error('Lỗi khi lấy tổng số tài khoản của tháng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const fetchTotalUsersLastMonth = async () => {
       try {
         const result = await statictisService.getTotalUsersByMonth(
@@ -104,6 +132,8 @@ const Dashboard = () => {
     fetchTotalOrdersLastMonth();
     fetchTotalOrders();
     fetchTotalRevenue();
+    fetchTotalSoldLastMonth();
+    fetchTotalSoldPerMonth();
   }, [currentMonth, currentYear]);
 
   const newUsers = totalUsers - totalUsersLastMonth;
@@ -114,6 +144,12 @@ const Dashboard = () => {
   const growthPercentageRevenue =
     totalOrdersLastMonth > 0
       ? ((totalRevenue - totalRevenueLastMonth) / totalRevenueLastMonth) * 100
+      : 100;
+  const growthPercentageSold =
+    totalSoldLastMonth > 0
+      ? ((totalSold.totalProductsSold - totalSoldLastMonth) /
+          totalSoldLastMonth) *
+        100
       : 100;
 
   const statsData = [
@@ -130,6 +166,13 @@ const Dashboard = () => {
       description: `+${growthPercentageOrder.toFixed(2)}% so với tháng trước`,
       color: 'text-yellow-500',
       icon: <NewspaperIcon className="text-2xl text-white" />,
+    },
+    {
+      title: 'Tổng sản phẩm bán ra',
+      value: loading ? 'Đang tải...' : totalSold.totalProductsSold,
+      description: `+${growthPercentageSold.toFixed(2)}% so với tháng trước`,
+      color: 'text-yellow-500',
+      icon: <SportsTennisIcon className="text-2xl text-white" />,
     },
     {
       title: 'Tổng khách hàng',
@@ -170,18 +213,18 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statsData.map((stat, index) => (
           <div
             key={index}
-            className="rounded-lg bg-white p-6 shadow-md transition hover:shadow-lg"
+            className="rounded-lg bg-white p-4 shadow-md transition hover:shadow-lg"
           >
             <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-700">{stat.title}</h2>
+              <h2 className="text-xl font-bold text-gray-700">{stat.title}</h2>
               <p className="rounded-full bg-primary p-2">{stat.icon}</p>
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-800">{stat.value}</p>
+              <p className="text-lg font-bold text-gray-800">{stat.value}</p>
               <p className="mt-2 text-gray-500">{stat.description}</p>
             </div>
           </div>
