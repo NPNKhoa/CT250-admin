@@ -219,7 +219,14 @@ const RevenueStatistic = () => {
 
   // Lấy danh sách các ngày từ `orderDate`
   const labels = revenueByTime
-    ? revenueByTime.data.map((item) => item.orderDate)
+    ? revenueByTime.data.map((item) => {
+        const date = new Date(item.orderDate); // Chuyển đổi chuỗi ngày thành đối tượng Date
+        const day = String(date.getDate()).padStart(2, '0'); // Lấy ngày và thêm số 0 nếu cần
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Lấy tháng (chú ý tháng bắt đầu từ 0)
+        const year = date.getFullYear(); // Lấy năm
+
+        return `${day}/${month}/${year}`; // Trả về ngày theo định dạng dd/mm/yyyy
+      })
     : '';
 
   const getDataset = (data, label, backgroundColor, borderColor) => ({

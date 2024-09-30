@@ -90,29 +90,37 @@ const TotalSalesChart = () => {
       <h2 className="mb-4 text-2xl font-bold text-gray-800">
         Tổng doanh số sản phẩm
       </h2>
-      <div className="relative flex h-[260px] w-full justify-center">
-        <Doughnut data={doughnutData} options={doughnutOptions} />
-        <div className="absolute top-36 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-sm font-semibold text-gray-600">Tổng sản phẩm</p>
-            <p className="text-xl font-bold text-gray-900">{totalProducts}</p>
+      <div className="grid grid-cols-3">
+        <div className="">
+          <div className="relative flex h-[260px] w-full justify-center">
+            <Doughnut data={doughnutData} options={doughnutOptions} />
+            <div className="absolute top-36 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-sm font-semibold text-gray-600">
+                  Tổng sản phẩm
+                </p>
+                <p className="text-xl font-bold text-gray-900">
+                  {totalProducts}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-col items-center justify-center">
+            <ul className="w-full space-y-2">
+              {productData.map((product, index) => (
+                <li key={index} className="flex items-center text-gray-700">
+                  <span
+                    className="mr-3 inline-block h-4 w-4 rounded-full"
+                    style={{ backgroundColor: product.chartColor }}
+                  ></span>
+                  <span className="text-sm font-medium">{`${product.label}`}</span>
+                  <span className="ml-auto text-gray-500">{`${product.value} sản phẩm`}</span>
+                  <span className="ml-2 text-xs text-gray-400">{`(${product.percentage})`}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </div>
-      <div className="mt-4 flex flex-col items-center justify-center">
-        <ul className="w-full space-y-2">
-          {productData.map((product, index) => (
-            <li key={index} className="flex items-center text-gray-700">
-              <span
-                className="mr-3 inline-block h-4 w-4 rounded-full"
-                style={{ backgroundColor: product.chartColor }}
-              ></span>
-              <span className="text-sm font-medium">{`${product.label}`}</span>
-              <span className="ml-auto text-gray-500">{`${product.value} sản phẩm`}</span>
-              <span className="ml-2 text-xs text-gray-400">{`(${product.percentage})`}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );
