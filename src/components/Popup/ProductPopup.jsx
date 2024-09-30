@@ -50,12 +50,12 @@ const ProductPopup = ({ isOpen, onClose, productData }) => {
       setProduct(productData || initialProduct);
       setProductTypeName(
         productData?.productTypeDetails?.productTypeName ||
-          productData.productType?.productTypeName ||
+          productData?.productType?.productTypeName ||
           '',
       );
       setProductBrandName(
         productData?.brandDetails?.brandName ||
-          productData.productBrand?.brandName ||
+          productData?.productBrand?.brandName ||
           '',
       );
       setNewFiles([]);
