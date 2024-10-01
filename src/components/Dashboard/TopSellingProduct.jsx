@@ -27,7 +27,7 @@ const columns = [
 ];
 
 const TopSellingProduct = () => {
-  const [totalSold, setTotalSold] = useState(0);
+  const [totalSold, setTotalSold] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
