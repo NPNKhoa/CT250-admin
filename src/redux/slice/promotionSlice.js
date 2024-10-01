@@ -8,72 +8,60 @@ const initialState = {
     error: null
 };
 
+const setLoading = (state) => {
+    state.loading = true;
+};
+
+const setFulfilled = (state) => {
+    state.loading = false;
+    state.error = null;
+};
+
+const setError = (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+};
+
 const promotionSlice = createSlice({
     name: 'promotions',
     initialState,
     reducers: {},
     extraReducers: builder => {
         builder
-            .addCase(getPromotions.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getPromotions.pending, setLoading)
             .addCase(getPromotions.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.promotions = action.payload;
             })
-            .addCase(getPromotions.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getPromotions.rejected, setError)
 
-            .addCase(getPromotionById.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getPromotionById.pending, setLoading)
             .addCase(getPromotionById.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.promotion = action.payload;
             })
-            .addCase(getPromotionById.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getPromotionById.rejected, setError)
 
-            .addCase(createPromotion.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(createPromotion.pending, setLoading)
             .addCase(createPromotion.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.promotions.push(action.payload);
             })
-            .addCase(createPromotion.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(createPromotion.rejected, setError)
 
-            .addCase(updatePromotion.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(updatePromotion.pending, setLoading)
             .addCase(updatePromotion.fulfilled, (state, action) => {
-                state.loading = false;
-                console.log(action.payload); 
+                setFulfilled(state);
                 state.promotions = state.promotions.map(promotion => promotion._id === action.payload._id ? action.payload : promotion);
             })
-            .addCase(updatePromotion.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(updatePromotion.rejected, setError)
 
-            .addCase(deletePromotion.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(deletePromotion.pending, setLoading)
             .addCase(deletePromotion.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.promotions = state.promotions.filter(promotion => promotion._id !== action.payload);
             })
-            .addCase(deletePromotion.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            });
+            .addCase(deletePromotion.rejected, setError);
     }
 });
 

@@ -8,72 +8,60 @@ const initialState = {
     error: null
 };
 
+const setLoading = (state) => {
+    state.loading = true;
+};
+
+const setFulfilled = (state) => {
+    state.loading = false;
+    state.error = null;
+};
+
+const setError = (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+};
+
 const specificationSlice = createSlice({
     name: 'specifications',
     initialState,
     reducers: {},
     extraReducers: builder => {
         builder
-            .addCase(getSpecifications.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getSpecifications.pending, setLoading)
             .addCase(getSpecifications.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.specifications = action.payload;
             })
-            .addCase(getSpecifications.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getSpecifications.rejected, setError)
 
-            .addCase(getSpecificationById.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getSpecificationById.pending, setLoading)
             .addCase(getSpecificationById.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.specification = action.payload;
             })
-            .addCase(getSpecificationById.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getSpecificationById.rejected, setError)
 
-            .addCase(createSpecification.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(createSpecification.pending, setLoading)
             .addCase(createSpecification.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.specifications.push(action.payload);
             })
-            .addCase(createSpecification.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(createSpecification.rejected, setError)
 
-            .addCase(updateSpecification.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(updateSpecification.pending, setLoading)
             .addCase(updateSpecification.fulfilled, (state, action) => {
-                state.loading = false;
-                console.log(action.payload); 
+                setFulfilled(state);
                 state.specifications = state.specifications.map(specification => specification._id === action.payload._id ? action.payload : specification);
             })
-            .addCase(updateSpecification.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(updateSpecification.rejected, setError)
 
-            .addCase(deleteSpecification.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(deleteSpecification.pending, setLoading)
             .addCase(deleteSpecification.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.specifications = state.specifications.filter(specification => specification._id !== action.payload);
             })
-            .addCase(deleteSpecification.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            });
+            .addCase(deleteSpecification.rejected, setError);
     }
 });
 

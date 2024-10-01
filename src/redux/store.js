@@ -6,6 +6,7 @@ import promotionSlice from './slice/promotionSlice';
 import discountSlice from './slice/discountSlice';
 import voucherSlice from './slice/voucherSlice';
 import specificationSlice from './slice/specificationSlice';
+import serviceSlice from './slice/serviceSlice';
 
 const store = configureStore({
     reducer: {
@@ -15,7 +16,8 @@ const store = configureStore({
         promotion: promotionSlice,
         discount: discountSlice,
         voucher: voucherSlice,
-        specification: specificationSlice
+        specification: specificationSlice,
+        service: serviceSlice
     }
 });
 

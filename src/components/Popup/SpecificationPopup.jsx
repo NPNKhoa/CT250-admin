@@ -3,28 +3,28 @@ import PropTypes from 'prop-types';
 import { TextField, Button, Box } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
-import { createProductType, updateProductType } from '../../redux/thunk/productTypeThunk';
+import { createSpecification, updateSpecification } from '../../redux/thunk/specificationThunk';
 
-const ProductTypePopup = ({ isOpen, onClose, data }) => {
+const SpecificationPopup = ({ isOpen, onClose, data }) => {
   const dispatch = useDispatch();
-  const initialProductType = useMemo(
+  const initialSpecification = useMemo(
     () => ({
       _id: data?.[0]?._id || '',
-      productTypeName: data?.[0]?.productTypeName || '',
+      specificationName: data?.[0]?.specificationName || '',
     }),
     [data],
   );
 
-  const [productType, setProductType] = useState(initialProductType);
+  const [specification, setSpecification] = useState(initialSpecification);
 
   useEffect(() => {
-    setProductType(initialProductType);
-  }, [initialProductType]);
+    setSpecification(initialSpecification);
+  }, [initialSpecification]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProductType((prevProductType) => ({
-      ...prevProductType,
+    setSpecification((prevSpecification) => ({
+      ...prevSpecification,
       [name]: value,
     }));
   };
@@ -34,16 +34,16 @@ const ProductTypePopup = ({ isOpen, onClose, data }) => {
 
     try {
       if (data && data.length > 0) {
-        console.log(productType);
-        await dispatch(updateProductType(productType)).unwrap();
+        console.log(specification);
+        await dispatch(updateSpecification(specification)).unwrap();
         toast.success('Cập nhật thành công!');
       } else {
-        await dispatch(createProductType(productType)).unwrap();
+        await dispatch(createSpecification(specification)).unwrap();
         toast.success('Thêm thành công!');
       }
     } catch (err) {
-      if (err === 'This product type is already exist') {
-        toast.error('Loại sản phẩm đã tồn tại!');
+      if (err === 'This specification is already exist') {
+        toast.error('Thông số kỹ thuật đã tồn tại!');
       } else {
         toast.error('Có lỗi xảy ra!');
       }
@@ -66,14 +66,14 @@ const ProductTypePopup = ({ isOpen, onClose, data }) => {
       >
         <h1 className="mb-2 text-center text-2xl font-bold">
           {data && data.length > 0
-            ? 'Cập nhật loại sản phẩm'
-            : 'Thêm loại sản phẩm mới'}
+            ? 'Cập nhật thông số kỹ thuật'
+            : 'Thêm thông số kỹ thuật mới'}
         </h1>
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Tên loại sản phẩm"
-            name="productTypeName"
-            value={productType.productTypeName}
+            label="Tên thông số kỹ thuật"
+            name="specificationName"
+            value={specification.specificationName}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
@@ -93,10 +93,10 @@ const ProductTypePopup = ({ isOpen, onClose, data }) => {
   );
 };
 
-ProductTypePopup.propTypes = {
+SpecificationPopup.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   data: PropTypes.array,
 };
 
-export default ProductTypePopup;
+export default SpecificationPopup;

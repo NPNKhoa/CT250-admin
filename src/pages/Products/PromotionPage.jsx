@@ -1,429 +1,243 @@
-import { useEffect, useState } from 'react';
-import { Trash2, Pencil, CirclePlus, Delete, Import } from 'lucide-react';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import ProductPopup from '../../components/Popup/ProductPopup';
-import Promotionservice from '../../services/promotion.service';
-import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
+import { Trash2, FilePenLine, BadgePlus, Gift, CheckCheck } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  getPromotions,
+  deletePromotion,
+} from '../../redux/thunk/promotionThunk';
+import { useEffect, useState, useMemo, Fragment } from 'react';
+import Button from '@mui/material/Button';
+import PromotionPopup from '../../components/Popup/PromotionPopup';
+import { toast } from 'react-toastify';
+import AlertDialog from '../../components/common/AlertDialog';
+import TableComponent from '../../components/common/TableComponent';
+import { Box } from '@mui/material';
 
 const PromotionPage = () => {
-  const [selectedPromotions, setselectedPromotions] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ field: null, order: 'asc' });
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    itemsPerPage: 5,
-  });
-  const [anchorEl, setAnchorEl] = useState(null);
+  const dispatch = useDispatch();
+  const { promotions, loading } = useSelector((state) => state.promotion);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [selectedPromotion, setselectedPromotion] = useState(null);
-  const [promotions, setPromotions] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const open = Boolean(anchorEl);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [alertConfig, setAlertConfig] = useState({
+    open: false,
+    title: '',
+    action: null,
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await Promotionservice.getPromotions();
-        console.log(data);
-        setPromotions(data);  
-        setLoading(false);
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách ưu đãi:', error);
-      }
-    };
-    fetchData();
-  }, []);
+    dispatch(getPromotions());
+  }, [dispatch]);
 
-  const handleSelectPromotion = (id) => {
-    setselectedPromotions((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((i) => i !== id)
-        : [...prevSelected, id],
-    );
+  const handleSelected = (index) => {
+    const selected = index.map((i) => promotions[i - 1]);
+    setSelectedRows(selected);
   };
 
-  const handleSelectAll = () => {
-    setselectedPromotions((prevSelected) =>
-      prevSelected.length === promotions.length
-        ? []
-        : promotions.map((promotion) => promotion._id),
-    );
-  };
-
-  const handleSort = (field) => {
-    setSortConfig((prevSortConfig) => ({
-      field,
-      order:
-        prevSortConfig.field === field && prevSortConfig.order === 'asc'
-          ? 'desc'
-          : 'asc',
-    }));
-  };
-
-  const handleDelete = async (id, deletemany = false) => {
-    if (!deletemany) {
-      const isConfirmed = window.confirm(
-        'Bạn có chắc chắn muốn xóa ưu đãi này không?',
-      );
-      if (!isConfirmed) {
-        return;
-      }
-    }
-
-    try {
-      await Promotionservice.deletePromotion(id);
-      setPromotions((prevPromotions) =>
-        prevPromotions.filter((promotion) => promotion._id !== id),
-      );
-    } catch (error) {
-      console.error('Lỗi khi xóa ưu đãi:', error);
+  const handleUpdate = () => {
+    if (selectedRows.length !== 1) {
+      toast.error('Vui lòng chọn 1 ưu đãi để cập nhật!');
+    } else {
+      setIsPopupOpen(true);
     }
   };
 
-  const handleDeleteMany = (ids) => {
-    const isConfirmed = window.confirm(
-      'Bạn có chắc chắn muốn xóa những ưu đãi đã chọn không?',
-    );
-    if (!isConfirmed) {
+  const handleDelete = (ids) => {
+    if (ids.length === 0) {
+      toast.error('Vui lòng chọn ít nhất một ưu đãi để xóa');
       return;
     }
-    ids.forEach((id) => {
-      handleDelete(id, true);
+
+    setAlertConfig({
+      open: true,
+      title: 'Bạn có chắc chắn muốn xóa những ưu đãi đã chọn không?',
+      action: async () => {
+        try {
+          await Promise.all(
+            ids.map(async (id) => {
+              const result = await dispatch(deletePromotion(id)).unwrap();
+              return result;
+            }),
+          );
+
+          toast.success('Xóa thành công!');
+          setSelectedRows([]);
+        } catch (err) {
+          toast.error('Có lỗi xảy ra!');
+          console.log(err);
+        }
+      },
     });
   };
 
-  const sortedPromotions = [...promotions].sort((a, b) => {
-    if (!sortConfig.field) return 0;
-    if (a[sortConfig.field] < b[sortConfig.field])
-      return sortConfig.order === 'asc' ? -1 : 1;
-    if (a[sortConfig.field] > b[sortConfig.field])
-      return sortConfig.order === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  // const filteredPromotions = sortedPromotions.filter(
-  //   (promotion) =>
-  //     promotion.productIds.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     promotion.serviceIds.serviceName
-  //       .toLowerCase()
-  //       .includes(searchTerm.toLowerCase()),
-  // );
-  const filteredPromotions = promotions;
-
-  const { currentPage, itemsPerPage } = pagination;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredPromotions.slice(
-    indexOfFirstItem,
-    indexOfLastItem,
+  const columns = useMemo(
+    () => [
+      {
+        field: 'id',
+        headerName: 'STT',
+        flex: 1,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'gifts',
+        headerName: 'Quà tặng',
+        flex: 2,
+        headerAlign: 'center',
+        // align: 'center',
+        renderCell: (params) => (
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            {params.value.map((item, index) => (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                <Gift color="#EA580C" strokeWidth={1} className='mr-2'/>
+                <span>{item}</span>
+              </Box>
+            ))}
+          </Box>
+        ),
+      },
+      {
+        field: 'services',
+        headerName: 'Dịch vụ',
+        flex: 3,
+        headerAlign: 'center',
+        // align: 'center',
+        renderCell: (params) => (
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            {params.value.map((item, index) => (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+               <CheckCheck color="#EA580C" strokeWidth={1} className='mr-2' />
+                <span>{item}</span>
+              </Box>
+            ))}
+          </Box>
+        ),
+      },
+      {
+        field: 'promotionStartDate',
+        headerName: 'Ngày bắt đầu',
+        type: 'Date',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'promotionExpiredDate',
+        headerName: 'Ngày kết thúc',
+        type: 'Date',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'updatedAt',
+        headerName: 'Ngày cập nhật',
+        type: 'Date',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'createdAt',
+        headerName: 'Ngày tạo',
+        type: 'Date',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+      },
+    ],
+    [],
   );
-  const totalPages = Math.ceil(filteredPromotions.length / itemsPerPage);
 
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setPagination((prevPagination) => ({
-        ...prevPagination,
-        currentPage: pageNumber,
-      }));
-    }
-  };
+  const rows = useMemo(
+    () =>
+      promotions.map((promotion, index) => ({
+        ...promotion,
+        id: index + 1,
+        promotionStartDate: promotion.promotionStartDate
+          ? new Date(promotion.promotionStartDate).toLocaleDateString('vi-VN')
+          : '',
+        promotionExpiredDate: promotion.promotionExpiredDate
+          ? new Date(promotion.promotionExpiredDate).toLocaleDateString('vi-VN')
+          : '',
+        updatedAt: promotion.updatedAt
+          ? new Date(promotion.updatedAt).toLocaleDateString('vi-VN')
+          : '',
+        createdAt: promotion.createdAt
+          ? new Date(promotion.createdAt).toLocaleDateString('vi-VN')
+          : '',
+        gifts: promotion.productIds.map(product => product.productName),
+        services: promotion.serviceIds.map(service => service.serviceName),
+      })),
+    [promotions],
+  );
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) {
-      console.error('No file selected');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const fileContent = event.target.result;
-      try {
-        if (file.type === 'application/json') {
-          const data = JSON.parse(fileContent);
-          console.log(data); // Handle JSON data
-        } else if (file.type === 'text/csv') {
-          const data = fileContent.split('\n').map((row) => row.split(','));
-          console.log(data); // Handle CSV data
-        }
-      } catch (err) {
-        console.error('Error reading file:', err);
-      }
-    };
-    reader.readAsText(file);
-  };
+  const paginationModel = { page: 0, pageSize: 5 };
 
   return (
-    <div className="p-2">
+    <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Ưu đãi</h1>
-        <div className="ml-auto flex space-x-2">
-          <div>
-            <button
-              className="flex items-center rounded bg-green-600 px-4 py-2 text-white"
-              onClick={handleClick}
-            >
-              <CirclePlus strokeWidth={1} className="mr-2" />
-              <span>Thêm</span>
-            </button>
-            <Menu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              MenuListProps={{
-                'aria-labelledby': 'basic-button',
-              }}
-            >
-              <MenuItem onClick={handleClose}>
-                <label
-                  htmlFor="file-upload"
-                  className="flex cursor-pointer items-center"
-                >
-                  <Import strokeWidth={1} className="mr-2" />
-                  <span>Import từ file JSON hoặc CSV</span>
-                </label>
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleClose();
-                  setselectedPromotion(null);
-                  setIsPopupOpen(true);
-                }}
-              ></MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleClose();
-                  setIsPopupOpen(true);
-                }}
-              >
-                <CirclePlus strokeWidth={1} className="mr-2" />
-                <span>Thêm ưu đãi</span>
-              </MenuItem>
-            </Menu>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".json, .csv"
-              style={{ display: 'none' }}
-              onChange={handleFileUpload}
-            />
-          </div>
+        <div className="ml-auto flex flex-col space-y-2 md:flex-row md:space-x-2 md:space-y-0">
           <button
-            className="flex items-center rounded bg-red-600 px-4 py-2 text-white"
-            onClick={() => handleDeleteMany(selectedPromotions)}
+            className="flex items-center rounded bg-green-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
+            onClick={() => {
+              setSelectedRows([]);
+              setIsPopupOpen(true);
+            }}
           >
-            <Delete strokeWidth={1} className="mr-2" />
-            <span>
-              Xóa{' '}
-              {selectedPromotions.length > 0 &&
-                `(${selectedPromotions.length})`}
-            </span>
+            <BadgePlus strokeWidth={1} className="mr-2" />
+            <span>Thêm</span>
+          </button>
+          <button
+            className="flex items-center rounded bg-blue-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
+            onClick={handleUpdate}
+          >
+            <FilePenLine strokeWidth={1} className="mr-2" />
+            <span>Cập nhật</span>
+          </button>
+          <button
+            className="flex items-center rounded bg-red-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
+            onClick={() => handleDelete(selectedRows.map((row) => row._id))}
+          >
+            <Trash2 strokeWidth={1} className="mr-2" />
+            <span>Xóa</span>
           </button>
         </div>
       </div>
-
-      <div className="mb-4 flex items-center justify-between">
-        <input
-          type="text"
-          className="w-1/3 rounded-lg border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-0 focus:ring-blue-500"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <div className="ml-auto flex items-center">
-          <span className="mr-2">Số dòng mỗi trang:</span>
-          <select
-            className="w-20 rounded-lg border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-0 focus:ring-blue-500"
-            value={itemsPerPage}
-            onChange={(e) =>
-              setPagination({
-                ...pagination,
-                itemsPerPage: Number(e.target.value),
-              })
-            }
-          >
-            {[5, 10].map((number) => (
-              <option key={number} value={number}>
-                {number}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed bg-white">
-          <thead>
-            <tr>
-              <th className="w-2 p-2 text-center">
-                <input
-                  className="h-4 w-4"
-                  type="checkbox"
-                  onChange={handleSelectAll}
-                  checked={selectedPromotions.length === promotions.length}
-                />
-              </th>
-              <th className="w-24 p-2 text-center">#</th>
-              <th
-                className="w-56 cursor-pointer whitespace-nowrap p-2 text-center"
-                onClick={() => handleSort('productName')}
-              >
-                <div className="flex justify-between">
-                  <span>Qùa tặng kèm</span>
-                  {sortConfig.field === 'productName' && (
-                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
-                  )}
-                </div>
-              </th>
-              <th
-                className="w-40 cursor-pointer whitespace-nowrap p-2 text-center"
-                onClick={() => handleSort('productType')}
-              >
-                <div className="flex justify-between">
-                  <span>Dịch vụ kèm theo</span>
-                  {sortConfig.field === 'productType' && (
-                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
-                  )}
-                </div>
-              </th>
-              <th
-                className="w-40 cursor-pointer whitespace-nowrap p-2 text-center"
-                onClick={() => handleSort('productBrand')}
-              >
-                <div className="flex justify-between">
-                  <span>Ngày bắt đầu</span>
-                  {sortConfig.field === 'productBrand' && (
-                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
-                  )}
-                </div>
-              </th>
-              <th
-                className="w-32 cursor-pointer whitespace-nowrap p-2 text-center"
-                onClick={() => handleSort('quantity')}
-              >
-                <div className="flex justify-between">
-                  <span>Ngày kết thúc</span>
-                  {sortConfig.field === 'quantity' && (
-                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
-                  )}
-                </div>
-              </th>
-              <th
-                className="w-20 cursor-pointer whitespace-nowrap p-2 text-center"
-                onClick={() => handleSort('price')}
-              >
-                <div className="flex justify-between">
-                  <span>Ngày cập nhật</span>
-                  {sortConfig.field === 'price' && (
-                    <span>{sortConfig.order === 'asc' ? '↑' : '↓'}</span>
-                  )}
-                </div>
-              </th>
-              <th className="w-32 p-2 text-center">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((promotion, index) => (
-              <tr key={index} className="border-t">
-                <td className="p-2 text-center">
-                  <input
-                    className="h-4 w-4"
-                    type="checkbox"
-                    onChange={() => handleSelectPromotion(promotion._id)}
-                    checked={selectedPromotions.includes(promotion._id)}
-                  />
-                </td>
-                <td className="p-2">{index}</td>
-                <td className="p-2">
-                  {promotion.productIds.map((product) => (
-                    <div key={product._id}>
-                      <span>{product.productName}</span>
-                      <br />
-                    </div>
-                  ))}
-                </td>
-                <td className="p-2">
-                {promotion.serviceIds.map((service) => (
-                  <div key={service._id}>
-                    <span>{service.serviceName}</span>
-                    <br/>
-                  </div>
-                ))}
-                </td>
-                <td className="p-2 text-center">
-                  {new Date(promotion.promotionStartDate).toLocaleDateString('vi-VN')}
-                </td>
-                <td className="p-2 text-center">
-                  {new Date(promotion.promotionExpiredDate).toLocaleDateString('vi-VN')}
-                </td>
-                <td className="p-2 text-center">
-                  {toVietnamCurrencyFormat(new Date( promotion.updatedAt).toLocaleDateString('vi-VN'))}
-                </td>
-                <td className="p-2 text-center">
-                  <button
-                    className="mx-2"
-                    // onClick={() => {
-                    //   setselectedPromotion(promotion);
-                    //   setIsPopupOpen(true);
-                    // }}
-                  >
-                    <Pencil strokeWidth={1} color="green" />
-                  </button>
-                  <button
-                    className="mx-2"
-                    onClick={() => handleDelete(promotion._id)}
-                  >
-                    <Trash2 strokeWidth={1} color="red" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="mt-4 flex items-center justify-between">
-          <div className="ml-auto flex space-x-2">
-            <span className="flex items-center text-sm">
-              {indexOfFirstItem + 1} -{' '}
-              {Math.min(indexOfLastItem, filteredPromotions.length)} of{' '}
-              {filteredPromotions.length}
-            </span>
-            <button
-              className="rounded bg-gray-200 px-3 py-1 text-gray-700"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              &lt;
-            </button>
-            <button
-              className="rounded bg-gray-200 px-3 py-1 text-gray-700"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              &gt;
-            </button>
-          </div>
-        </div>
-      </div>
-      <ProductPopup
+      <TableComponent
+        loading={loading}
+        rows={rows}
+        columns={columns}
+        paginationModel={paginationModel}
+        handleSelected={handleSelected}
+      />
+      <PromotionPopup
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
-        product={selectedPromotion}
+        data={selectedRows}
       />
-      {loading && (
-        <div className="flex h-16 items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-dotted border-blue-400"></div>
-        </div>
-      )}
+      <AlertDialog
+        open={alertConfig.open}
+        onClose={() => setAlertConfig({ ...alertConfig, open: false })}
+        title={alertConfig.title}
+        actions={
+          <Fragment>
+            <Button
+              onClick={() => setAlertConfig({ ...alertConfig, open: false })}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={() => {
+                setAlertConfig({ ...alertConfig, open: false });
+                alertConfig.action && alertConfig.action();
+              }}
+              autoFocus
+            >
+              Chắc chắn
+            </Button>
+          </Fragment>
+        }
+      />
     </div>
   );
 };
