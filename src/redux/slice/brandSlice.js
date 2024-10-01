@@ -8,73 +8,60 @@ const initialState = {
     error: null
 };
 
+const setLoading = (state) => {
+    state.loading = true;
+};
+
+const setFulfilled = (state) => {
+    state.loading = false;
+    state.error = null;
+};
+
+const setError = (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+};
+
 const brandSlice = createSlice({
     name: 'brands',
     initialState,
     reducers: {},
     extraReducers: builder => {
         builder
-            .addCase(getBrands.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getBrands.pending, setLoading)
             .addCase(getBrands.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.brands = action.payload;
             })
-            .addCase(getBrands.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getBrands.rejected, setError)
 
-            .addCase(getBrandById.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getBrandById.pending, setLoading)
             .addCase(getBrandById.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.brand = action.payload;
             })
-            .addCase(getBrandById.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getBrandById.rejected, setError)
 
-            .addCase(createBrand.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(createBrand.pending, setLoading)
             .addCase(createBrand.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.brands.push(action.payload);
             })
-            .addCase(createBrand.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(createBrand.rejected, setError)
 
-            .addCase(updateBrand.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(updateBrand.pending, setLoading)
             .addCase(updateBrand.fulfilled, (state, action) => {
-                state.loading = false;
-                console.log('ss: ',action.payload);
+                setFulfilled(state);
                 state.brands = state.brands.map(brand => brand._id === action.payload._id ? action.payload : brand);
             })
-            .addCase(updateBrand.rejected, (state, action) => {
-                state.loading = false;
-                console.log('error: ',action.payload);
-                state.error = action.payload;
-            })
+            .addCase(updateBrand.rejected, setError)
 
-            .addCase(deleteBrand.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(deleteBrand.pending, setLoading)
             .addCase(deleteBrand.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.brands = state.brands.filter(brand => brand._id !== action.payload);
             })
-            .addCase(deleteBrand.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            });
+            .addCase(deleteBrand.rejected, setError);
     }
 });
 

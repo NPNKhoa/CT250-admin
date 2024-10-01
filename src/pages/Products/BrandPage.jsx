@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { Trash2, FilePenLine, BadgePlus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getBrands, deleteBrand } from '../../redux/thunk/brandThunk';
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState, useMemo, Fragment } from 'react';
 import Button from '@mui/material/Button';
 import BrandPopup from '../../components/Popup/BrandPopup';
 import { toast } from 'react-toastify';
@@ -11,12 +11,14 @@ import AlertDialog from '../../components/common/AlertDialog';
 
 const BrandPage = () => {
   const dispatch = useDispatch();
-  const { brands, error } = useSelector(state => state.brand);
+  const { brands } = useSelector((state) => state.brand);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [openAlert, setOpenAlert] = useState(false);
-  const [title, setTitle] = useState('');
-  const [action, setAction] = useState(null);
+  const [alertConfig, setAlertConfig] = useState({
+    open: false,
+    title: '',
+    action: null,
+  });
 
   useEffect(() => {
     dispatch(getBrands());
@@ -28,7 +30,7 @@ const BrandPage = () => {
   };
 
   const handleUpdate = () => {
-    if (!selectedRows || selectedRows.length !== 1) {
+    if (selectedRows.length !== 1) {
       toast.error('Vui lòng chọn 1 thương hiệu để cập nhật!');
     } else {
       setIsPopupOpen(true);
@@ -40,68 +42,86 @@ const BrandPage = () => {
       toast.error('Vui lòng chọn ít nhất một sản phẩm để xóa');
       return;
     }
-    setTitle('Bạn có chắc chắn muốn xóa những sản phẩm đã chọn không?');
-    setOpenAlert(true);
-    setAction(() => async () => {
-      Promise.all(ids.map((id) => dispatch(deleteBrand(id))));
-      if (error === null) {
-        toast.success('Xóa sản phẩm thành công');
-        setSelectedRows([]);
-      } else toast.error('Có lỗi xảy ra');
+
+    setAlertConfig({
+      open: true,
+      title: 'Bạn có chắc chắn muốn xóa những sản phẩm đã chọn không?',
+      action: async () => {
+        try {
+          await Promise.all(
+            ids.map(async (id) => {
+              const result = await dispatch(deleteBrand(id)).unwrap();
+              return result;
+            }),
+          );
+
+          toast.success('Xóa sản phẩm thành công');
+          setSelectedRows([]);
+        } catch (err) {
+          toast.error('Có lỗi xảy ra khi xóa sản phẩm');
+          console.log(err);
+        }
+      },
     });
   };
 
-  const columns = [
-    {
-      field: 'id',
-      headerName: 'STT',
-      width: 100,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'brandName',
-      headerName: 'Tên thương hiệu',
-      width: 150,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'brandDesc',
-      headerClassName: 'super-app-theme--header',
-      headerName: 'Mô tả',
-      width: 300,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'updatedAt',
-      headerName: 'Ngày cập nhật',
-      type: 'Date',
-      width: 190,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'createdAt',
-      headerName: 'Ngày tạo',
-      type: 'Date',
-      width: 190,
-      headerAlign: 'center',
-      align: 'center',
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        field: 'id',
+        headerName: 'STT',
+        width: 100,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'brandName',
+        headerName: 'Tên thương hiệu',
+        width: 150,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'brandDesc',
+        headerName: 'Mô tả',
+        width: 300,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'updatedAt',
+        headerName: 'Ngày cập nhật',
+        type: 'Date',
+        width: 190,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'createdAt',
+        headerName: 'Ngày tạo',
+        type: 'Date',
+        width: 190,
+        headerAlign: 'center',
+        align: 'center',
+      },
+    ],
+    [],
+  );
 
-  const rows = brands.map((brand, index) => ({
-    ...brand,
-    id: index + 1,
-    updatedAt: brand.updatedAt
-      ? new Date(brand.updatedAt).toLocaleDateString('vi-VN')
-      : '',
-    createdAt: brand.createdAt
-      ? new Date(brand.createdAt).toLocaleDateString('vi-VN')
-      : '',
-  }));
+  const rows = useMemo(
+    () =>
+      brands.map((brand, index) => ({
+        ...brand,
+        id: index + 1,
+        updatedAt: brand.updatedAt
+          ? new Date(brand.updatedAt).toLocaleDateString('vi-VN')
+          : '',
+        createdAt: brand.createdAt
+          ? new Date(brand.createdAt).toLocaleDateString('vi-VN')
+          : '',
+      })),
+    [brands],
+  );
 
   const paginationModel = { page: 0, pageSize: 5 };
 
@@ -113,7 +133,7 @@ const BrandPage = () => {
           <button
             className="flex items-center rounded bg-green-600 px-4 py-2 text-white"
             onClick={() => {
-              setSelectedRows(null);
+              setSelectedRows([]);
               setIsPopupOpen(true);
             }}
           >
@@ -147,13 +167,9 @@ const BrandPage = () => {
           onRowSelectionModelChange={(newRowSelectionModel) => {
             handleSelected(newRowSelectionModel);
           }}
-          sx={{
-            border: 0,
-          }}
+          sx={{ border: 0 }}
           disableColumnMenu
           disableDensitySelector
-          dis
-          // loading
         />
       </Box>
       <BrandPopup
@@ -162,16 +178,20 @@ const BrandPage = () => {
         data={selectedRows}
       />
       <AlertDialog
-        open={openAlert}
-        onClose={() => setOpenAlert(false)}
-        title={title}
+        open={alertConfig.open}
+        onClose={() => setAlertConfig({ ...alertConfig, open: false })}
+        title={alertConfig.title}
         actions={
           <Fragment>
-            <Button onClick={() => setOpenAlert(false)}>Hủy</Button>
+            <Button
+              onClick={() => setAlertConfig({ ...alertConfig, open: false })}
+            >
+              Hủy
+            </Button>
             <Button
               onClick={() => {
-                setOpenAlert(false);
-                action && action();
+                setAlertConfig({ ...alertConfig, open: false });
+                alertConfig.action && alertConfig.action();
               }}
               autoFocus
             >
