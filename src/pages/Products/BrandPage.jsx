@@ -65,48 +65,45 @@ const BrandPage = () => {
     });
   };
 
-  const columns = useMemo(
-    () => [
-      {
-        field: 'id',
-        headerName: 'STT',
-        width: 100,
-        headerAlign: 'center',
-        align: 'center',
-      },
-      {
-        field: 'brandName',
-        headerName: 'Tên thương hiệu',
-        width: 150,
-        headerAlign: 'center',
-        align: 'center',
-      },
-      {
-        field: 'brandDesc',
-        headerName: 'Mô tả',
-        width: 300,
-        headerAlign: 'center',
-        align: 'center',
-      },
-      {
-        field: 'updatedAt',
-        headerName: 'Ngày cập nhật',
-        type: 'Date',
-        width: 190,
-        headerAlign: 'center',
-        align: 'center',
-      },
-      {
-        field: 'createdAt',
-        headerName: 'Ngày tạo',
-        type: 'Date',
-        width: 190,
-        headerAlign: 'center',
-        align: 'center',
-      },
-    ],
-    [],
-  );
+  const columns = useMemo(() => [
+    {
+      field: 'id',
+      headerName: 'STT',
+      flex: 1,
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
+      field: 'brandName',
+      headerName: 'Tên thương hiệu',
+      flex: 2,
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
+      field: 'brandDesc',
+      headerName: 'Mô tả',
+      flex: 3,
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
+      field: 'updatedAt',
+      headerName: 'Ngày cập nhật',
+      type: 'Date',
+      flex: 2,
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
+      field: 'createdAt',
+      headerName: 'Ngày tạo',
+      type: 'Date',
+      flex: 2,
+      headerAlign: 'center',
+      align: 'center',
+    },
+  ]);
 
   const rows = useMemo(
     () =>
@@ -129,9 +126,9 @@ const BrandPage = () => {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Thương hiệu</h1>
-        <div className="ml-auto flex space-x-2">
+        <div className="ml-auto flex flex-col space-y-2 md:flex-row md:space-x-2 md:space-y-0">
           <button
-            className="flex items-center rounded bg-green-600 px-4 py-2 text-white"
+            className="flex items-center rounded bg-green-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
             onClick={() => {
               setSelectedRows([]);
               setIsPopupOpen(true);
@@ -141,14 +138,14 @@ const BrandPage = () => {
             <span>Thêm</span>
           </button>
           <button
-            className="flex items-center rounded bg-blue-600 px-4 py-2 text-white"
+            className="flex items-center rounded bg-blue-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
             onClick={handleUpdate}
           >
             <FilePenLine strokeWidth={1} className="mr-2" />
             <span>Cập nhật</span>
           </button>
           <button
-            className="flex items-center rounded bg-red-600 px-4 py-2 text-white"
+            className="flex items-center rounded bg-red-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
             onClick={() => handleDelete(selectedRows.map((row) => row._id))}
           >
             <Trash2 strokeWidth={1} className="mr-2" />
@@ -156,7 +153,7 @@ const BrandPage = () => {
           </button>
         </div>
       </div>
-      <Box sx={{ height: 450, width: '100%' }}>
+      <Box sx={{ height: 450, width: '100%', overflowX: 'auto' }}>
         <DataGrid
           slots={{ toolbar: GridToolbar }}
           rows={rows}
@@ -167,9 +164,10 @@ const BrandPage = () => {
           onRowSelectionModelChange={(newRowSelectionModel) => {
             handleSelected(newRowSelectionModel);
           }}
-          sx={{ border: 0 }}
+          sx={{ border: 0, minWidth: 600 }}
           disableColumnMenu
           disableDensitySelector
+          autoHeight
         />
       </Box>
       <BrandPopup
