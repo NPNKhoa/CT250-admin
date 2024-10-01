@@ -39,13 +39,13 @@ const BrandPage = () => {
 
   const handleDelete = (ids) => {
     if (ids.length === 0) {
-      toast.error('Vui lòng chọn ít nhất một sản phẩm để xóa');
+      toast.error('Vui lòng chọn ít nhất một thương hiệu để xóa');
       return;
     }
 
     setAlertConfig({
       open: true,
-      title: 'Bạn có chắc chắn muốn xóa những sản phẩm đã chọn không?',
+      title: 'Bạn có chắc chắn muốn xóa những thương hiệu đã chọn không?',
       action: async () => {
         try {
           await Promise.all(
@@ -55,10 +55,10 @@ const BrandPage = () => {
             }),
           );
 
-          toast.success('Xóa sản phẩm thành công');
+          toast.success('Xóa thành công!');
           setSelectedRows([]);
         } catch (err) {
-          toast.error('Có lỗi xảy ra khi xóa sản phẩm');
+          toast.error('Có lỗi xảy ra!');
           console.log(err);
         }
       },
@@ -66,44 +66,54 @@ const BrandPage = () => {
   };
 
   const columns = useMemo(() => [
-    {
-      field: 'id',
-      headerName: 'STT',
-      flex: 1,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'brandName',
-      headerName: 'Tên thương hiệu',
-      flex: 2,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'brandDesc',
-      headerName: 'Mô tả',
-      flex: 3,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'updatedAt',
-      headerName: 'Ngày cập nhật',
-      type: 'Date',
-      flex: 2,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'createdAt',
-      headerName: 'Ngày tạo',
-      type: 'Date',
-      flex: 2,
-      headerAlign: 'center',
-      align: 'center',
-    },
-  ]);
+      {
+        field: 'id',
+        headerName: 'STT',
+        flex: 1,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'brandName',
+        headerName: 'Tên thương hiệu',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'brandDesc',
+        headerName: 'Mô tả',
+        flex: 3,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'updatedAt',
+        headerName: 'Ngày cập nhật',
+        type: 'date',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+        valueFormatter: (params) =>
+          params.value
+            ? new Date(params.value).toLocaleDateString('vi-VN')
+            : '',
+      },
+      {
+        field: 'createdAt',
+        headerName: 'Ngày tạo',
+        type: 'date',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+        valueFormatter: (params) =>
+          params.value
+            ? new Date(params.value).toLocaleDateString('vi-VN')
+            : '',
+      },
+    ],
+    [],
+  );
 
   const rows = useMemo(
     () =>
