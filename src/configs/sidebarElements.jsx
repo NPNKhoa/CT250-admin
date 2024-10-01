@@ -90,7 +90,7 @@ export default [
       },
       {
         childId: `${uuidv4()}-child`,
-        label: 'Nhãn hàng',
+        label: 'Thương hiệu',
         path: '/brand',
         element: <BrandPage />,
       },
