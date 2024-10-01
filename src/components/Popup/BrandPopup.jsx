@@ -1,38 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import {
-  TextField,
-  Button,
-  Box,
-} from '@mui/material';
+import { TextField, Button, Box } from '@mui/material';
 import { toast } from 'react-toastify';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { createBrand, updateBrand } from '../../redux/thunk/brandThunk';
-import brandService from '../../services/brand.service';
 
 const BrandPopup = ({ isOpen, onClose, data }) => {
   const dispatch = useDispatch();
-  const { error } = useSelector((state) => state.brand);
-  const [brand, setBrand] = useState({
-    brandName: '',
-    brandDesc: '',
-  });
+  const initialBrand = useMemo(
+    () => ({
+      _id: data?.[0]?._id || '',
+      brandName: data?.[0]?.brandName || '',
+      brandDesc: data?.[0]?.brandDesc || '',
+    }),
+    [data],
+  );
+
+  const [brand, setBrand] = useState(initialBrand);
 
   useEffect(() => {
-    if (data && data.length > 0) {
-      const initData = {
-        _id: data[0]?._id || '',
-        brandName: data[0]?.brandName || '',
-        brandDesc: data[0]?.brandDesc || '',
-      };
-      setBrand(initData);
-    } else {
-      setBrand({
-        brandName: '',
-        brandDesc: '',
-      });
-    }
-  }, [data]);
+    setBrand(initialBrand);
+  }, [initialBrand]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -42,15 +30,25 @@ const BrandPopup = ({ isOpen, onClose, data }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (data && data.length > 0) {
-      dispatch(updateBrand(brand));
-      if (error === null) toast.success('Cập nhật thành công');
-    } else {
-      dispatch(createBrand(brand));
-      if (error === null) toast.success('Thêm thành công');
+
+    try {
+      if (data && data.length > 0) {
+        await dispatch(updateBrand(brand)).unwrap();
+        toast.success('Cập nhật thành công!');
+      } else {
+        await dispatch(createBrand(brand)).unwrap();
+        toast.success('Thêm thành công!');
+      }
+    } catch (err) {
+      if (err === 'Brand is already exist!') {
+        toast.error('Thương hiệu đã tồn tại!');
+      } else {
+        toast.error('Có lỗi xảy ra!');
+      }
     }
+
     onClose();
   };
 
@@ -67,7 +65,9 @@ const BrandPopup = ({ isOpen, onClose, data }) => {
         sx={{ maxHeight: '100vh' }}
       >
         <h1 className="mb-2 text-center text-2xl font-bold">
-          {data && data.length > 0 ? 'Cập nhật thương hiệu' : 'Thêm thương hiệu mới'}
+          {data && data.length > 0
+            ? 'Cập nhật thương hiệu'
+            : 'Thêm thương hiệu mới'}
         </h1>
         <form onSubmit={handleSubmit}>
           <TextField
