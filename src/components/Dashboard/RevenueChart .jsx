@@ -26,8 +26,8 @@ const RevenueChart = () => {
   useEffect(() => {
     const fetchRevenueData = async () => {
       try {
-        const data = await statictisService.getRevenueByYear(year);
-        setRevenueData(data.revenueData);
+        const response = await statictisService.getRevenueByYear(year);
+        setRevenueData(response.data);
       } catch (error) {
         console.error('Lỗi khi lấy dữ liệu doanh thu:', error);
       }
@@ -43,12 +43,13 @@ const RevenueChart = () => {
     unpaidRevenue: 0,
   }));
 
+  // Cập nhật chartData để lấy dữ liệu từ revenueData
   const chartData = revenueData
     ? initialChartData.map((item, index) => ({
         ...item,
-        totalRevenue: revenueData.totalRevenueData[index] || 0,
-        paidRevenue: revenueData.paidRevenueData[index] || 0,
-        unpaidRevenue: revenueData.unpaidRevenueData[index] || 0,
+        totalRevenue: revenueData[index]?.totalRevenue || 0,
+        paidRevenue: revenueData[index]?.paidRevenue || 0,
+        unpaidRevenue: revenueData[index]?.unpaidRevenue || 0,
       }))
     : initialChartData;
 

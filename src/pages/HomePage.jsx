@@ -1,7 +1,7 @@
 import Dashboard from '../components/Dashboard/Dashboard';
 import RecentOrders from '../components/Dashboard/RecentOrders ';
 import RevenueChart from '../components/Dashboard/RevenueChart ';
-import TopSellingProduct from '../components/Dashboard/topSellingProduct';
+import TopSellingProduct from '../components/Dashboard/TopSellingProduct';
 import TotalSalesChart from '../components/Dashboard/TotalSalesChart';
 
 const HomePage = () => {
