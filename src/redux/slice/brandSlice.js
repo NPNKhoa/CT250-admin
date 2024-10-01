@@ -55,11 +55,12 @@ const brandSlice = createSlice({
             })
             .addCase(updateBrand.fulfilled, (state, action) => {
                 state.loading = false;
-                console.log(action.payload); 
+                console.log('ss: ',action.payload);
                 state.brands = state.brands.map(brand => brand._id === action.payload._id ? action.payload : brand);
             })
             .addCase(updateBrand.rejected, (state, action) => {
                 state.loading = false;
+                console.log('error: ',action.payload);
                 state.error = action.payload;
             })
 
