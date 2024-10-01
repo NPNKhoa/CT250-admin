@@ -8,72 +8,60 @@ const initialState = {
     error: null
 };
 
+const setLoading = (state) => {
+    state.loading = true;
+};
+
+const setFulfilled = (state) => {
+    state.loading = false;
+    state.error = null;
+};
+
+const setError = (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+};
+
 const discountSlice = createSlice({
-    name: 'discounts',
+    name: 'discount',
     initialState,
     reducers: {},
     extraReducers: builder => {
         builder
-            .addCase(getDiscounts.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getDiscounts.pending, setLoading)
             .addCase(getDiscounts.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.discounts = action.payload;
             })
-            .addCase(getDiscounts.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getDiscounts.rejected, setError)
 
-            .addCase(getDiscountById.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getDiscountById.pending, setLoading)
             .addCase(getDiscountById.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.discount = action.payload;
             })
-            .addCase(getDiscountById.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getDiscountById.rejected, setError)
 
-            .addCase(createDiscount.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(createDiscount.pending, setLoading)
             .addCase(createDiscount.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.discounts.push(action.payload);
             })
-            .addCase(createDiscount.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(createDiscount.rejected, setError)
 
-            .addCase(updateDiscount.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(updateDiscount.pending, setLoading)
             .addCase(updateDiscount.fulfilled, (state, action) => {
-                state.loading = false;
-                console.log(action.payload); 
+                setFulfilled(state);
                 state.discounts = state.discounts.map(discount => discount._id === action.payload._id ? action.payload : discount);
             })
-            .addCase(updateDiscount.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(updateDiscount.rejected, setError)
 
-            .addCase(deleteDiscount.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(deleteDiscount.pending, setLoading)
             .addCase(deleteDiscount.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.discounts = state.discounts.filter(discount => discount._id !== action.payload);
             })
-            .addCase(deleteDiscount.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            });
+            .addCase(deleteDiscount.rejected, setError);
     }
 });
 

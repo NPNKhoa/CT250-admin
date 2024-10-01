@@ -28,6 +28,7 @@ import {
   RevenueStatistic,
   OrderStatistic,
   ProductStatistic,
+  ServicePage
 } from '../pages';
 
 export default [
@@ -75,6 +76,12 @@ export default [
         label: 'Ưu đãi',
         path: '/promotion',
         element: <PromotionPage />,
+      },
+      {
+        childId: `${uuidv4()}-child`,
+        label: 'Dịch vụ',
+        path: '/service',
+        element: <ServicePage />,
       },
       {
         childId: `${uuidv4()}-child`,

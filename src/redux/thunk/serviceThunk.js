@@ -1,11 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import discountsService from '../../services/discount.service';
+import serviceService from '../../services/service.service';
 
-export const getDiscounts = createAsyncThunk(
-    'discount/getDiscounts',
+export const getServices = createAsyncThunk(
+    'service/getServices',
     async (limit = -1, { rejectWithValue }) => {
         try {
-            const response = await discountsService.getDiscounts(limit);
+            const response = await serviceService.getServices(limit);
             return response;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -13,11 +13,11 @@ export const getDiscounts = createAsyncThunk(
     }
 );
 
-export const getDiscountById = createAsyncThunk(
-    'discount/getDiscountById',
+export const getServiceById = createAsyncThunk(
+    'service/getServiceById',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await discountsService.getDiscountById(id);
+            const response = await serviceService.getServiceById(id);
             return response;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -25,11 +25,11 @@ export const getDiscountById = createAsyncThunk(
     }
 );
 
-export const createDiscount = createAsyncThunk(
-    'discount/createDiscount',
-    async (discount, { rejectWithValue }) => {
+export const createService = createAsyncThunk(
+    'service/createService',
+    async (service, { rejectWithValue }) => {
         try {
-            const response = await discountsService.createDiscount(discount);
+            const response = await serviceService.createService(service);
             return response;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -37,11 +37,11 @@ export const createDiscount = createAsyncThunk(
     }
 );
 
-export const updateDiscount = createAsyncThunk(
-    'discount/updateDiscount',
-    async (discount, { rejectWithValue }) => {
+export const updateService = createAsyncThunk(
+    'service/updateService',
+    async (service, { rejectWithValue }) => {
         try {
-            const response = await discountsService.updateDiscount(discount._id, discount);
+            const response = await serviceService.updateService(service._id, service);
             return response;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -49,11 +49,11 @@ export const updateDiscount = createAsyncThunk(
     }
 );
 
-export const deleteDiscount = createAsyncThunk(
-    'discount/deleteDiscount',
+export const deleteService = createAsyncThunk(
+    'service/deleteService',
     async (id, { rejectWithValue }) => {
         try {
-            await discountsService.deleteDiscount(id);
+            await serviceService.deleteService(id);
             return id;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);

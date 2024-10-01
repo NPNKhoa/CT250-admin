@@ -1,5 +1,3 @@
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import Box from '@mui/material/Box';
 import { Trash2, FilePenLine, BadgePlus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -11,10 +9,11 @@ import Button from '@mui/material/Button';
 import ProductTypePopup from '../../components/Popup/ProductTypePopup';
 import { toast } from 'react-toastify';
 import AlertDialog from '../../components/common/AlertDialog';
+import TableComponent from '../../components/common/TableComponent';
 
 const ProductTypePage = () => {
   const dispatch = useDispatch();
-  const { productTypes } = useSelector((state) => state.productType);
+  const { productTypes, loading } = useSelector((state) => state.productType);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [alertConfig, setAlertConfig] = useState({
@@ -68,38 +67,41 @@ const ProductTypePage = () => {
     });
   };
 
-  const columns = useMemo(() => [
-    {
-      field: 'id',
-      headerName: 'STT',
-      flex: 1,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'productTypeName',
-      headerName: 'Tên loại sản phẩm',
-      flex: 2,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'updatedAt',
-      headerName: 'Ngày cập nhật',
-      type: 'Date',
-      flex: 2,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'createdAt',
-      headerName: 'Ngày tạo',
-      type: 'Date',
-      flex: 2,
-      headerAlign: 'center',
-      align: 'center',
-    },
-  ], []);
+  const columns = useMemo(
+    () => [
+      {
+        field: 'id',
+        headerName: 'STT',
+        flex: 1,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'productTypeName',
+        headerName: 'Tên loại sản phẩm',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'updatedAt',
+        headerName: 'Ngày cập nhật',
+        type: 'Date',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'createdAt',
+        headerName: 'Ngày tạo',
+        type: 'Date',
+        flex: 2,
+        headerAlign: 'center',
+        align: 'center',
+      },
+    ],
+    [],
+  );
 
   const rows = useMemo(
     () =>
@@ -149,23 +151,13 @@ const ProductTypePage = () => {
           </button>
         </div>
       </div>
-      <Box sx={{ height: 450, width: '100%', overflowX: 'auto' }}>
-        <DataGrid
-          slots={{ toolbar: GridToolbar }}
-          rows={rows}
-          columns={columns}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
-          checkboxSelection
-          onRowSelectionModelChange={(newRowSelectionModel) => {
-            handleSelected(newRowSelectionModel);
-          }}
-          sx={{ border: 0, minWidth: 600 }}
-          disableColumnMenu
-          disableDensitySelector
-          autoHeight
-        />
-      </Box>
+      <TableComponent
+        loading={loading}
+        rows={rows}
+        columns={columns}
+        paginationModel={paginationModel}
+        handleSelected={handleSelected}
+      />
       <ProductTypePopup
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}

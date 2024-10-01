@@ -3,28 +3,41 @@ import PropTypes from 'prop-types';
 import { TextField, Button, Box } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
-import { createProductType, updateProductType } from '../../redux/thunk/productTypeThunk';
+import {
+  createService,
+  updateService,
+} from '../../redux/thunk/serviceThunk';
+import { getProducts } from '../../redux/thunk/productThunk';
+import { getServices } from '../../redux/thunk/serviceThunk';
 
-const ProductTypePopup = ({ isOpen, onClose, data }) => {
+const ServicePopup = ({ isOpen, onClose, data }) => {
   const dispatch = useDispatch();
-  const initialProductType = useMemo(
+
+  const initialService = useMemo(
     () => ({
       _id: data?.[0]?._id || '',
-      productTypeName: data?.[0]?.productTypeName || '',
+      serviceName: data?.[0]?.serviceName || '',
+      servicePrice: data?.[0]?.servicePrice || 0,
     }),
     [data],
   );
 
-  const [productType, setProductType] = useState(initialProductType);
+  const [service, setService] = useState(initialService);
 
   useEffect(() => {
-    setProductType(initialProductType);
-  }, [initialProductType]);
+    dispatch(getProducts());
+    dispatch(getServices());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setService(initialService);
+  }, [initialService]);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProductType((prevProductType) => ({
-      ...prevProductType,
+    setService((prevService) => ({
+      ...prevService,
       [name]: value,
     }));
   };
@@ -34,16 +47,15 @@ const ProductTypePopup = ({ isOpen, onClose, data }) => {
 
     try {
       if (data && data.length > 0) {
-        console.log(productType);
-        await dispatch(updateProductType(productType)).unwrap();
+        await dispatch(updateService(service)).unwrap();
         toast.success('Cập nhật thành công!');
       } else {
-        await dispatch(createProductType(productType)).unwrap();
+        await dispatch(createService(service)).unwrap();
         toast.success('Thêm thành công!');
       }
     } catch (err) {
-      if (err === 'This product type is already exist') {
-        toast.error('Loại sản phẩm đã tồn tại!');
+      if (err === 'Service is already exist!') {
+        toast.error('Dịch vụ đã tồn tại!');
       } else {
         toast.error('Có lỗi xảy ra!');
       }
@@ -65,17 +77,30 @@ const ProductTypePopup = ({ isOpen, onClose, data }) => {
         sx={{ maxHeight: '100vh' }}
       >
         <h1 className="mb-2 text-center text-2xl font-bold">
-          {data && data.length > 0
-            ? 'Cập nhật loại sản phẩm'
-            : 'Thêm loại sản phẩm mới'}
+          {data && data.length > 0 ? 'Cập nhật dịch vụ' : 'Thêm dịch vụ mới'}
         </h1>
         <form onSubmit={handleSubmit}>
-          <TextField
-            label="Tên loại sản phẩm"
-            name="productTypeName"
-            value={productType.productTypeName}
+        <TextField
+            label="Tên dịch vụ"
+            name="serviceName"
+            value={service.serviceName}
             onChange={handleInputChange}
             fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Giá"
+            name="servicePrice"
+            value={service.servicePrice}
+            onChange={handleInputChange}
+            fullWidth
+            type="number"
+            slotProps={{
+                htmlInput: {
+                  min: 0,
+                },
+              }}
             margin="normal"
             required
           />
@@ -93,10 +118,10 @@ const ProductTypePopup = ({ isOpen, onClose, data }) => {
   );
 };
 
-ProductTypePopup.propTypes = {
+ServicePopup.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   data: PropTypes.array,
 };
 
-export default ProductTypePopup;
+export default ServicePopup;
