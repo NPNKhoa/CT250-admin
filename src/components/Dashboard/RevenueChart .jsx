@@ -76,8 +76,8 @@ const RevenueChart = () => {
           data={chartData}
           margin={{
             top: 10,
-            right: 30,
-            left: 30,
+            right: 50,
+            left: 50,
             bottom: 10,
           }}
         >

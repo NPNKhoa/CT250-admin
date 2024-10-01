@@ -17,6 +17,23 @@ import {
   CardContent,
   CardHeader,
 } from '@mui/material';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 import { format } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -46,13 +63,10 @@ const RevenueStatistic = () => {
   const [revenueAllYears, setRevenueAllYears] = useState(null);
 
   useEffect(() => {
-    // Lấy ngày hiện tại
     const today = new Date();
 
-    // Ngày đầu tháng
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // Định dạng dd mm yyyy cho startDate
     const formatDate = (date) => {
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng 0-11
@@ -107,7 +121,7 @@ const RevenueStatistic = () => {
           startDate,
           endDate,
         );
-        // console.log('hehe' + response);
+        console.log(response);
 
         if (response) {
           setRevenueByTime(response);
