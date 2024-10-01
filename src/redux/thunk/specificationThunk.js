@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import specificationsService from '../../services/specifications.service';
+import specificationsService from '../../services/specification.service';
 
 export const getSpecifications = createAsyncThunk(
     'specifications/getSpecifications',
