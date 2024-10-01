@@ -13,11 +13,11 @@ export const getProductTypes = createAsyncThunk(
     }
 );
 
-export const getProductById = createAsyncThunk(
-    'producttype/getProductById',
+export const getProductTypeById = createAsyncThunk(
+    'producttype/getProductTypeById',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await productTypeService.getProductById(id);
+            const response = await productTypeService.getProductTypeById(id);
             return response;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -25,11 +25,11 @@ export const getProductById = createAsyncThunk(
     }
 );
 
-export const createProduct = createAsyncThunk(
-    'producttype/createProduct',
+export const createProductType = createAsyncThunk(
+    'producttype/createProductType',
     async (product, { rejectWithValue }) => {
         try {
-            const response = await productTypeService.createProduct(product);
+            const response = await productTypeService.createProductType(product);
             return response;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -37,11 +37,11 @@ export const createProduct = createAsyncThunk(
     }
 );
 
-export const updateProduct = createAsyncThunk(
-    'producttype/updateProduct',
+export const updateProductType = createAsyncThunk(
+    'producttype/updateProductType',
     async (product, { rejectWithValue }) => {
         try {
-            const response = await productTypeService.updateProduct(product._id, product);
+            const response = await productTypeService.updateProductType(product._id, product);
             return response;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -49,11 +49,11 @@ export const updateProduct = createAsyncThunk(
     }
 );
 
-export const deleteProduct = createAsyncThunk(
-    'producttype/deleteProduct',
+export const deleteProductType = createAsyncThunk(
+    'producttype/deleteProductType',
     async (id, { rejectWithValue }) => {
         try {
-            await productTypeService.deleteProduct(id);
+            await productTypeService.deleteProductType(id);
             return id;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);

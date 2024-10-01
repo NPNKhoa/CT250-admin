@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import vouchersService from '../../services/vouchers.service';
+import vouchersService from '../../services/voucher.service';
 
 export const getVouchers = createAsyncThunk(
     'vouchers/getVouchers',

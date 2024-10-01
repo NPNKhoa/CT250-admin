@@ -57,12 +57,13 @@ const DataTable = ({
     setPage(0);
   };
 
-  const filteredData =
-    data?.filter((row) =>
-      Object.values(row).some((value) =>
-        String(value).toLowerCase().includes(filter.toLowerCase()),
-      ),
-    ) || [];
+  const filteredData = Array.isArray(data)
+    ? data.filter((row) =>
+        Object.values(row).some((value) =>
+          String(value).toLowerCase().includes(filter.toLowerCase()),
+        ),
+      )
+    : [];
 
   const sortedData = filteredData.sort((a, b) => {
     if (orderBy) {
