@@ -1,16 +1,16 @@
 import { Trash2, FilePenLine, BadgePlus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getBrands, deleteBrand } from '../../redux/thunk/brandThunk';
+import { getServices, deleteService } from '../../redux/thunk/serviceThunk';
 import { useEffect, useState, useMemo, Fragment } from 'react';
 import Button from '@mui/material/Button';
-import BrandPopup from '../../components/Popup/BrandPopup';
+import ServicePopup from '../../components/Popup/ServicePopup';
 import { toast } from 'react-toastify';
 import AlertDialog from '../../components/common/AlertDialog';
 import TableComponent from '../../components/common/TableComponent';
 
-const BrandPage = () => {
+const ServicePage = () => {
   const dispatch = useDispatch();
-  const { brands, loading } = useSelector((state) => state.brand);
+  const { services, loading } = useSelector((state) => state.service);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [alertConfig, setAlertConfig] = useState({
@@ -20,17 +20,17 @@ const BrandPage = () => {
   });
 
   useEffect(() => {
-    dispatch(getBrands());
+    dispatch(getServices());
   }, [dispatch]);
 
   const handleSelected = (index) => {
-    const selected = index.map((i) => brands[i - 1]);
+    const selected = index.map((i) => services[i - 1]);
     setSelectedRows(selected);
   };
 
   const handleUpdate = () => {
     if (selectedRows.length !== 1) {
-      toast.error('Vui lòng chọn 1 thương hiệu để cập nhật!');
+      toast.error('Vui lòng chọn 1 dịch vụ để cập nhật!');
     } else {
       setIsPopupOpen(true);
     }
@@ -38,18 +38,18 @@ const BrandPage = () => {
 
   const handleDelete = (ids) => {
     if (ids.length === 0) {
-      toast.error('Vui lòng chọn ít nhất một thương hiệu để xóa');
+      toast.error('Vui lòng chọn ít nhất một dịch vụ để xóa');
       return;
     }
 
     setAlertConfig({
       open: true,
-      title: 'Bạn có chắc chắn muốn xóa những thương hiệu đã chọn không?',
+      title: 'Bạn có chắc chắn muốn xóa những dịch vụ đã chọn không?',
       action: async () => {
         try {
           await Promise.all(
             ids.map(async (id) => {
-              const result = await dispatch(deleteBrand(id)).unwrap();
+              const result = await dispatch(deleteService(id)).unwrap();
               return result;
             }),
           );
@@ -74,18 +74,19 @@ const BrandPage = () => {
         align: 'center',
       },
       {
-        field: 'brandName',
-        headerName: 'Tên thương hiệu',
+        field: 'serviceName',
+        headerName: 'Tên dịch vụ',
         flex: 2,
         headerAlign: 'center',
         align: 'center',
       },
       {
-        field: 'brandDesc',
-        headerName: 'Mô tả',
+        field: 'servicePrice',
+        headerName: 'Giá (VNĐ)',
         flex: 3,
         headerAlign: 'center',
         align: 'center',
+        type: "number"
       },
       {
         field: 'updatedAt',
@@ -109,17 +110,17 @@ const BrandPage = () => {
 
   const rows = useMemo(
     () =>
-      brands.map((brand, index) => ({
-        ...brand,
+      services.map((service, index) => ({
+        ...service,
         id: index + 1,
-        updatedAt: brand.updatedAt
-          ? new Date(brand.updatedAt).toLocaleDateString('vi-VN')
+        updatedAt: service.updatedAt
+          ? new Date(service.updatedAt).toLocaleDateString('vi-VN')
           : '',
-        createdAt: brand.createdAt
-          ? new Date(brand.createdAt).toLocaleDateString('vi-VN')
+        createdAt: service.createdAt
+          ? new Date(service.createdAt).toLocaleDateString('vi-VN')
           : '',
       })),
-    [brands],
+    [services],
   );
 
   const paginationModel = { page: 0, pageSize: 5 };
@@ -127,7 +128,7 @@ const BrandPage = () => {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Thương hiệu</h1>
+        <h1 className="text-2xl font-bold">Dịch vụ</h1>
         <div className="ml-auto flex flex-col space-y-2 md:flex-row md:space-x-2 md:space-y-0">
           <button
             className="flex items-center rounded bg-green-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
@@ -162,7 +163,7 @@ const BrandPage = () => {
         paginationModel={paginationModel}
         handleSelected={handleSelected}
       />
-      <BrandPopup
+      <ServicePopup
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
         data={selectedRows}
@@ -194,4 +195,4 @@ const BrandPage = () => {
   );
 };
 
-export default BrandPage;
+export default ServicePage;

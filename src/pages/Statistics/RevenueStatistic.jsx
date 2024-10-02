@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Table,
@@ -12,143 +12,225 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Button,
   Card,
   CardContent,
   CardHeader,
 } from '@mui/material';
-import { format } from 'date-fns';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+);
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
-
-// Tạo dữ liệu giả, với tổng doanh thu bằng tổng "Chưa thanh toán" và "Đã thanh toán"
-const generateRevenueData = (days, multiplier) => {
-  return Array.from({ length: days }, () => {
-    const paid = Math.floor(Math.random() * (500000 * multiplier)); // Đã thanh toán
-    const unpaid = Math.floor(Math.random() * (500000 * multiplier)); // Chưa thanh toán
-    const total = paid + unpaid; // Tổng doanh thu bằng tổng hai giá trị trên
-    return { total, unpaid, paid };
-  });
-};
-
-// Fake dữ liệu doanh thu theo ngày, tháng và năm
-const revenueData = {
-  day: {
-    labels: Array.from({ length: 30 }, (_, i) =>
-      format(new Date(2024, 8, i + 1), 'dd/MM/yyyy'),
-    ),
-    data: generateRevenueData(30, 1),
-  },
-  month: {
-    labels: [
-      'Tháng 1',
-      'Tháng 2',
-      'Tháng 3',
-      'Tháng 4',
-      'Tháng 5',
-      'Tháng 6',
-      'Tháng 7',
-      'Tháng 8',
-      'Tháng 9',
-      'Tháng 10',
-      'Tháng 11',
-      'Tháng 12',
-    ],
-    data: generateRevenueData(12, 10),
-  },
-  year: {
-    data: generateRevenueData(5, 100),
-  },
-};
+import statictisService from '../../services/statictis.service';
+import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 
 const RevenueStatistic = () => {
+  const startYear = 2023;
+  const currentYear = new Date().getFullYear();
+  const years = [];
+
   const [timeFrame, setTimeFrame] = useState('day');
   const [showDetails, setShowDetails] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [year, setYear] = useState(currentYear);
+  const [revenue, setRevenue] = useState(null);
+  const [revenueByTime, setRevenueByTime] = useState(null);
+  const [revenueAllYears, setRevenueAllYears] = useState(null);
 
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Chi tiết doanh thu', 10, 10);
+  useEffect(() => {
+    const today = new Date();
 
-    const tableColumn = [
-      'Ngày/Tháng/Năm',
-      'Tổng doanh thu (VNĐ)',
-      'Chưa thanh toán (VNĐ)',
-      'Đã thanh toán (VNĐ)',
-    ];
-    const tableRows = revenueData[timeFrame].labels.map((label, index) => [
-      label,
-      revenueData[timeFrame].data[index].total.toLocaleString(),
-      revenueData[timeFrame].data[index].unpaid.toLocaleString(),
-      revenueData[timeFrame].data[index].paid.toLocaleString(),
-    ]);
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 6);
 
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-    });
+    const formatDate = (date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng 0-11
+      const year = date.getFullYear();
+      return `${year}/${month}/${day}`;
+    };
 
-    doc.save(`revenue_${timeFrame}.pdf`);
-  };
+    setStartDate(formatDate(sevenDaysAgo));
+    setEndDate(formatDate(today));
+  }, []);
 
-  const exportExcel = () => {
-    const workbook = XLSX.utils.book_new();
-    const worksheetData = [
-      [
-        'Ngày/Tháng/Năm',
-        'Tổng doanh thu (VNĐ)',
-        'Chưa thanh toán (VNĐ)',
-        'Đã thanh toán (VNĐ)',
-      ],
-      ...revenueData[timeFrame].labels.map((label, index) => [
-        label,
-        revenueData[timeFrame].data[index].total,
-        revenueData[timeFrame].data[index].unpaid,
-        revenueData[timeFrame].data[index].paid,
-      ]),
-    ];
+  console.log('Start Date:', startDate);
+  console.log('End Date:', endDate);
 
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Doanh thu');
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    const data = new Blob([excelBuffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-    saveAs(data, `revenue_${timeFrame}.xlsx`);
-  };
+  for (let i = startYear; i <= currentYear; i++) {
+    years.push(i);
+  }
+
+  useEffect(() => {
+    const fetchRevenueYear = async () => {
+      try {
+        const response = await statictisService.getRevenueByYear(year);
+
+        if (response) {
+          setRevenue(response);
+        } else {
+          console.error('Không có dữ liệu doanh thu.');
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy doanh thu:', error);
+      }
+    };
+
+    const fetchRevenueAllYear = async () => {
+      try {
+        const response = await statictisService.getRevenueForAllYears();
+        // console.log(response);
+
+        if (response) {
+          setRevenueAllYears(response);
+        } else {
+          console.error('Không có dữ liệu doanh thu.');
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy doanh thu:', error);
+      }
+    };
+
+    const fetchRevenueByTime = async () => {
+      try {
+        const response = await statictisService.getRevenueByTime(
+          startDate,
+          endDate,
+        );
+        console.log(response);
+
+        if (response) {
+          setRevenueByTime(response);
+        } else {
+          console.error('Không có dữ liệu doanh thu.');
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy doanh thu:', error);
+      }
+    };
+
+    if (timeFrame === 'month' || timeFrame === 'year') {
+      fetchRevenueYear();
+      fetchRevenueAllYear();
+    } else {
+      fetchRevenueByTime();
+    }
+  }, [year, timeFrame, startDate, endDate]);
+
+  useEffect(() => {
+    console.log('Updated revenueByTime:', revenueByTime);
+  }, [revenueByTime]);
+
+  // Hàm để lấy nhãn năm từ revenueResults
+  const getDateLabels = (data) => data?.map((item) => item.time);
+  const getMonthLabels = (data) => data?.map((item) => item.time);
+  const getYearLabels = (data) => data?.map((item) => item.time);
+
+  // Lấy danh sách các ngày từ `orderDate`
+
+  const getDataset = (data, label, backgroundColor, borderColor) => ({
+    label,
+    data,
+    backgroundColor,
+    borderColor,
+    borderWidth: 1,
+  });
 
   const chartData = {
-    labels: revenueData[timeFrame].labels,
-    datasets: [
-      {
-        label: 'Tổng doanh thu (VNĐ)',
-        data: revenueData[timeFrame].data.map((item) => item.total),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1,
-        hoverBackgroundColor: 'rgba(75, 192, 192, 1)',
-      },
-      {
-        label: 'Chưa thanh toán (VNĐ)',
-        data: revenueData[timeFrame].data.map((item) => item.unpaid),
-        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1,
-        hoverBackgroundColor: 'rgba(255, 99, 132, 1)',
-      },
-      {
-        label: 'Đã thanh toán (VNĐ)',
-        data: revenueData[timeFrame].data.map((item) => item.paid),
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1,
-        hoverBackgroundColor: 'rgba(54, 162, 235, 1)',
-      },
-    ],
+    labels:
+      timeFrame === 'month'
+        ? getMonthLabels(revenue?.data)
+        : timeFrame === 'year'
+          ? getYearLabels(revenueAllYears?.data) // Sử dụng hàm getYearLabels
+          : timeFrame === 'day'
+            ? getDateLabels(revenueByTime?.data)
+            : [],
+
+    datasets:
+      timeFrame === 'month' && revenue
+        ? [
+            getDataset(
+              revenue.data.map((item) => item.totalRevenue),
+              'Tổng Doanh Thu',
+              'rgba(0, 123, 255, 0.6)',
+              'rgba(0, 123, 255, 1)',
+            ),
+            getDataset(
+              revenue.data.map((item) => item.paidRevenue),
+              'Đã Thanh Toán',
+              'rgba(40, 167, 69, 0.6)',
+              'rgba(40, 167, 69, 1)',
+            ),
+            getDataset(
+              revenue.data.map((item) => item.unpaidRevenue),
+              'Chưa Thanh Toán',
+              'rgba(255, 99, 132, 0.6)',
+              'rgba(255, 99, 132, 1)',
+            ),
+          ]
+        : timeFrame === 'year' && revenueAllYears
+          ? [
+              getDataset(
+                revenueAllYears.data.map((item) => item.totalRevenue),
+                'Tổng Doanh Thu',
+                'rgba(0, 123, 255, 0.6)',
+                'rgba(0, 123, 255, 1)',
+              ),
+              getDataset(
+                revenueAllYears.data.map((item) => item.paidRevenue),
+                'Đã Thanh Toán',
+                'rgba(40, 167, 69, 0.6)',
+                'rgba(40, 167, 69, 1)',
+              ),
+              getDataset(
+                revenueAllYears.data.map((item) => item.unpaidRevenue),
+                'Chưa Thanh Toán',
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(255, 99, 132, 1)',
+              ),
+            ]
+          : [
+              getDataset(
+                revenueByTime
+                  ? revenueByTime.data.map((item) => item.totalRevenue)
+                  : '',
+                'Tổng Doanh Thu',
+                'rgba(0, 123, 255, 0.6)',
+                'rgba(0, 123, 255, 1)',
+              ),
+              getDataset(
+                revenueByTime
+                  ? revenueByTime.data.map((item) => item.paidRevenue)
+                  : '',
+                'Đã Thanh Toán',
+                'rgba(40, 167, 69, 0.6)',
+                'rgba(40, 167, 69, 1)',
+              ),
+              getDataset(
+                revenueByTime
+                  ? revenueByTime.data.map((item) => item.unpaidRevenue)
+                  : '',
+                'Chưa Thanh Toán',
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(255, 99, 132, 1)',
+              ),
+            ],
   };
 
   const chartOptions = {
@@ -190,112 +272,292 @@ const RevenueStatistic = () => {
     },
   };
 
+  const exportToExcel = () => {
+    const dataToExport =
+      timeFrame === 'day'
+        ? revenueByTime?.data
+        : timeFrame === 'month'
+          ? revenue?.data
+          : revenueAllYears?.data;
+
+    const formattedData = dataToExport?.map((item) => ({
+      'Thời gian': item.time,
+      'Tổng Doanh Thu': item.totalRevenue,
+      'Đã Thanh Toán': item.paidRevenue,
+      'Chưa Thanh Toán': item.unpaidRevenue,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet([]);
+
+    // Thêm tiêu đề cho file Excel
+    const titleRow = ['KTB Sport'];
+    let subtitleText = '';
+
+    if (timeFrame === 'day') {
+      const startDate = 'Ngày bắt đầu'; // Cần thay thế với giá trị thực tế
+      const endDate = 'Ngày kết thúc'; // Cần thay thế với giá trị thực tế
+      subtitleText = `Thống kê doanh thu từ ${startDate} đến ${endDate}`;
+    } else if (timeFrame === 'month') {
+      const year = new Date().getFullYear();
+      subtitleText = `Thống kê doanh thu các tháng trong năm ${year}`;
+    } else {
+      // Cần thay thế với giá trị thực tế
+      subtitleText = `Thống kê doanh thu tất cả các năm`;
+    }
+
+    const subtitleRow = [subtitleText];
+
+    // Tính số cột cho việc merge
+    const mergeColumnCount = Object.keys(formattedData[0] || {}).length;
+
+    // Gộp các ô cho tiêu đề
+    const mergedCells = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: mergeColumnCount - 1 } }, // Gộp hàng đầu tiên
+      { s: { r: 1, c: 0 }, e: { r: 1, c: mergeColumnCount - 1 } }, // Gộp hàng thứ hai
+    ];
+
+    // Thêm tiêu đề vào worksheet
+    XLSX.utils.sheet_add_aoa(worksheet, [titleRow], { origin: 'A1' });
+    XLSX.utils.sheet_add_aoa(worksheet, [subtitleRow], { origin: 'A2' });
+
+    // Gộp các ô tiêu đề
+    worksheet['!merges'] = mergedCells;
+
+    // Thay đổi kiểu chữ cho tiêu đề
+    const titleCell = worksheet['A1'];
+    const subtitleCell = worksheet['A2'];
+
+    if (titleCell) {
+      titleCell.s = {
+        font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } },
+        fill: { fgColor: { rgb: '0070C0' } },
+        alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
+      };
+    }
+
+    if (subtitleCell) {
+      subtitleCell.s = {
+        font: { bold: true, sz: 12, color: { rgb: '0070C0' } },
+        alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
+      };
+    }
+
+    // Đặt tiêu đề cho hàng
+    const headers = [
+      'Thời gian',
+      'Tổng Doanh Thu',
+      'Đã Thanh Toán',
+      'Chưa Thanh Toán',
+    ];
+    XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: 'A4' });
+
+    // Đặt kiểu chữ cho tiêu đề hàng
+    headers.forEach((header, index) => {
+      const cell = worksheet[XLSX.utils.encode_cell({ r: 3, c: index })];
+      if (cell) {
+        cell.s = {
+          font: { bold: true, color: { rgb: 'FFFFFF' } },
+          fill: { fgColor: { rgb: '4F81BD' } },
+          alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
+          border: {
+            top: { style: 'thin', color: { rgb: '000000' } },
+            bottom: { style: 'thin', color: { rgb: '000000' } },
+            left: { style: 'thin', color: { rgb: '000000' } },
+            right: { style: 'thin', color: { rgb: '000000' } },
+          },
+        };
+      }
+    });
+
+    // Thêm dữ liệu vào worksheet
+    formattedData.forEach((item, index) => {
+      const row = [
+        item['Thời gian'],
+        item['Tổng Doanh Thu'].toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        }),
+        item['Đã Thanh Toán'].toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        }),
+        item['Chưa Thanh Toán'].toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        }),
+      ];
+      XLSX.utils.sheet_add_aoa(worksheet, [row], { origin: `A${index + 5}` });
+    });
+
+    // Điều chỉnh kích thước cột
+    const colWidth = [150, 150, 150, 150]; // Chiều rộng cho các cột
+    colWidth.forEach((width, index) => {
+      worksheet['!cols'] = worksheet['!cols'] || [];
+      worksheet['!cols'][index] = { wpx: width };
+    });
+
+    // Định dạng dữ liệu trong worksheet
+    for (let i = 5; i < 5 + formattedData.length; i++) {
+      for (let j = 0; j < headers.length; j++) {
+        const cell = worksheet[XLSX.utils.encode_cell({ r: i, c: j })];
+        if (cell) {
+          cell.s = {
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } },
+            },
+            alignment: { horizontal: 'center' }, // Căn giữa cho dữ liệu
+          };
+        }
+      }
+    }
+
+    // Tạo tên file dựa trên timeFrame
+
+    const fileName =
+      timeFrame === 'day'
+        ? `doanh_thu_tu_${startDate}_den_${endDate}.xlsx`
+        : timeFrame === 'month'
+          ? `doanh_thu_nam_${year}.xlsx`
+          : 'doanh_thu_cac_nam.xlsx';
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Doanh Thu');
+    XLSX.writeFile(workbook, fileName);
+  };
+
   return (
     <div className="container mx-auto px-4 py-6">
       <h1 className="mb-6 text-4xl font-bold text-gray-800">
         Thống kê doanh thu
       </h1>
 
-      {/* Lựa chọn thời gian */}
-      <div className="mb-6 flex justify-end">
+      <div className="mb-6 flex justify-between">
         <FormControl className="w-1/4">
-          {/* Thay đổi kích thước tại đây */}
           <InputLabel>Chọn thời gian</InputLabel>
           <Select
             value={timeFrame}
             onChange={(e) => setTimeFrame(e.target.value)}
             label="Chọn thời gian"
           >
-            <MenuItem value="day">Theo ngày</MenuItem>
+            <MenuItem value="day">Theo khoảng thời gian</MenuItem>
             <MenuItem value="month">Theo tháng</MenuItem>
             <MenuItem value="year">Theo năm</MenuItem>
           </Select>
         </FormControl>
+        {timeFrame === 'month' && (
+          <select
+            className="w-[200px] rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={year}
+            onChange={(e) => setYear(e.target.value)} // Cập nhật năm khi chọn
+          >
+            {years.map((yearOption) => (
+              <option key={yearOption} value={yearOption}>
+                {yearOption}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {timeFrame === 'day' && (
+          <div className="flex items-center space-x-4">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="Ngày bắt đầu"
+              className="rounded border p-2"
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="Ngày kết thúc"
+              className="rounded border p-2"
+            />
+          </div>
+        )}
       </div>
 
-      {/* Biểu đồ doanh thu */}
       <Card className="mb-6">
         <CardHeader title="Biểu đồ doanh thu" />
         <CardContent>
-          <Bar data={chartData} options={chartOptions} />
+          <Bar data={chartData} options={chartOptions} height={100} />
         </CardContent>
       </Card>
 
-      <div className="my-6 flex justify-end gap-5">
-        <Button variant="contained" color="primary" onClick={exportPDF}>
-          Xuất file PDF
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={exportExcel}
-          className="ml-4"
-        >
-          Xuất file Excel
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          className="ml-4"
-          onClick={() => setShowDetails(!showDetails)}
-        >
-          {showDetails ? 'Ẩn chi tiết' : 'Xem chi tiết'}
-        </Button>
-      </div>
-
-      {/* Bảng chi tiết doanh thu */}
-      {showDetails && (
-        <Card>
-          <CardHeader
-            title={`Chi tiết doanh thu theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
-          />
+      <Card className="mb-6">
+        <CardHeader
+          title="Chi tiết doanh thu"
+          action={
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setShowDetails(!showDetails)}
+                className="rounded-lg bg-primary p-2 font-bold text-white"
+              >
+                {showDetails ? 'Ẩn chi tiết' : 'Hiển thị chi tiết'}
+              </button>
+              <button
+                onClick={exportToExcel} // Gọi hàm xuất Excel
+                className="mr-2 rounded-lg bg-green-500 p-2 font-bold text-white"
+              >
+                Xuất Excel
+              </button>
+            </div>
+          }
+        />
+        {showDetails && (
           <CardContent>
-            <TableContainer
-              component={Paper}
-              style={{ maxHeight: 400, overflowY: 'auto' }}
-            >
-              <Table aria-label="Chi tiết doanh thu">
+            <TableContainer component={Paper}>
+              <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>
-                      {timeFrame === 'day'
-                        ? 'Ngày'
-                        : timeFrame === 'month'
-                          ? 'Tháng'
-                          : 'Năm'}
-                    </TableCell>
-                    <TableCell align="right">Tổng doanh thu (VNĐ)</TableCell>
-                    <TableCell align="right">Chưa thanh toán (VNĐ)</TableCell>
-                    <TableCell align="right">Đã thanh toán (VNĐ)</TableCell>
+                    <TableCell>Thời gian</TableCell>
+                    <TableCell align="right">Tổng Doanh Thu</TableCell>
+                    <TableCell align="right">Đã Thanh Toán</TableCell>
+                    <TableCell align="right">Chưa Thanh Toán</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {revenueData[timeFrame].labels.map((label, index) => (
-                    <TableRow key={label}>
-                      <TableCell>{label}</TableCell>
-                      <TableCell align="right">
-                        {revenueData[timeFrame].data[
-                          index
-                        ].total.toLocaleString()}
-                      </TableCell>
-                      <TableCell align="right">
-                        {revenueData[timeFrame].data[
-                          index
-                        ].unpaid.toLocaleString()}
-                      </TableCell>
-                      <TableCell align="right">
-                        {revenueData[timeFrame].data[
-                          index
-                        ].paid.toLocaleString()}
+                  {(timeFrame === 'day' && revenueByTime?.data) ||
+                  (timeFrame === 'month' && revenue?.data) ||
+                  (timeFrame === 'year' && revenueAllYears?.data) ? (
+                    (
+                      (timeFrame === 'day' && revenueByTime.data) ||
+                      (timeFrame === 'month' && revenue.data) ||
+                      (timeFrame === 'year' && revenueAllYears.data)
+                    ).map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{item.time}</TableCell>
+                        <TableCell align="right">
+                          {toVietnamCurrencyFormat(item.totalRevenue)}
+                        </TableCell>
+                        <TableCell align="right">
+                          {toVietnamCurrencyFormat(item.paidRevenue)}
+                        </TableCell>
+                        <TableCell align="right">
+                          {toVietnamCurrencyFormat(item.unpaidRevenue)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        Không có dữ liệu
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
           </CardContent>
-        </Card>
-      )}
+        )}
+      </Card>
     </div>
   );
 };

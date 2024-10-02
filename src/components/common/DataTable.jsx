@@ -57,12 +57,13 @@ const DataTable = ({
     setPage(0);
   };
 
-  const filteredData =
-    data?.filter((row) =>
-      Object.values(row).some((value) =>
-        String(value).toLowerCase().includes(filter.toLowerCase()),
-      ),
-    ) || [];
+  const filteredData = Array.isArray(data)
+    ? data.filter((row) =>
+        Object.values(row).some((value) =>
+          String(value).toLowerCase().includes(filter.toLowerCase()),
+        ),
+      )
+    : [];
 
   const sortedData = filteredData.sort((a, b) => {
     if (orderBy) {
@@ -82,12 +83,9 @@ const DataTable = ({
   );
 
   return (
-    <Paper elevation={3} className="my-4">
-      <Toolbar className="p-4">
-        <h3
-          id="tableTitle"
-          className="text-3xl font-bold uppercase text-primary"
-        >
+    <Paper elevation={3} className="rounded-xl">
+      <Toolbar className="py-1">
+        <h3 id="tableTitle" className="text-xl font-bold uppercase text-black">
           {title}
         </h3>
         {filterable && (
@@ -105,10 +103,10 @@ const DataTable = ({
       <TableContainer>
         <Table>
           <TableHead>
-            <TableRow className="bg-primary">
+            <TableRow className="bg-white">
               {showIndex && (
                 <TableCell align="center">
-                  <span className="text-base font-semibold text-white">#</span>
+                  <span className="text-base font-semibold text-black">#</span>
                 </TableCell>
               )}
               {columns.map((column) => (
@@ -126,12 +124,12 @@ const DataTable = ({
                       }}
                       onClick={() => handleRequestSort(column.id)}
                     >
-                      <span className="text-base font-semibold text-white">
+                      <span className="text-base font-semibold text-black">
                         {column.label}
                       </span>
                     </TableSortLabel>
                   ) : (
-                    <span className="text-base font-semibold text-white">
+                    <span className="text-base font-semibold text-black">
                       {column.label}
                     </span>
                   )}
@@ -139,7 +137,7 @@ const DataTable = ({
               ))}
               {Object.values(actions).some((value) => value) && (
                 <TableCell align="center" className="text-nowrap">
-                  <span className="text-base font-semibold text-white">
+                  <span className="text-base font-semibold text-black">
                     Thao tác
                   </span>
                 </TableCell>

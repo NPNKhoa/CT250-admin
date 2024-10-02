@@ -15,6 +15,21 @@ class StatictisService {
     }
   }
 
+  async getRevenueByTime(startDate, endDate) {
+    try {
+      const response = await this.api.get('/totalrevenuebytime', {
+        params: { startDate, endDate },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        'Lỗi khi lấy doanh thu và trạng thái thanh toán theo ngày:',
+        error,
+      );
+      throw error;
+    }
+  }
+
   async getMonthlyRevenue(month, year) {
     try {
       const response = await this.api.get('/totalrevenuebymonth', {
@@ -30,6 +45,18 @@ class StatictisService {
   async getRevenueByYear(year) {
     try {
       const response = await this.api.get('/totalrevenuebyyear', {
+        params: { year },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy doanh thu:', error);
+      throw error;
+    }
+  }
+
+  async getRevenueForAllYears(year) {
+    try {
+      const response = await this.api.get('/totalrevenueallyears', {
         params: { year },
       });
       return response.data;
@@ -87,6 +114,28 @@ class StatictisService {
       return response.data;
     } catch (error) {
       console.error('Lỗi khi lấy số lượng từng loại sản phẩm', error);
+      throw error;
+    }
+  }
+
+  async getTotalSoldPerMonth(month, year) {
+    try {
+      const response = await this.api.get(`/totalsoldpermonth`, {
+        params: { month, year },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy tổng số sản phẩm bán ra theo tháng:', error);
+      throw error;
+    }
+  }
+
+  async getAllOrders(params) {
+    try {
+      const response = await this.api.get('/lastedorders', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi lấy tất cả đơn hàng:', error);
       throw error;
     }
   }

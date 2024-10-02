@@ -21,6 +21,7 @@ import StatPage from './Statistics/StatPage';
 import RevenueStatistic from './Statistics/RevenueStatistic';
 import OrderStatistic from './Statistics/OrderStatistic';
 import ProductStatistic from './Statistics/ProductStatistic';
+import ServicePage from './Products/ServicePage.jsx';
 
 export {
   NotFoundPage,
@@ -45,4 +46,5 @@ export {
   RevenueStatistic,
   OrderStatistic,
   ProductStatistic,
+  ServicePage,
 };
