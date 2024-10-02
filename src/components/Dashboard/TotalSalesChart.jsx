@@ -34,7 +34,7 @@ const TotalSalesChart = () => {
           label: item.productType,
           value: item.totalSold,
           percentage: `${item.percentage}%`,
-          chartColor: softColors[index % softColors.length], // Lấy màu từ softColors theo index
+          chartColor: softColors[index % softColors.length],
         }));
 
         setProductData(formattedData);

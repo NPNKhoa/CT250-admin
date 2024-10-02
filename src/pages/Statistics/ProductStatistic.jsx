@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Line, Doughnut } from 'react-chartjs-2';
 import {
   Card,
@@ -42,6 +42,8 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import statictisService from '../../services/statictis.service';
+import TopSellingProduct from '../../components/Dashboard/TopSellingProduct';
 
 // Dữ liệu giả cho sản phẩm
 const productData = [
@@ -97,11 +99,51 @@ const salesData = {
     data: generateProductSalesData(2, productData, 1200),
   },
 };
-
+const softColors = [
+  'rgba(255, 99, 71, 0.6)',
+  'rgba(54, 162, 235, 0.6)',
+  'rgba(255, 99, 132, 0.6)',
+  'rgba(75, 192, 192, 0.6)',
+  'rgba(153, 102, 255, 0.6)',
+  'rgba(255, 159, 64, 0.6)',
+  'rgba(54, 235, 162, 0.6)',
+  'rgba(255, 86, 206, 0.6)',
+  'rgba(102, 153, 255, 0.6)',
+  'rgba(192, 75, 75, 0.6)',
+  'rgba(86, 255, 159, 0.6)',
+];
 const ProductStatistic = () => {
   const [timeFrame, setTimeFrame] = useState('day');
   const [showDetails, setShowDetails] = useState(false);
+  const [productData, setProductData] = useState([]);
+  const [totalProducts, setTotalProducts] = useState(0);
 
+  useEffect(() => {
+    // Gọi API để lấy dữ liệu
+    const fetchProductData = async () => {
+      try {
+        const response = await statictisService.getQuantityPerProductType();
+        const data = response.data;
+
+        const formattedData = data.map((item, index) => ({
+          label: item.productType,
+          value: item.totalSold,
+          percentage: `${item.percentage}%`,
+          chartColor: softColors[index % softColors.length],
+        }));
+
+        setProductData(formattedData);
+
+        // Tính tổng sản phẩm
+        const total = formattedData.reduce((acc, item) => acc + item.value, 0);
+        setTotalProducts(total);
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu từ API', error);
+      }
+    };
+
+    fetchProductData();
+  }, []);
   // Xuất dữ liệu sang PDF
   const exportPDF = () => {
     const doc = new jsPDF();
@@ -236,19 +278,19 @@ const ProductStatistic = () => {
   };
 
   // Chuẩn bị dữ liệu cho biểu đồ Line
-  const lineChartData = {
-    labels: salesData[timeFrame]?.labels || [], // Bổ sung xử lý nếu không có dữ liệu
-    datasets: productData.map((product, index) => ({
-      label: product.name,
-      data:
-        salesData[timeFrame]?.data.map(
-          (sales) => sales.find((s) => s.name === product.name)?.sold || 0,
-        ) || [], // Bổ sung xử lý nếu không có dữ liệu
-      borderColor: `rgba(${75 + index * 20}, ${192 - index * 30}, 192, 1)`,
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      fill: true,
-    })),
-  };
+  // const lineChartData = {
+  //   labels: salesData[timeFrame]?.labels || [], // Bổ sung xử lý nếu không có dữ liệu
+  //   datasets: productData.map((product, index) => ({
+  //     label: product.name,
+  //     data:
+  //       salesData[timeFrame]?.data.map(
+  //         (sales) => sales.find((s) => s.name === product.name)?.sold || 0,
+  //       ) || [], // Bổ sung xử lý nếu không có dữ liệu
+  //     borderColor: `rgba(${75 + index * 20}, ${192 - index * 30}, 192, 1)`,
+  //     backgroundColor: 'rgba(75, 192, 192, 0.2)',
+  //     fill: true,
+  //   })),
+  // };
 
   // Chuẩn bị dữ liệu cho biểu đồ Doughnut
   const totalSales = productData.map((product) => ({
@@ -260,29 +302,17 @@ const ProductStatistic = () => {
     ),
   }));
 
-  const donutChartData = {
-    labels: totalSales.map((product) => product.name),
+  const doughnutData = {
+    labels: productData.map((item) => item.label),
     datasets: [
       {
-        data: totalSales.map((product) => product.sold),
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.6)', // Màu đỏ
-          'rgba(54, 162, 235, 0.6)', // Màu xanh dương
-          'rgba(255, 206, 86, 0.6)', // Màu vàng
-          'rgba(75, 192, 192, 0.6)', // Màu xanh ngọc
-          'rgba(153, 102, 255, 0.6)', // Màu tím
-          'rgba(255, 159, 64, 0.6)', // Màu cam
-          'rgba(255, 99, 71, 0.6)', // Màu đỏ nhạt
-          'rgba(54, 235, 162, 0.6)', // Màu xanh lá cây
-          'rgba(255, 86, 206, 0.6)', // Màu hồng
-          'rgba(102, 153, 255, 0.6)', // Màu xanh tím
-          'rgba(192, 75, 75, 0.6)', // Màu nâu
-          'rgba(86, 255, 159, 0.6)', // Màu xanh lá cây sáng
-        ],
+        data: productData.map((item) => item.value),
+        backgroundColor: productData.map((item) => item.chartColor),
+        hoverOffset: 6,
+        borderWidth: 1,
       },
     ],
   };
-
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -297,24 +327,25 @@ const ProductStatistic = () => {
         },
       },
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: (value) => value.toLocaleString(),
-        },
-      },
-    },
+    // scales: {
+    //   y: {
+    //     beginAtZero: true,
+    //     ticks: {
+    //       callback: (value) => value.toLocaleString(),
+    //     },
+    //   },
+    // },
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="mb-6 text-4xl font-bold text-gray-800">
-        Thống kê sản phẩm
-      </h1>
+    <>
+      <div className="container mx-auto px-4 py-6">
+        <h1 className="mb-6 text-4xl font-bold text-gray-800">
+          Thống kê sản phẩm
+        </h1>
 
-      {/* Lựa chọn thời gian */}
-      <div className="mb-6 flex justify-end">
+        {/* Lựa chọn thời gian */}
+        {/* <div className="mb-6 flex justify-end">
         <FormControl variant="outlined" className="w-1/4">
           <InputLabel>Chọn thời gian</InputLabel>
           <Select
@@ -327,172 +358,169 @@ const ProductStatistic = () => {
             <MenuItem value="year">Theo năm</MenuItem>
           </Select>
         </FormControl>
-      </div>
+      </div> */}
 
-      {/* Biểu đồ đường số lượng sản phẩm bán ra */}
-      <Card className="mb-6">
+        {/* Biểu đồ đường số lượng sản phẩm bán ra */}
+        {/* <Card className="mb-6">
         <CardHeader title="Biểu đồ đường số lượng loại sản phẩm bán ra" />
         <CardContent>
           <Line data={lineChartData} options={chartOptions} />
         </CardContent>
-      </Card>
+      </Card> */}
 
-      {/* Biểu đồ donut thống kê số lượng sản phẩm */}
+        {/* Biểu đồ donut thống kê số lượng sản phẩm */}
 
-      <Card className="mb-6">
-        <CardHeader title="Thống kê số lượng loại sản phẩm bán ra" />
-        <div className="flex items-start justify-between">
-          {/* Cột bên trái: Biểu đồ */}
-          <div className="w-1/2 p-4">
-            <CardContent>
-              <div
-                style={{ width: '450px', height: '450px', margin: '0 auto' }}
-              >
-                <Doughnut
-                  data={donutChartData}
-                  options={{ ...chartOptions, maintainAspectRatio: false }}
-                />
+        <Card className="mb-6">
+          {/* <CardHeader title="Thống kê số lượng loại sản phẩm bán ra" /> */}
+          <div className="flex items-start justify-between">
+            {/* Cột bên trái: Biểu đồ */}
+            <div className="w-1/2 p-4">
+              <CardContent>
+                <div
+                  style={{ width: '450px', height: '450px', margin: '0 auto' }}
+                >
+                  <Doughnut
+                    data={doughnutData}
+                    options={{ ...chartOptions, maintainAspectRatio: false }}
+                  />
+                </div>
+              </CardContent>
+            </div>
+
+            {/* Cột bên phải: Thông tin chi tiết */}
+            <div className="w-1/2 p-2">
+              <div className="mt-4 flex flex-col">
+                <ul className="w-full space-y-4">
+                  {productData.map((product, index) => {
+                    return (
+                      <li
+                        key={index}
+                        className="flex items-center justify-between rounded-lg bg-gray-100 p-2 shadow-sm"
+                      >
+                        {/* Thông tin sản phẩm */}
+                        <div className="flex items-center">
+                          <span
+                            className={`mr-3 inline-block h-4 w-4 rounded-full`}
+                            style={{
+                              backgroundColor:
+                                doughnutData.datasets[0].backgroundColor[index], // Màu sắc cho từng sản phẩm
+                            }}
+                          ></span>
+                          <span className="text-sm font-medium">
+                            {product.label}
+                          </span>
+                        </div>
+
+                        {/* Số lượng bán ra và tỷ lệ phần trăm */}
+                        <div className="flex items-center">
+                          <span className="text-gray-500">{`${product.value} sản phẩm`}</span>
+                          <span className="ml-2 text-xs text-gray-400">{`(${product.percentage}%)`}</span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-            </CardContent>
-          </div>
-
-          {/* Cột bên phải: Thông tin chi tiết */}
-          <div className="w-1/2 p-2">
-            <div className="mt-4 flex flex-col">
-              <ul className="w-full space-y-4">
-                {totalSales.map((product, index) => {
-                  const totalSold = totalSales.reduce(
-                    (acc, prod) => acc + prod.sold,
-                    0,
-                  );
-                  const percentage = totalSold
-                    ? ((product.sold / totalSold) * 100).toFixed(2)
-                    : 0; // Tính tỷ lệ phần trăm
-
-                  return (
-                    <li
-                      key={index}
-                      className="flex items-center justify-between rounded-lg bg-gray-100 p-2 shadow-sm"
-                    >
-                      {/* Thông tin sản phẩm */}
-                      <div className="flex items-center">
-                        <span
-                          className={`mr-3 inline-block h-4 w-4 rounded-full`}
-                          style={{
-                            backgroundColor:
-                              donutChartData.datasets[0].backgroundColor[index], // Màu sắc cho từng sản phẩm
-                          }}
-                        ></span>
-                        <span className="text-sm font-medium">
-                          {product.name}
-                        </span>
-                      </div>
-
-                      {/* Số lượng bán ra và tỷ lệ phần trăm */}
-                      <div className="flex items-center">
-                        <span className="text-gray-500">{`${product.sold} sản phẩm`}</span>
-                        <span className="ml-2 text-xs text-gray-400">{`(${percentage}%)`}</span>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
             </div>
           </div>
-        </div>
-      </Card>
-
-      <div className="my-6 flex justify-end gap-5">
-        <Button variant="contained" color="primary" onClick={exportPDF}>
-          Xuất file PDF
-        </Button>
-        <Button variant="contained" color="secondary" onClick={exportExcel}>
-          Xuất file Excel
-        </Button>
-        <Button
-          variant="contained"
-          color="default"
-          onClick={() => setShowDetails(!showDetails)}
-        >
-          {showDetails ? 'Ẩn chi tiết' : 'Xem chi tiết'}
-        </Button>
-      </div>
-
-      {/* Bảng chi tiết sản phẩm bán chạy */}
-      {!showDetails ? (
-        <Card>
-          <CardHeader
-            title={`Chi tiết số lượng từng sản phẩm theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
-          />
-          <CardContent>
-            <TableContainer component={Paper}>
-              <Table id="product-table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Tên sản phẩm</TableCell>
-                    <TableCell>Số lượng bán ra</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {totalSales.map((product, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{product.name}</TableCell>
-                      <TableCell>{product.sold}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </CardContent>
         </Card>
-      ) : (
-        <Card>
-          <CardHeader
-            title={`Chi tiết số lượng sản phẩm theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
-          />
-          <CardContent>
-            <TableContainer
-              component={Paper}
-              style={{ maxHeight: 400, overflowY: 'auto' }}
-            >
-              <Table id="product-table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      {timeFrame === 'day'
-                        ? 'Ngày'
-                        : timeFrame === 'month'
-                          ? 'Tháng'
-                          : 'Năm'}
-                    </TableCell>
-                    {productData.map((product) => (
-                      <TableCell key={product.name} align="right">
-                        {product.name}
-                      </TableCell>
+
+        <div className="my-6 flex justify-end gap-5">
+          <Button variant="contained" color="primary" onClick={exportPDF}>
+            Xuất file PDF
+          </Button>
+          <Button variant="contained" color="secondary" onClick={exportExcel}>
+            Xuất file Excel
+          </Button>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            {showDetails ? 'Ẩn chi tiết' : 'Xem chi tiết'}
+          </Button>
+        </div>
+
+        {/* Bảng chi tiết sản phẩm bán chạy */}
+        {!showDetails ? (
+          <Card>
+            <CardHeader
+              sx={{ fontWeight: 'bold', fontSize: '1.25rem' }}
+              title={`Chi tiết số lượng từng sản phẩm theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
+            />
+            <CardContent>
+              <TableContainer component={Paper}>
+                <Table id="product-table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Tên sản phẩm</TableCell>
+                      <TableCell>Số lượng bán ra</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {productData.map((product, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{product.label}</TableCell>
+                        <TableCell>{product.value}</TableCell>
+                      </TableRow>
                     ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {salesData[timeFrame].data.map((sales, index) => (
-                    <TableRow key={index}>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader
+              title={`Chi tiết số lượng sản phẩm theo ${timeFrame === 'day' ? 'ngày' : timeFrame === 'month' ? 'tháng' : 'năm'}`}
+            />
+            <CardContent>
+              <TableContainer
+                component={Paper}
+                style={{ maxHeight: 400, overflowY: 'auto' }}
+              >
+                <Table id="product-table">
+                  <TableHead>
+                    <TableRow>
                       <TableCell>
-                        {salesData[timeFrame].labels[index]}
+                        {timeFrame === 'day'
+                          ? 'Ngày'
+                          : timeFrame === 'month'
+                            ? 'Tháng'
+                            : 'Năm'}
                       </TableCell>
                       {productData.map((product) => (
                         <TableCell key={product.name} align="right">
-                          {sales.find((s) => s.name === product.name)?.sold ||
-                            0}
+                          {product.name}
                         </TableCell>
                       ))}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+                  </TableHead>
+                  <TableBody>
+                    {salesData[timeFrame].data.map((sales, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          {salesData[timeFrame].labels[index]}
+                        </TableCell>
+                        {productData.map((product) => (
+                          <TableCell key={product.name} align="right">
+                            {sales.find((s) => s.name === product.name)?.sold ||
+                              0}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+      <div className="container mx-auto px-4 py-4">
+        <TopSellingProduct />
+      </div>
+    </>
   );
 };
 
