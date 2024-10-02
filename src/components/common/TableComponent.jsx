@@ -25,6 +25,7 @@ const TableComponent = ({
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}
         checkboxSelection
+        rowSelectionModel={loading ? [] : undefined}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           handleSelected(newRowSelectionModel);
         }}
@@ -40,7 +41,7 @@ const TableComponent = ({
             lineHeight: '1.5',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center', 
+            justifyContent: 'center',
           },
           '& .MuiDataGrid-columnHeaders': {
             '& .MuiDataGrid-columnHeaderTitle': {
