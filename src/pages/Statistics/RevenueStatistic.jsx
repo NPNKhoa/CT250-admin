@@ -69,10 +69,6 @@ const RevenueStatistic = () => {
     setStartDate(formatDate(sevenDaysAgo));
     setEndDate(formatDate(today));
   }, []);
-
-  console.log('Start Date:', startDate);
-  console.log('End Date:', endDate);
-
   for (let i = startYear; i <= currentYear; i++) {
     years.push(i);
   }
@@ -113,7 +109,6 @@ const RevenueStatistic = () => {
           startDate,
           endDate,
         );
-        console.log(response);
 
         if (response) {
           setRevenueByTime(response);
@@ -159,7 +154,7 @@ const RevenueStatistic = () => {
         : timeFrame === 'year'
           ? getYearLabels(revenueAllYears?.data) // Sử dụng hàm getYearLabels
           : timeFrame === 'day'
-            ? getDateLabels(revenueByTime?.data)
+            ? getDateLabels(revenueByTime)
             : [],
 
     datasets:
@@ -208,24 +203,24 @@ const RevenueStatistic = () => {
           : [
               getDataset(
                 revenueByTime
-                  ? revenueByTime.data.map((item) => item.totalRevenue)
-                  : '',
+                  ? revenueByTime.map((item) => item.totalRevenue)
+                  : [],
                 'Tổng Doanh Thu',
                 'rgba(0, 123, 255, 0.6)',
                 'rgba(0, 123, 255, 1)',
               ),
               getDataset(
                 revenueByTime
-                  ? revenueByTime.data.map((item) => item.paidRevenue)
-                  : '',
+                  ? revenueByTime.map((item) => item.paidRevenue)
+                  : [],
                 'Đã Thanh Toán',
                 'rgba(40, 167, 69, 0.6)',
                 'rgba(40, 167, 69, 1)',
               ),
               getDataset(
                 revenueByTime
-                  ? revenueByTime.data.map((item) => item.unpaidRevenue)
-                  : '',
+                  ? revenueByTime.map((item) => item.unpaidRevenue)
+                  : [],
                 'Chưa Thanh Toán',
                 'rgba(255, 99, 132, 0.6)',
                 'rgba(255, 99, 132, 1)',
@@ -275,7 +270,7 @@ const RevenueStatistic = () => {
   const exportToExcel = () => {
     const dataToExport =
       timeFrame === 'day'
-        ? revenueByTime?.data
+        ? revenueByTime
         : timeFrame === 'month'
           ? revenue?.data
           : revenueAllYears?.data;
@@ -524,11 +519,11 @@ const RevenueStatistic = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(timeFrame === 'day' && revenueByTime?.data) ||
+                  {(timeFrame === 'day' && revenueByTime) ||
                   (timeFrame === 'month' && revenue?.data) ||
                   (timeFrame === 'year' && revenueAllYears?.data) ? (
                     (
-                      (timeFrame === 'day' && revenueByTime.data) ||
+                      (timeFrame === 'day' && revenueByTime) ||
                       (timeFrame === 'month' && revenue.data) ||
                       (timeFrame === 'year' && revenueAllYears.data)
                     ).map((item, index) => (

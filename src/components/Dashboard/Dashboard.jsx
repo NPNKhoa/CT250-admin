@@ -24,7 +24,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchTotalRevenue = async () => {
       try {
-        const result = await statictisService.getMonthlyRevenue();
+        const result = await statictisService.getMonthlyRevenue(
+          currentMonth,
+          currentYear,
+        );
         setTotalRevenue(result.totalRevenue);
       } catch (error) {
         console.error('Lỗi khi lấy tổng doanh thu:', error);
@@ -50,7 +53,10 @@ const Dashboard = () => {
 
     const fetchTotalOrders = async () => {
       try {
-        const result = await statictisService.getTotalOrdersByMonth();
+        const result = await statictisService.getTotalOrdersByMonth(
+          currentMonth,
+          currentYear,
+        );
 
         setTotalOrders(result.totalOrdersByMonth);
       } catch (error) {
@@ -88,7 +94,10 @@ const Dashboard = () => {
 
     const fetchTotalSoldPerMonth = async () => {
       try {
-        const result = await statictisService.getTotalSoldPerMonth();
+        const result = await statictisService.getTotalSoldPerMonth(
+          currentMonth,
+          currentYear,
+        );
         setTotalSold(result.data);
       } catch (error) {
         console.error('Lỗi khi lấy tổng số tài khoản của tháng:', error);
@@ -151,6 +160,10 @@ const Dashboard = () => {
           totalSoldLastMonth) *
         100
       : 100;
+
+  console.log(totalSold.totalProductsSold);
+  console.log(totalSoldLastMonth);
+  console.log(growthPercentageSold);
 
   const statsData = [
     {
