@@ -1,15 +1,38 @@
-import { Divider, Stack, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import systemConfigService from '../../services/systemConfig.service';
+
+import { Divider, Skeleton, Stack, Typography } from '@mui/material';
 import BannerList from './BannerList';
 import PriceFilterList from './PriceFilterList';
 
-import banner1 from '../../assets/banners/banner1.webp';
-import banner2 from '../../assets/banners/banner2.webp';
-import banner3 from '../../assets/banners/banner3.webp';
-import banner4 from '../../assets/banners/banner4.webp';
-
-const bannerList = [banner1, banner2, banner3, banner4];
+import { toast } from 'react-toastify';
+import ParagraphSkeleton from '../common/ParagraphSkeleton';
 
 const ReadOnlyView = () => {
+  const [configData, setConfigData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const data = await systemConfigService.getConfig();
+        setConfigData(data.data);
+      } catch (err) {
+        console.log(err);
+        toast.error('Lỗi khi tải cấu hình!');
+        throw new Error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConfig();
+  }, []);
+
+  const bannerImagePath = configData?.bannerImgPath?.map(
+    (item) => `http://localhost:5000/${item}`,
+  );
+
   return (
     <Stack spacing={2} className="mt-4">
       <div className="flex w-full items-center justify-center">
@@ -17,11 +40,19 @@ const ReadOnlyView = () => {
           <Typography variant="h3" gutterBottom>
             Logo cửa hàng
           </Typography>
-          <img
-            src="/logo.svg"
-            alt="logo"
-            className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
-          />
+          {loading ? (
+            <img
+              src={'src/assets/image_placeholder.svg'}
+              alt="bla bla"
+              className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
+            />
+          ) : (
+            <img
+              src={'http://localhost:5000/' + configData?.shopLogoImgPath}
+              alt="logo"
+              className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
+            />
+          )}
         </div>
 
         <div className="w-1/2">
@@ -29,14 +60,38 @@ const ReadOnlyView = () => {
             Thông tin cửa hàng
           </Typography>
           <Stack spacing={1}>
-            <Typography variant="h6">
-              <strong>Tên cửa hàng:</strong> KTB Sport
+            <Typography
+              variant="h6"
+              className="flex items-center justify-start gap-2"
+            >
+              <strong>Tên cửa hàng:</strong>{' '}
+              {loading ? (
+                <Skeleton animation="wave" width={'50%'} />
+              ) : (
+                configData?.shopName
+              )}
             </Typography>
-            <Typography variant="h6">
-              <strong>Email liên hệ:</strong> ktbsport@gmail.com
+            <Typography
+              variant="h6"
+              className="flex items-center justify-start gap-2"
+            >
+              <strong>Email liên hệ:</strong>{' '}
+              {loading ? (
+                <Skeleton animation="wave" width={'50%'} />
+              ) : (
+                configData?.shopEmail
+              )}
             </Typography>
-            <Typography variant="h6">
-              <strong>Số điện thoại:</strong> 0987678962
+            <Typography
+              variant="h6"
+              className="flex items-center justify-start gap-2"
+            >
+              <strong>Số điện thoại:</strong>{' '}
+              {loading ? (
+                <Skeleton animation="wave" width={'50%'} />
+              ) : (
+                configData?.shopPhoneNumber
+              )}
             </Typography>
           </Stack>
         </div>
@@ -47,17 +102,14 @@ const ReadOnlyView = () => {
           Giới thiệu cửa hàng
         </Typography>
         <div>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat,
-          dolore. Architecto a labore quod eligendi aspernatur exercitationem
-          ratione veniam id pariatur voluptates, ea perferendis cum. Dolorum
-          veritatis odit consequuntur porro?
+          {loading ? <ParagraphSkeleton /> : configData?.shopIntroduction}
         </div>
       </div>
       <Divider />
       <div>
         <Typography variant="h3">Banner hiện tại</Typography>
         <div className="mt-8">
-          <BannerList isEditing={false} banners={bannerList} />
+          <BannerList banners={bannerImagePath} />
         </div>
       </div>
       <Divider />
@@ -69,7 +121,7 @@ const ReadOnlyView = () => {
           <Typography variant="h4" gutterBottom>
             Bộ lọc theo giá
           </Typography>
-          <PriceFilterList isEditing={false} />
+          <PriceFilterList priceFilterList={configData?.shopPriceFilter} />
         </div>
       </div>
       <Divider />

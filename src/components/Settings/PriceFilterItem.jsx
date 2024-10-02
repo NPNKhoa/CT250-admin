@@ -5,6 +5,8 @@ import InfoIcon from '@mui/icons-material/Info';
 import { IconButton } from '@mui/material';
 import { useEditMode } from '../../hooks/useEditMode';
 
+import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
+
 const PriceFilterItem = ({ fromPrice, toPrice, index }) => {
   const { isEditable } = useEditMode();
 
@@ -13,8 +15,8 @@ const PriceFilterItem = ({ fromPrice, toPrice, index }) => {
       className={`my-2 flex items-center justify-between rounded-md border border-slate-300 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-100'} p-4 shadow-md`}
     >
       <span>
-        {toPrice && 'Từ'} <strong>{fromPrice}</strong> {toPrice && 'đến'}{' '}
-        <strong>{toPrice}</strong>
+        {toPrice && 'Từ'} <strong>{toVietnamCurrencyFormat(fromPrice)}</strong>{' '}
+        {toPrice && 'đến'} <strong>{toVietnamCurrencyFormat(toPrice)}</strong>
       </span>
       {isEditable && (
         <div>

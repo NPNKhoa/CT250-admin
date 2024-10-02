@@ -1,6 +1,7 @@
 import Router from './common/Router';
 import SideBar from './common/SideBar';
 import DataTable from './common/DataTable';
+import ParagraphSkeleton from './common/ParagraphSkeleton';
 
 import BannerList from './Settings/BannerList';
 import PriceFilterList from './Settings/PriceFilterList';
@@ -11,6 +12,7 @@ export {
   Router,
   SideBar,
   DataTable,
+  ParagraphSkeleton,
   BannerList,
   PriceFilterList,
   EditableView,

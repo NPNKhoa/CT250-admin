@@ -1,8 +1,8 @@
 import authService from './auth.service';
 
 class ApiService {
-  constructor(baseUrl) {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl = import.meta.env.VITE_API_BASE_URL) {
+    this.baseUrl = baseUrl || 'http://localhost:5000/api/v1';
     this.authService = authService;
   }
 
@@ -18,12 +18,14 @@ class ApiService {
       },
     };
 
-    if (body instanceof FormData) {
-      options.body = body;
-      delete options.headers['Content-Type'];
-    } else {
-      options.body = JSON.stringify(body);
-      options.headers['Content-Type'] = 'application/json';
+    if (method !== 'GET') {
+      if (body instanceof FormData) {
+        options.body = body;
+        delete options.headers['Content-Type'];
+      } else {
+        options.body = JSON.stringify(body);
+        options.headers['Content-Type'] = 'application/json';
+      }
     }
 
     try {
