@@ -49,10 +49,10 @@ const PromotionPopup = ({ isOpen, onClose, data }) => {
     );
   }, [initialPromotion, data]);
 
-  const handleAutocompleteChange = (feild, id) => {
+  const handleAutocompleteChange = (field, id) => {
     setPromotion((prevPromotion) => ({
       ...prevPromotion,
-      [feild]: id,
+      [field]: id,
     }));
   };
 

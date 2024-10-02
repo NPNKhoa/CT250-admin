@@ -8,72 +8,60 @@ const initialState = {
     error: null
 };
 
+const setLoading = (state) => {
+    state.loading = true;
+};
+
+const setFulfilled = (state) => {
+    state.loading = false;
+    state.error = null;
+};
+
+const setError = (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+};
+
 const productSlice = createSlice({
     name: 'products',
     initialState,
     reducers: {},
     extraReducers: builder => {
         builder
-            .addCase(getProducts.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getProducts.pending, setLoading)
             .addCase(getProducts.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.products = action.payload;
             })
-            .addCase(getProducts.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getProducts.rejected, setError)
 
-            .addCase(getProductById.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(getProductById.pending, setLoading)
             .addCase(getProductById.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.product = action.payload;
             })
-            .addCase(getProductById.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(getProductById.rejected, setError)
 
-            .addCase(createProduct.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(createProduct.pending, setLoading)
             .addCase(createProduct.fulfilled, (state, action) => {
-                state.loading = false;
-                state.products.push(action.payload);
+                setFulfilled(state);
+                state.products.unshift(action.payload);
             })
-            .addCase(createProduct.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(createProduct.rejected, setError)
 
-            .addCase(updateProduct.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(updateProduct.pending, setLoading)
             .addCase(updateProduct.fulfilled, (state, action) => {
-                state.loading = false;
-                console.log(action.payload); 
+                setFulfilled(state);
                 state.products = state.products.map(product => product._id === action.payload._id ? action.payload : product);
             })
-            .addCase(updateProduct.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+            .addCase(updateProduct.rejected, setError)
 
-            .addCase(deleteProduct.pending, (state) => {
-                state.loading = true;
-            })
+            .addCase(deleteProduct.pending, setLoading)
             .addCase(deleteProduct.fulfilled, (state, action) => {
-                state.loading = false;
+                setFulfilled(state);
                 state.products = state.products.filter(product => product._id !== action.payload);
             })
-            .addCase(deleteProduct.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            });
+            .addCase(deleteProduct.rejected, setError);
     }
 });
 
