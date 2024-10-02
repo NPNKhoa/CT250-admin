@@ -11,7 +11,6 @@ const BannerList = ({ banners }) => {
       {Array.isArray(banners) &&
         banners.length !== 0 &&
         banners.map((banner, index) => {
-          console.log(banner);
           {
             return isEditable ? (
               <Draggable
@@ -21,7 +20,7 @@ const BannerList = ({ banners }) => {
               >
                 {(provided) => (
                   <img
-                    src={banner}
+                    src={`http://localhost:5000/${banner}`}
                     alt={banner + index}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
@@ -32,8 +31,8 @@ const BannerList = ({ banners }) => {
               </Draggable>
             ) : (
               <img
-                src={banner.toString()}
-                alt={banner + index}
+                src={`http://localhost:5000/${banner}`}
+                alt={'banner' + index}
                 className="w-full"
               />
             );

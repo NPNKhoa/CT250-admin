@@ -29,10 +29,6 @@ const ReadOnlyView = () => {
     fetchConfig();
   }, []);
 
-  const bannerImagePath = configData?.bannerImgPath?.map(
-    (item) => `http://localhost:5000/${item}`,
-  );
-
   return (
     <Stack spacing={2} className="mt-4">
       <div className="flex w-full items-center justify-center">
@@ -101,15 +97,19 @@ const ReadOnlyView = () => {
         <Typography variant="h3" gutterBottom>
           Giới thiệu cửa hàng
         </Typography>
-        <div>
-          {loading ? <ParagraphSkeleton /> : configData?.shopIntroduction}
-        </div>
+        {loading ? (
+          <ParagraphSkeleton />
+        ) : (
+          <div
+            dangerouslySetInnerHTML={{ __html: configData?.shopIntroduction }}
+          ></div>
+        )}
       </div>
       <Divider />
       <div>
         <Typography variant="h3">Banner hiện tại</Typography>
         <div className="mt-8">
-          <BannerList banners={bannerImagePath} />
+          <BannerList banners={configData?.bannerImgPath} />
         </div>
       </div>
       <Divider />
