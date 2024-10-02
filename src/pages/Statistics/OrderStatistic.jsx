@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Line } from 'react-chartjs-2';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -22,51 +21,33 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-
-// Đăng ký các thành phần Chart.js cần thiết
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
-  Legend,
-} from 'chart.js';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-);
+  ResponsiveContainer,
+} from 'recharts';
+import DatePicker from 'react-datepicker';
 
 // Tạo dữ liệu giả
 const generateOrderData = (days, multiplier) => {
   return Array.from({ length: days }, () => {
-    // Tạo số ngẫu nhiên cho tổng đơn hàng với phân phối lệch
     const total = Math.floor(
       Math.random() * (50 * multiplier) + 25 * multiplier,
-    ); // Tổng đơn hàng có thể nằm trong khoảng 250 đến 750
+    );
 
-    // Tạo phân phối lệch cho trạng thái
     const statusOptions = ['Đã xử lý', 'Chờ xử lý', 'Đã hủy'];
     let status;
 
-    // Sử dụng xác suất để xác định trạng thái
     const randomValue = Math.random();
     if (randomValue < 0.6) {
-      // 60% khả năng cho 'Đã xử lý'
       status = statusOptions[0];
     } else if (randomValue < 0.9) {
-      // 30% khả năng cho 'Chờ xử lý'
       status = statusOptions[1];
     } else {
-      // 10% khả năng cho 'Đã hủy'
       status = statusOptions[2];
     }
 
@@ -74,7 +55,6 @@ const generateOrderData = (days, multiplier) => {
   });
 };
 
-// Dữ liệu đơn hàng theo ngày, tháng và năm
 const orderData = {
   day: {
     labels: Array.from({ length: 30 }, (_, i) =>
@@ -106,92 +86,48 @@ const orderData = {
 };
 
 const OrderStatistics = () => {
+  const startYear = 2023;
+  const currentYear = new Date().getFullYear();
+  const years = [];
+
   const [timeFrame, setTimeFrame] = useState('day');
   const [statusFilter, setStatusFilter] = useState('Tất cả');
   const [showDetails, setShowDetails] = useState(false);
 
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Chi tiết đơn hàng', 10, 10);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-    const tableColumn = ['Ngày/Tháng/Năm', 'Tổng đơn hàng', 'Trạng thái'];
-    const tableRows = orderData[timeFrame].labels.map((label, index) => [
-      label,
-      orderData[timeFrame].data[index].total.toLocaleString(),
-      orderData[timeFrame].data[index].status,
-    ]);
+  const [year, setYear] = useState(currentYear);
 
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-    });
+  useEffect(() => {
+    const today = new Date();
 
-    doc.save(`order_${timeFrame}.pdf`);
-  };
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 6);
 
-  const exportExcel = () => {
-    const workbook = XLSX.utils.book_new();
-    const worksheetData = [
-      ['Ngày/Tháng/Năm', 'Tổng đơn hàng', 'Trạng thái'],
-      ...orderData[timeFrame].labels.map((label, index) => [
-        label,
-        orderData[timeFrame].data[index].total,
-        orderData[timeFrame].data[index].status,
-      ]),
-    ];
+    const formatDate = (date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng 0-11
+      const year = date.getFullYear();
+      return `${year}/${month}/${day}`;
+    };
 
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Đơn hàng');
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    const data = new Blob([excelBuffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-    saveAs(data, `order_${timeFrame}.xlsx`);
-  };
+    setStartDate(formatDate(sevenDaysAgo));
+    setEndDate(formatDate(today));
+  }, []);
+
+  for (let i = startYear; i <= currentYear; i++) {
+    years.push(i);
+  }
 
   const filteredData = orderData[timeFrame].data.filter(
     (item) => statusFilter === 'Tất cả' || item.status === statusFilter,
   );
 
-  const chartData = {
-    labels: orderData[timeFrame].labels,
-    datasets: [
-      {
-        label: 'Tổng đơn hàng',
-        data: filteredData.map((item) => item.total),
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      tooltip: {
-        callbacks: {
-          label: function (tooltipItem) {
-            return `${tooltipItem.raw.toLocaleString()} đơn hàng`;
-          },
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: (value) => value.toLocaleString(),
-        },
-      },
-    },
-  };
+  const chartData = orderData[timeFrame].labels.map((label, index) => ({
+    label,
+    total: filteredData[index].total,
+  }));
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -208,14 +144,48 @@ const OrderStatistics = () => {
             onChange={(e) => setTimeFrame(e.target.value)}
             label="Chọn thời gian"
           >
-            <MenuItem value="day">Theo ngày</MenuItem>
+            <MenuItem value="day">Theo khoảng thời gian</MenuItem>
             <MenuItem value="month">Theo tháng</MenuItem>
             <MenuItem value="year">Theo năm</MenuItem>
           </Select>
-        </FormControl>
-
+        </FormControl>{' '}
+        {timeFrame === 'month' && (
+          <select
+            className="w-[200px] rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={year}
+            onChange={(e) => setYear(e.target.value)} // Cập nhật năm khi chọn
+          >
+            {years.map((yearOption) => (
+              <option key={yearOption} value={yearOption}>
+                {yearOption}
+              </option>
+            ))}
+          </select>
+        )}
+        {timeFrame === 'day' && (
+          <div className="flex items-center space-x-4">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="Ngày bắt đầu"
+              className="rounded border p-2"
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="Ngày kết thúc"
+              className="rounded border p-2"
+            />
+          </div>
+        )}
         {/* Lựa chọn trạng thái */}
-        <FormControl className="w-1/4">
+        {/* <FormControl className="w-1/4">
           <InputLabel>Lọc theo trạng thái</InputLabel>
           <Select
             value={statusFilter}
@@ -227,29 +197,26 @@ const OrderStatistics = () => {
             <MenuItem value="Chờ xử lý">Chờ xử lý</MenuItem>
             <MenuItem value="Đã hủy">Đã hủy</MenuItem>
           </Select>
-        </FormControl>
+        </FormControl> */}
       </div>
 
       {/* Biểu đồ đơn hàng */}
       <Card className="mb-6">
         <CardHeader title="Biểu đồ đơn hàng" />
         <CardContent>
-          <Line data={chartData} options={chartOptions} />
+          <ResponsiveContainer width="100%" height={400}>
+            <AreaChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="label" />
+              <YAxis />
+              <Tooltip />
+              <Area type="monotone" dataKey="total" stroke="#8884d8" />
+            </AreaChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
 
       <div className="my-6 flex justify-end gap-5">
-        <Button variant="contained" color="primary" onClick={exportPDF}>
-          Xuất file PDF
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={exportExcel}
-          className="ml-4"
-        >
-          Xuất file Excel
-        </Button>{' '}
         <Button
           variant="contained"
           color="secondary"

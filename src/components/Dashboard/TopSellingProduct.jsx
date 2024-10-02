@@ -29,11 +29,16 @@ const columns = [
 const TopSellingProduct = () => {
   const [totalSold, setTotalSold] = useState('');
   const [loading, setLoading] = useState(true);
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     const fetchTotalSoldPerMonth = async () => {
       try {
-        const response = await statictisService.getTotalSoldPerMonth();
+        const response = await statictisService.getTotalSoldPerMonth(
+          currentMonth,
+          currentYear,
+        );
         const formattedSold = response.data.topProducts.map((product) => ({
           productId: `#${product.productId}`,
           productName: product.productName,
@@ -52,7 +57,6 @@ const TopSellingProduct = () => {
 
     fetchTotalSoldPerMonth();
   }, []);
-
   if (loading) {
     return <div>Loading...</div>;
   }
