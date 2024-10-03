@@ -11,14 +11,14 @@ const ChangeLogo = ({ onChange, onSave, onCancel }) => {
   const [uploadedFile, setUploadedFile] = useState(null);
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-4">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-4">
       <FileUploader
         multiple={false}
         handleChange={(file) => {
           setUploadedFile(file);
           const tempImgUrl = URL.createObjectURL(file);
           setImgReview(tempImgUrl);
-          onChange('logo', tempImgUrl);
+          onChange('shopLogoImgPath', tempImgUrl);
           file && toast.success('Tải lên thành công');
         }}
         types={allowedTypes}

@@ -1,5 +1,6 @@
 import { TextField } from '@mui/material';
 import ChangeLogo from '../../components/modalContents/ChangeLogo';
+import ChangeBanners from '../../components/modalContents/ChangeBanners';
 
 const systemConfigModalContentData = {
   logo: {
@@ -8,11 +9,7 @@ const systemConfigModalContentData = {
   },
   banners: {
     title: 'Cập nhật banner',
-    content: (
-      <div>
-        <input type="file" accept="image/*" multiple />
-      </div>
-    ),
+    content: (props) => <ChangeBanners {...props} />,
   },
   priceFilter: {
     title: 'Thêm mới bộ lọc giá',

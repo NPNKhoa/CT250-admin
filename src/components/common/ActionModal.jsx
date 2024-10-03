@@ -9,10 +9,13 @@ const ActionModal = ({ title, children, open, onClose }) => {
         elevation={3}
         sx={{
           p: '1.5rem 2rem',
-          width: '35%',
+          minWidth: '35%',
+          maxWidth: '80%',
+          minHeight: '30%',
+          maxHeight: '80%',
           margin: 'auto',
         }}
-        className="translate-y-1/3"
+        className="translate-y-[15%]"
       >
         <div className="flex h-full w-full flex-col items-center justify-between gap-4">
           <Typography

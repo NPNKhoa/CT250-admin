@@ -21,8 +21,18 @@ const EditableView = () => {
   const loading = useSelector((state) => state.systemConfigs.loading);
 
   const [tempImg, setTempImg] = useState({
-    logo: '',
-    banners: [],
+    shopLogoImgPath: '',
+    bannerImgPath: [],
+  });
+
+  const [newConfigs, setNewConfigs] = useState({
+    shopLogoImgPath: currentConfigs.shopLogoImgPath || '',
+    shopName: currentConfigs.shopName || '',
+    shopEmail: currentConfigs.shopEmail || '',
+    shopPhoneNumber: currentConfigs.shopPhoneNumber || '',
+    shopIntroduction: currentConfigs.shopIntroduction || '',
+    bannerImgPath: currentConfigs.bannerImgPath || [],
+    shopPriceFilter: currentConfigs.shopPriceFilter || [],
   });
 
   const [openModal, setOpenModal] = useState(false);
@@ -34,7 +44,7 @@ const EditableView = () => {
 
     console.log(name, value);
 
-    currentConfigs((prevData) => ({
+    setNewConfigs((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -49,7 +59,7 @@ const EditableView = () => {
   };
 
   const onSaveModalContent = (key, value) => {
-    currentConfigs((prevData) => ({
+    setNewConfigs((prevData) => ({
       ...prevData,
       [key]: value,
     }));
@@ -74,12 +84,12 @@ const EditableView = () => {
 
   // Handle Save Change
   const handleSaveChange = () => {
-    console.log(currentConfigs);
+    console.log(newConfigs);
   };
 
   // Rich Text logic
   const handleChangeContent = (newContent) => {
-    currentConfigs((prevData) => ({
+    setNewConfigs((prevData) => ({
       ...prevData,
       shopIntroduction: newContent,
     }));
@@ -89,10 +99,10 @@ const EditableView = () => {
     () => ({
       readonly: false,
       placeholder:
-        currentConfigs?.shopIntroduction ||
+        newConfigs?.shopIntroduction ||
         'Nhập thông tin giới thiệu cho cửa hàng của bạn...',
     }),
-    [currentConfigs?.shopIntroduction],
+    [newConfigs?.shopIntroduction],
   );
 
   // Drag and Drop logic
@@ -110,13 +120,13 @@ const EditableView = () => {
       return;
     }
 
-    const updatedBanner = Array.from(currentConfigs?.bannerImgPath);
+    const updatedBanner = Array.from(newConfigs?.bannerImgPath);
 
     const [movedBanner] = updatedBanner.splice(source.index, 1);
 
     updatedBanner.splice(destination.index, 0, movedBanner);
 
-    currentConfigs((prevData) => ({
+    setTempImg((prevData) => ({
       ...prevData,
       bannerImgPath: updatedBanner,
     }));
@@ -124,9 +134,10 @@ const EditableView = () => {
 
   return (
     <Stack spacing={2} className="mt-2">
+      {console.log('first')}
       <span className="italic text-zinc-700 opacity-70">
         Sau khi thay đổi thông tin click vào nút
-        {'"Lưu"'} ở cuối trang để áp dụng các thay đổi
+        {' "Lưu"'} ở cuối trang để áp dụng các thay đổi
       </span>
       <div className="flex w-full items-center justify-center">
         <div className="w-1/2">
@@ -143,7 +154,7 @@ const EditableView = () => {
             ) : (
               <img
                 src={
-                  tempImg.logo ||
+                  tempImg.shopLogoImgPath ||
                   'http://localhost:5000/' + currentConfigs?.shopLogoImgPath
                 }
                 alt="logo"
@@ -171,21 +182,21 @@ const EditableView = () => {
                 label="Tên cửa hàng"
                 name="shopName"
                 className="w-full"
-                value={currentConfigs?.shopName}
+                value={newConfigs?.shopName}
                 onChange={(e) => handleChangeTextField(e)}
               />
               <TextField
                 label="Email liên hệ"
                 name="shopEmail"
                 className="w-full"
-                value={currentConfigs?.shopEmail}
+                value={newConfigs?.shopEmail}
                 onChange={(e) => handleChangeTextField(e)}
               />
               <TextField
                 label="Số điện thoại"
                 name="shopPhoneNumber"
                 className="w-full"
-                value={currentConfigs?.shopPhoneNumber}
+                value={newConfigs?.shopPhoneNumber}
                 onChange={(e) => handleChangeTextField(e)}
               />
             </Stack>
@@ -203,9 +214,6 @@ const EditableView = () => {
           config={config}
           tabIndex={1}
           onBlur={(newContent) => handleChangeContent(newContent)}
-          // onChange={(newContent) => {
-          //   // handleChangeContent(newContent);
-          // }}
         />
       </div>
       <Divider />
@@ -231,9 +239,9 @@ const EditableView = () => {
                 <div ref={provided.innerRef} {...provided.droppableProps}>
                   <BannerList
                     banners={
-                      Array.isArray(tempImg.banners) &&
-                      tempImg.banners.length !== 0
-                        ? tempImg.banners
+                      Array.isArray(tempImg.bannerImgPath) &&
+                      tempImg.bannerImgPath.length !== 0
+                        ? tempImg.bannerImgPath
                         : currentConfigs?.bannerImgPath
                     }
                   />
