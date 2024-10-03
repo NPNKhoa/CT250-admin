@@ -7,11 +7,13 @@ import { toast } from 'react-toastify';
 import AlertDialog from '../../components/common/AlertDialog';
 import TableComponent from '../../components/common/TableComponent';
 import ActionHeader from '../../components/common/ActionHeader';
+import ApplyPopup from '../../components/Popup/ApplyPopup';
 
 const DiscountPage = () => {
   const dispatch = useDispatch();
   const { discounts, loading } = useSelector((state) => state.discount);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isApplyPopup, setIsApplyPopup] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [alertConfig, setAlertConfig] = useState({
     open: false,
@@ -137,12 +139,21 @@ const DiscountPage = () => {
     [discounts],
   );
 
+  const handleApply = () => {
+    if (selectedRows.length !== 1) {
+      toast.error('Vui lòng chọn 1 giảm giá để áp dụng cho sản phẩm!');
+    } else {
+      setIsApplyPopup(true);
+    }
+  };
+
   const paginationModel = { page: 0, pageSize: 5 };
 
   return (
     <div>
       <ActionHeader
         title="Giảm giá"
+        // onApply={handleApply}
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);
@@ -162,6 +173,12 @@ const DiscountPage = () => {
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
         data={selectedRows}
+      />
+      <ApplyPopup
+        isOpen={isApplyPopup}
+        onClose={() => setIsApplyPopup(false)}
+        data={selectedRows}
+        promotionCheck={false}
       />
       <AlertDialog
         open={alertConfig.open}

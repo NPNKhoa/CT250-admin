@@ -36,10 +36,6 @@ const ProductPage = () => {
     }
   };
 
-  const handleApply = () => {
-
-  }
-
   const handleDelete = (ids) => {
     if (ids.length === 0) {
       toast.error('Vui lòng chọn ít nhất một sản phẩm để xóa');
@@ -163,7 +159,6 @@ const ProductPage = () => {
     <div>
       <ActionHeader
         title="Sản phẩm"
-        onApply={handleApply}
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);

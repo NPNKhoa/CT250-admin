@@ -12,11 +12,13 @@ import AlertDialog from '../../components/common/AlertDialog';
 import TableComponent from '../../components/common/TableComponent';
 import { Box } from '@mui/material';
 import ActionHeader from '../../components/common/ActionHeader';
+import ApplyPopup from '../../components/Popup/ApplyPopup';
 
 const PromotionPage = () => {
   const dispatch = useDispatch();
   const { promotions, loading } = useSelector((state) => state.promotion);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isApplyPopup, setIsApplyPopup] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [alertConfig, setAlertConfig] = useState({
     open: false,
@@ -87,8 +89,11 @@ const PromotionPage = () => {
         renderCell: (params) => (
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             {params.value.map((item, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                <Gift color="#EA580C" strokeWidth={1} className='mr-2'/>
+              <Box
+                key={index}
+                sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}
+              >
+                <Gift color="#EA580C" strokeWidth={1} className="mr-2" />
                 <span>{item}</span>
               </Box>
             ))}
@@ -104,8 +109,11 @@ const PromotionPage = () => {
         renderCell: (params) => (
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             {params.value.map((item, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-               <CheckCheck color="#EA580C" strokeWidth={1} className='mr-2' />
+              <Box
+                key={index}
+                sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}
+              >
+                <CheckCheck color="#EA580C" strokeWidth={1} className="mr-2" />
                 <span>{item}</span>
               </Box>
             ))}
@@ -165,11 +173,19 @@ const PromotionPage = () => {
         createdAt: promotion.createdAt
           ? new Date(promotion.createdAt).toLocaleDateString('vi-VN')
           : '',
-        gifts: promotion.productIds.map(product => product.productName),
-        services: promotion.serviceIds.map(service => service.serviceName),
+        gifts: promotion.productIds.map((product) => product.productName),
+        services: promotion.serviceIds.map((service) => service.serviceName),
       })),
     [promotions],
   );
+
+  const handleApply = () => {
+    if (selectedRows.length !== 1) {
+      toast.error('Vui lòng chọn 1 giảm giá để áp dụng cho sản phẩm!');
+    } else {
+      setIsApplyPopup(true);
+    }
+  };
 
   const paginationModel = { page: 0, pageSize: 5 };
 
@@ -177,6 +193,7 @@ const PromotionPage = () => {
     <div>
       <ActionHeader
         title="Ưu đãi"
+        // onApply={handleApply}
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);
@@ -191,6 +208,12 @@ const PromotionPage = () => {
         columns={columns}
         paginationModel={paginationModel}
         handleSelected={handleSelected}
+      />
+      <ApplyPopup
+        isOpen={isApplyPopup}
+        onClose={() => setIsApplyPopup(false)}
+        data={selectedRows}
+        promotionCheck={true}
       />
       <PromotionPopup
         isOpen={isPopupOpen}
