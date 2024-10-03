@@ -76,6 +76,36 @@ class StatictisService {
     }
   }
 
+  async getTotalOrdersPerYear(year) {
+    try {
+      const queryString = `year=${year}`;
+      return await this.api.get(`/totalordersperyear?${queryString}`);
+    } catch (error) {
+      console.error('Lỗi khi lấy đơn hàng theo tháng:', error);
+      throw error;
+    }
+  }
+
+  async getTotalOrdersByDateRange(startDate, endDate) {
+    try {
+      const queryString = `startDate=${startDate}&endDate=${endDate}`;
+
+      return await this.api.get(`/totalorderbytime?${queryString}`);
+    } catch (error) {
+      console.error('Lỗi khi lấy đơn hàng theo tháng:', error);
+      throw error;
+    }
+  }
+
+  async getTotalOrdersPerMonthByYear() {
+    try {
+      return await this.api.get('/totalordersallyear');
+    } catch (error) {
+      console.error('Lỗi khi lấy đơn hàng theo các năm:', error);
+      throw error;
+    }
+  }
+
   async getTotalUsers() {
     try {
       return await this.api.get('/totalusers');
@@ -99,6 +129,20 @@ class StatictisService {
       return await this.api.get('/quantityperproducttype');
     } catch (error) {
       console.error('Lỗi khi lấy số lượng từng loại sản phẩm:', error);
+      throw error;
+    }
+  }
+
+  async getQuantityPerProductTypePerYear(year) {
+    try {
+      const queryString = `year=${year}`;
+
+      return await this.api.get(`/quantityperyear?${queryString}`);
+    } catch (error) {
+      console.error(
+        'Lỗi khi lấy số lượng từng loại sản phẩm trong năm:',
+        error,
+      );
       throw error;
     }
   }

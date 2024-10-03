@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -17,13 +17,10 @@ import {
   CardHeader,
 } from '@mui/material';
 import { format } from 'date-fns';
-import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -31,73 +28,140 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import DatePicker from 'react-datepicker';
+import statictisService from '../../services/statictis.service';
 
-// Tạo dữ liệu giả
-const generateOrderData = (days, multiplier) => {
-  return Array.from({ length: days }, () => {
-    const total = Math.floor(
-      Math.random() * (50 * multiplier) + 25 * multiplier,
-    );
+// Dữ liệu thống kê theo tháng
+// const monthlyStatistics = [
+//   {
+//     month: 1,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 2,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 3,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 4,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 5,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 6,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 7,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 8,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 9,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 1,
+//   },
+//   {
+//     month: 10,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 4,
+//   },
+//   {
+//     month: 11,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+//   {
+//     month: 12,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//     'Chờ xử lý': 0,
+//   },
+// ];
 
-    const statusOptions = ['Đã xử lý', 'Chờ xử lý', 'Đã hủy'];
-    let status;
+// Dữ liệu thống kê theo năm
+// const yearlyStatistics = [
+//   {
+//     year: 2023,
+//     'Đã giao hàng': 0,
+//     'Đã hủy': 0,
+//     'Chờ xử lý': 1,
+//   },
+//   {
+//     year: 2024,
+//     'Đã giao hàng': 0,
+//     'Đã hủy': 0,
+//     'Chờ xử lý': 5,
+//   },
+// ];
 
-    const randomValue = Math.random();
-    if (randomValue < 0.6) {
-      status = statusOptions[0];
-    } else if (randomValue < 0.9) {
-      status = statusOptions[1];
-    } else {
-      status = statusOptions[2];
-    }
-
-    return { total, status };
-  });
-};
-
-const orderData = {
-  day: {
-    labels: Array.from({ length: 30 }, (_, i) =>
-      format(new Date(2024, 8, i + 1), 'dd/MM/yyyy'),
-    ),
-    data: generateOrderData(30, 1),
-  },
-  month: {
-    labels: [
-      'Tháng 1',
-      'Tháng 2',
-      'Tháng 3',
-      'Tháng 4',
-      'Tháng 5',
-      'Tháng 6',
-      'Tháng 7',
-      'Tháng 8',
-      'Tháng 9',
-      'Tháng 10',
-      'Tháng 11',
-      'Tháng 12',
-    ],
-    data: generateOrderData(12, 10),
-  },
-  year: {
-    labels: ['2023', '2024'],
-    data: generateOrderData(2, 100),
-  },
-};
+// const orderStatistics = [
+//   {
+//     date: '2024-10-01',
+//     'Chờ xử lý': 0,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//   },
+//   {
+//     date: '2024-10-02',
+//     'Chờ xử lý': 0,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//   },
+//   {
+//     date: '2024-10-03',
+//     'Chờ xử lý': 4,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//   },
+//   {
+//     date: '2024-10-04',
+//     'Chờ xử lý': 0,
+//     'Đã hủy': 0,
+//     'Đã giao hàng': 0,
+//   },
+//   // Có thể thêm dữ liệu cho các tháng khác ở đây
+// ];
 
 const OrderStatistics = () => {
   const startYear = 2023;
   const currentYear = new Date().getFullYear();
   const years = [];
-
-  const [timeFrame, setTimeFrame] = useState('day');
-  const [statusFilter, setStatusFilter] = useState('Tất cả');
+  const [timeFrame, setTimeFrame] = useState('day'); // Mặc định chọn theo tháng
+  const [year, setYear] = useState(currentYear);
   const [showDetails, setShowDetails] = useState(false);
-
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-
-  const [year, setYear] = useState(currentYear);
+  const [totalOrderPerYear, setTotalOrderPerYear] = useState([]);
+  const [totalOrderAllYear, setTotalOrderAllYear] = useState([]);
+  const [totalOrderByTime, setTotalOrderBytime] = useState([]);
 
   useEffect(() => {
     const today = new Date();
@@ -115,19 +179,90 @@ const OrderStatistics = () => {
     setStartDate(formatDate(sevenDaysAgo));
     setEndDate(formatDate(today));
   }, []);
-
   for (let i = startYear; i <= currentYear; i++) {
     years.push(i);
   }
 
-  const filteredData = orderData[timeFrame].data.filter(
-    (item) => statusFilter === 'Tất cả' || item.status === statusFilter,
-  );
+  useEffect(() => {
+    // Gọi API để lấy dữ liệu
+    const fetchTotalOrdersPerYear = async () => {
+      try {
+        const response =
+          await statictisService.getTotalOrdersPerYear(currentYear);
 
-  const chartData = orderData[timeFrame].labels.map((label, index) => ({
-    label,
-    total: filteredData[index].total,
-  }));
+        setTotalOrderPerYear(response);
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu từ API', error);
+      }
+    };
+
+    const fetchTotalOrdersAllYear = async () => {
+      try {
+        const response = await statictisService.getTotalOrdersPerMonthByYear();
+
+        setTotalOrderAllYear(response);
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu từ API', error);
+      }
+    };
+
+    const fetchTotalOrdersByTime = async () => {
+      try {
+        const response = await statictisService.getTotalOrdersByDateRange(
+          startDate,
+          endDate,
+        );
+
+        setTotalOrderBytime(response);
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu từ API', error);
+      }
+    };
+    if (timeFrame === 'month' || timeFrame === 'year') {
+      fetchTotalOrdersAllYear();
+      fetchTotalOrdersPerYear();
+    } else {
+      fetchTotalOrdersByTime();
+    }
+  }, [currentYear, startDate, endDate, timeFrame]);
+
+  console.log(totalOrderPerYear.statistics);
+  console.log(totalOrderAllYear.statistics);
+  console.log(totalOrderByTime.statistics);
+
+  const handleStartDateChange = (date) => {
+    if (date) {
+      setStartDate(format(date, 'yyyy/MM/dd'));
+    }
+  };
+
+  const handleEndDateChange = (date) => {
+    if (date) {
+      setEndDate(format(date, 'yyyy/MM/dd'));
+    }
+  };
+
+  const chartData =
+    timeFrame === 'month'
+      ? totalOrderPerYear.statistics?.map((item) => ({
+          label: `Tháng ${item.month}`,
+          'Đã hủy': item['Đã hủy'],
+          'Đã giao hàng': item['Đã giao hàng'],
+          'Chờ xử lý': item['Chờ xử lý'],
+        }))
+      : timeFrame === 'year'
+        ? totalOrderAllYear.statistics?.map((item) => ({
+            label: item.year.toString(),
+            'Đã hủy': item['Đã hủy'],
+            'Đã giao hàng': item['Đã giao hàng'],
+            'Chờ xử lý': item['Chờ xử lý'],
+          }))
+        : totalOrderByTime.statistics?.map((item) => ({
+            label: item.date.toString(),
+            'Đã hủy': item['Đã hủy'],
+            'Đã giao hàng': item['Đã giao hàng'],
+            'Chờ xử lý': item['Chờ xử lý'],
+          }));
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -148,25 +283,26 @@ const OrderStatistics = () => {
             <MenuItem value="month">Theo tháng</MenuItem>
             <MenuItem value="year">Theo năm</MenuItem>
           </Select>
-        </FormControl>{' '}
+        </FormControl>
         {timeFrame === 'month' && (
           <select
             className="w-[200px] rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={year}
-            onChange={(e) => setYear(e.target.value)} // Cập nhật năm khi chọn
+            onChange={(e) => setYear(e.target.value)}
           >
-            {years.map((yearOption) => (
-              <option key={yearOption} value={yearOption}>
-                {yearOption}
+            {totalOrderAllYear.statistics?.map((stat) => (
+              <option key={stat.year} value={stat.year}>
+                {stat.year}
               </option>
             ))}
           </select>
         )}
+
         {timeFrame === 'day' && (
           <div className="flex items-center space-x-4">
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              onChange={handleStartDateChange}
               selectsStart
               startDate={startDate}
               endDate={endDate}
@@ -175,7 +311,7 @@ const OrderStatistics = () => {
             />
             <DatePicker
               selected={endDate}
-              onChange={(date) => setEndDate(date)}
+              onChange={handleEndDateChange}
               selectsEnd
               startDate={startDate}
               endDate={endDate}
@@ -184,20 +320,6 @@ const OrderStatistics = () => {
             />
           </div>
         )}
-        {/* Lựa chọn trạng thái */}
-        {/* <FormControl className="w-1/4">
-          <InputLabel>Lọc theo trạng thái</InputLabel>
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            label="Lọc theo trạng thái"
-          >
-            <MenuItem value="Tất cả">Tất cả</MenuItem>
-            <MenuItem value="Đã xử lý">Đã xử lý</MenuItem>
-            <MenuItem value="Chờ xử lý">Chờ xử lý</MenuItem>
-            <MenuItem value="Đã hủy">Đã hủy</MenuItem>
-          </Select>
-        </FormControl> */}
       </div>
 
       {/* Biểu đồ đơn hàng */}
@@ -205,13 +327,15 @@ const OrderStatistics = () => {
         <CardHeader title="Biểu đồ đơn hàng" />
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
-            <AreaChart data={chartData}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey="total" stroke="#8884d8" />
-            </AreaChart>
+              <Line type="monotone" dataKey="Đã hủy" stroke="#ff0000" />
+              <Line type="monotone" dataKey="Đã giao hàng" stroke="#00ff00" />
+              <Line type="monotone" dataKey="Chờ xử lý" stroke="#0000ff" />
+            </LineChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
@@ -231,13 +355,7 @@ const OrderStatistics = () => {
       {showDetails && (
         <Card>
           <CardHeader
-            title={`Chi tiết đơn hàng theo ${
-              timeFrame === 'day'
-                ? 'ngày'
-                : timeFrame === 'month'
-                  ? 'tháng'
-                  : 'năm'
-            }`}
+            title={`Chi tiết đơn hàng theo ${timeFrame === 'month' ? 'tháng' : 'năm'}`}
           />
           <CardContent>
             <TableContainer
@@ -248,28 +366,43 @@ const OrderStatistics = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>
-                      {timeFrame === 'day'
-                        ? 'Ngày'
-                        : timeFrame === 'month'
-                          ? 'Tháng'
-                          : 'Năm'}
+                      {timeFrame === 'month' ? 'Tháng' : 'Năm'}
                     </TableCell>
-                    <TableCell align="right">Tổng đơn hàng</TableCell>
-                    <TableCell align="right">Trạng thái</TableCell>
+                    <TableCell align="right">Đã hủy</TableCell>
+                    <TableCell align="right">Đã giao hàng</TableCell>
+                    <TableCell align="right">Chờ xử lý</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredData.map((order, index) => (
-                    <TableRow key={orderData[timeFrame].labels[index]}>
-                      <TableCell>
-                        {orderData[timeFrame].labels[index]}
-                      </TableCell>
-                      <TableCell align="right">
-                        {order.total.toLocaleString()}
-                      </TableCell>
-                      <TableCell align="right">{order.status}</TableCell>
-                    </TableRow>
-                  ))}
+                  {timeFrame === 'month' &&
+                    totalOrderPerYear.statistics?.map((stat) => (
+                      <TableRow key={stat.month}>
+                        <TableCell>{`Tháng ${stat.month}`}</TableCell>
+                        <TableCell>{stat['Đã hủy']}</TableCell>
+                        <TableCell>{stat['Đã giao hàng']}</TableCell>
+                        <TableCell>{stat['Chờ xử lý']}</TableCell>
+                      </TableRow>
+                    ))}
+                  {timeFrame === 'year' &&
+                    totalOrderAllYear.statistics?.map((stat) => (
+                      <TableRow key={stat.year}>
+                        <TableCell>{stat.year}</TableCell>
+                        <TableCell>{stat['Đã hủy']}</TableCell>
+                        <TableCell>{stat['Đã giao hàng']}</TableCell>
+                        <TableCell>{stat['Chờ xử lý']}</TableCell>
+                      </TableRow>
+                    ))}
+                  {timeFrame === 'day' &&
+                    totalOrderByTime.statistics?.map((stat) => (
+                      <TableRow key={stat.date}>
+                        <TableCell>
+                          {format(new Date(stat.date), 'dd/MM/yyyy')}
+                        </TableCell>
+                        <TableCell>{stat['Đã hủy']}</TableCell>
+                        <TableCell>{stat['Đã giao hàng']}</TableCell>
+                        <TableCell>{stat['Chờ xử lý']}</TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>
