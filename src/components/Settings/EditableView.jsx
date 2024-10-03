@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import Divider from '@mui/material/Divider';
@@ -8,25 +8,17 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import BannerList from './BannerList';
 import PriceFilterList from './PriceFilterList';
 
-import systemConfigService from '../../services/systemConfig.service';
-import { toast } from 'react-toastify';
 import ActionModal from '../common/ActionModal';
 import systemConfigModalContentData from '../../configs/modalContentData/SystemConfigModalContentData';
+import { useSelector } from 'react-redux';
 
 const EditableView = () => {
   const editor = useRef(null);
 
-  const [loading, setLoading] = useState(true);
-
-  const [configData, setConfigData] = useState({
-    shopLogoImgPath: '',
-    shopName: '',
-    shopEmail: '',
-    shopPhoneNumber: '',
-    bannerImgPath: [],
-    shopPriceFilter: [],
-    shopIntroduction: '',
-  });
+  const currentConfigs = useSelector(
+    (state) => state.systemConfigs.currentConfigs,
+  );
+  const loading = useSelector((state) => state.systemConfigs.loading);
 
   const [tempImg, setTempImg] = useState({
     logo: '',
@@ -42,7 +34,7 @@ const EditableView = () => {
 
     console.log(name, value);
 
-    setConfigData((prevData) => ({
+    currentConfigs((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -57,7 +49,7 @@ const EditableView = () => {
   };
 
   const onSaveModalContent = (key, value) => {
-    setConfigData((prevData) => ({
+    currentConfigs((prevData) => ({
       ...prevData,
       [key]: value,
     }));
@@ -82,39 +74,12 @@ const EditableView = () => {
 
   // Handle Save Change
   const handleSaveChange = () => {
-    console.log(configData);
+    console.log(currentConfigs);
   };
-
-  // Fetching Data logic
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const data = await systemConfigService.getConfig();
-
-        setConfigData({
-          shopLogoImgPath: data.data.shopLogoImgPath,
-          shopName: data.data.shopName,
-          shopEmail: data.data.shopEmail,
-          shopPhoneNumber: data.data.shopPhoneNumber,
-          bannerImgPath: data.data.bannerImgPath,
-          shopPriceFilter: data.data.shopPriceFilter,
-          shopIntroduction: data.data.shopIntroduction,
-        });
-      } catch (err) {
-        console.log(err);
-        toast.error('Lỗi khi tải cấu hình!');
-        throw new Error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchConfig();
-  }, []);
 
   // Rich Text logic
   const handleChangeContent = (newContent) => {
-    setConfigData((prevData) => ({
+    currentConfigs((prevData) => ({
       ...prevData,
       shopIntroduction: newContent,
     }));
@@ -124,10 +89,10 @@ const EditableView = () => {
     () => ({
       readonly: false,
       placeholder:
-        configData?.shopIntroduction ||
+        currentConfigs?.shopIntroduction ||
         'Nhập thông tin giới thiệu cho cửa hàng của bạn...',
     }),
-    [configData?.shopIntroduction],
+    [currentConfigs?.shopIntroduction],
   );
 
   // Drag and Drop logic
@@ -145,13 +110,13 @@ const EditableView = () => {
       return;
     }
 
-    const updatedBanner = Array.from(configData?.bannerImgPath);
+    const updatedBanner = Array.from(currentConfigs?.bannerImgPath);
 
     const [movedBanner] = updatedBanner.splice(source.index, 1);
 
     updatedBanner.splice(destination.index, 0, movedBanner);
 
-    setConfigData((prevData) => ({
+    currentConfigs((prevData) => ({
       ...prevData,
       bannerImgPath: updatedBanner,
     }));
@@ -179,7 +144,7 @@ const EditableView = () => {
               <img
                 src={
                   tempImg.logo ||
-                  'http://localhost:5000/' + configData?.shopLogoImgPath
+                  'http://localhost:5000/' + currentConfigs?.shopLogoImgPath
                 }
                 alt="logo"
                 className="h-36 w-36 rounded-full border-4 border-solid border-primary p-2"
@@ -206,21 +171,21 @@ const EditableView = () => {
                 label="Tên cửa hàng"
                 name="shopName"
                 className="w-full"
-                value={configData?.shopName}
+                value={currentConfigs?.shopName}
                 onChange={(e) => handleChangeTextField(e)}
               />
               <TextField
                 label="Email liên hệ"
                 name="shopEmail"
                 className="w-full"
-                value={configData?.shopEmail}
+                value={currentConfigs?.shopEmail}
                 onChange={(e) => handleChangeTextField(e)}
               />
               <TextField
                 label="Số điện thoại"
                 name="shopPhoneNumber"
                 className="w-full"
-                value={configData?.shopPhoneNumber}
+                value={currentConfigs?.shopPhoneNumber}
                 onChange={(e) => handleChangeTextField(e)}
               />
             </Stack>
@@ -234,7 +199,7 @@ const EditableView = () => {
         </Typography>
         <JoditEditor
           ref={editor}
-          value={configData?.shopIntroduction}
+          value={currentConfigs?.shopIntroduction}
           config={config}
           tabIndex={1}
           onBlur={(newContent) => handleChangeContent(newContent)}
@@ -269,7 +234,7 @@ const EditableView = () => {
                       Array.isArray(tempImg.banners) &&
                       tempImg.banners.length !== 0
                         ? tempImg.banners
-                        : configData?.bannerImgPath
+                        : currentConfigs?.bannerImgPath
                     }
                   />
                   {provided.placeholder}
@@ -297,7 +262,7 @@ const EditableView = () => {
               Thêm mới bộ lọc
             </Button>
           </div>
-          <PriceFilterList priceFilterList={configData?.shopPriceFilter} />
+          <PriceFilterList priceFilterList={currentConfigs?.shopPriceFilter} />
         </div>
       </div>
       <Divider />

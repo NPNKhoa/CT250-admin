@@ -1,33 +1,16 @@
-import { useEffect, useState } from 'react';
-import systemConfigService from '../../services/systemConfig.service';
-
 import { Divider, Skeleton, Stack, Typography } from '@mui/material';
+
+import { useSelector } from 'react-redux';
+
 import BannerList from './BannerList';
 import PriceFilterList from './PriceFilterList';
-
-import { toast } from 'react-toastify';
 import ParagraphSkeleton from '../common/ParagraphSkeleton';
 
 const ReadOnlyView = () => {
-  const [configData, setConfigData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const data = await systemConfigService.getConfig();
-        setConfigData(data.data);
-      } catch (err) {
-        console.log(err);
-        toast.error('Lỗi khi tải cấu hình!');
-        throw new Error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchConfig();
-  }, []);
+  const currentConfigs = useSelector(
+    (state) => state.systemConfigs.currentConfigs,
+  );
+  const loading = useSelector((state) => state.systemConfigs.loading);
 
   return (
     <Stack spacing={2} className="mt-4">
@@ -44,7 +27,7 @@ const ReadOnlyView = () => {
             />
           ) : (
             <img
-              src={'http://localhost:5000/' + configData?.shopLogoImgPath}
+              src={'http://localhost:5000/' + currentConfigs?.shopLogoImgPath}
               alt="logo"
               className="h-36 w-36 rounded-full border-4 border-solid border-primary p-4"
             />
@@ -64,7 +47,7 @@ const ReadOnlyView = () => {
               {loading ? (
                 <Skeleton animation="wave" width={'50%'} />
               ) : (
-                configData?.shopName
+                currentConfigs?.shopName
               )}
             </Typography>
             <Typography
@@ -75,7 +58,7 @@ const ReadOnlyView = () => {
               {loading ? (
                 <Skeleton animation="wave" width={'50%'} />
               ) : (
-                configData?.shopEmail
+                currentConfigs?.shopEmail
               )}
             </Typography>
             <Typography
@@ -86,7 +69,7 @@ const ReadOnlyView = () => {
               {loading ? (
                 <Skeleton animation="wave" width={'50%'} />
               ) : (
-                configData?.shopPhoneNumber
+                currentConfigs?.shopPhoneNumber
               )}
             </Typography>
           </Stack>
@@ -101,7 +84,9 @@ const ReadOnlyView = () => {
           <ParagraphSkeleton />
         ) : (
           <div
-            dangerouslySetInnerHTML={{ __html: configData?.shopIntroduction }}
+            dangerouslySetInnerHTML={{
+              __html: currentConfigs?.shopIntroduction,
+            }}
           ></div>
         )}
       </div>
@@ -109,7 +94,7 @@ const ReadOnlyView = () => {
       <div>
         <Typography variant="h3">Banner hiện tại</Typography>
         <div className="mt-8">
-          <BannerList banners={configData?.bannerImgPath} />
+          <BannerList banners={currentConfigs?.bannerImgPath} />
         </div>
       </div>
       <Divider />
@@ -121,7 +106,7 @@ const ReadOnlyView = () => {
           <Typography variant="h4" gutterBottom>
             Bộ lọc theo giá
           </Typography>
-          <PriceFilterList priceFilterList={configData?.shopPriceFilter} />
+          <PriceFilterList priceFilterList={currentConfigs?.shopPriceFilter} />
         </div>
       </div>
       <Divider />
