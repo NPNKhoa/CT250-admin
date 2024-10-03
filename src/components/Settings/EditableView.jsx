@@ -10,6 +10,8 @@ import PriceFilterList from './PriceFilterList';
 
 import systemConfigService from '../../services/systemConfig.service';
 import { toast } from 'react-toastify';
+import ActionModal from '../common/ActionModal';
+import systemConfigModalContentData from '../../configs/modalContentData/SystemConfigModalContentData';
 
 const EditableView = () => {
   const editor = useRef(null);
@@ -26,6 +28,9 @@ const EditableView = () => {
     shopIntroduction: '',
   });
 
+  const [openModal, setOpenModal] = useState(false);
+  const [modalKey, setModalKey] = useState(null);
+
   // Handle change input logic
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,6 +41,17 @@ const EditableView = () => {
       ...prevData,
       [name]: value,
     }));
+  };
+
+  // Handle modal opening
+  const handleOpenModal = (key) => {
+    setModalKey(key);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setModalKey(null);
   };
 
   // Handle Save Change
@@ -140,7 +156,12 @@ const EditableView = () => {
                 className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
               />
             )}
-            <Button variant="contained" size="large" color="primary">
+            <Button
+              variant="contained"
+              size="large"
+              color="primary"
+              onClick={() => handleOpenModal('logo')}
+            >
               Đổi Logo
             </Button>
           </div>
@@ -197,7 +218,11 @@ const EditableView = () => {
       <div>
         <div className="flex items-center justify-between">
           <Typography variant="h3">Banner hiện tại</Typography>
-          <Button variant="contained" size="large">
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => handleOpenModal('banners')}
+          >
             Cập nhật banner
           </Button>
         </div>
@@ -228,7 +253,11 @@ const EditableView = () => {
             <Typography variant="h4" gutterBottom>
               Bộ lọc theo giá
             </Typography>
-            <Button variant="contained" size="large">
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => handleOpenModal('priceFilter')}
+            >
               Thêm mới bộ lọc
             </Button>
           </div>
@@ -244,6 +273,15 @@ const EditableView = () => {
       >
         Lưu thay đổi
       </Button>
+
+      {/* Modal component */}
+      <ActionModal
+        title={systemConfigModalContentData[modalKey]?.title}
+        open={openModal}
+        onClose={handleCloseModal}
+      >
+        {modalKey && <>{systemConfigModalContentData[modalKey].content}</>}
+      </ActionModal>
     </Stack>
   );
 };

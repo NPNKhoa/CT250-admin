@@ -2,29 +2,7 @@ import PropTypes from 'prop-types';
 
 import { Paper } from '@mui/material';
 import PriceFilterItem from './PriceFilterItem';
-
-// const priceFilterList = [
-//   {
-//     fromPrice: 0,
-//     toPrice: 500000,
-//   },
-//   {
-//     fromPrice: 500000,
-//     toPrice: 1000000,
-//   },
-//   {
-//     fromPrice: 1000000,
-//     toPrice: 2000000,
-//   },
-//   {
-//     fromPrice: 2000000,
-//     toPrice: 3000000,
-//   },
-//   {
-//     fromPrice: 3000000,
-//     toPrice: 3000000,
-//   },
-// ];
+import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 
 const PriceFilterList = ({ priceFilterList }) => {
   return (
@@ -37,12 +15,12 @@ const PriceFilterList = ({ priceFilterList }) => {
             let toPrice = filter.toPrice;
 
             if (fromPrice === 0) {
-              fromPrice = `Dưới ${filter.toPrice}`;
+              fromPrice = `Dưới ${toVietnamCurrencyFormat(filter.toPrice)}`;
               toPrice = null;
             }
 
             if (toPrice === fromPrice) {
-              fromPrice = `Trên ${filter.toPrice}`;
+              fromPrice = `Trên ${toVietnamCurrencyFormat(filter.toPrice)}`;
               toPrice = null;
             }
 
