@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { TextField, Button, Box, Chip, Autocomplete } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -8,7 +8,11 @@ import { createProduct, updateProduct } from '../../redux/thunk/productThunk';
 import { getProductTypes } from '../../redux/thunk/productTypeThunk';
 import { getBrands } from '../../redux/thunk/brandThunk';
 import { getDiscounts } from '../../redux/thunk/discountThunk';
+import { getPromotions } from '../../redux/thunk/promotionThunk';
+import { getSpecifications } from '../../redux/thunk/specificationThunk';
 import productsService from '../../services/products.service';
+import { Trash2, SquarePlus } from 'lucide-react';
+import JoditEditor from 'jodit-react';
 
 const ProductPopup = ({ isOpen, onClose, data }) => {
   const dispatch = useDispatch();
@@ -36,6 +40,8 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
         : data?.[0]?.discount
           ? `Giảm ${data[0].discount.discountPercent}% (từ ngày ${new Date(data[0].discount.discountStartDate).toLocaleDateString('vi-VN')} đến ngày ${new Date(data[0].discount.discountExpiredDate).toLocaleDateString('vi-VN')})`
           : '',
+      description: data[0]?.description || '',
+      promotion: data?.[0]?.promotion?._id || data?.[0]?.promotion || '',
     }),
     [data],
   );
@@ -44,19 +50,77 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
 
   const [product, setProduct] = useState(initialProduct);
   const [newFiles, setNewFiles] = useState([]);
+  const [specs, setSpecs] = useState([
+    {
+      specificationName: '',
+      name: '',
+      specificationDesc: '',
+    },
+  ]);
   const { productTypes } = useSelector((state) => state.productType);
   const { brands } = useSelector((state) => state.brand);
   const { discounts } = useSelector((state) => state.discount);
+  const { promotions } = useSelector((state) => state.promotion);
+  const { specifications } = useSelector((state) => state.specification);
+
+  const [isFirstStep, setIsFirstStep] = useState(true);
+
+  const editor = useRef(null);
+
+  const handleNextStep = (e) => {
+    e.preventDefault();
+    setIsFirstStep(false);
+  };
+
+  const handlePrevStep = () => {
+    setIsFirstStep(true);
+  };
 
   useEffect(() => {
-    dispatch(getProductTypes());
-    dispatch(getBrands());
-    dispatch(getDiscounts());
+    const fetchData = async () => {
+      await Promise.all([
+        dispatch(getProductTypes()),
+        dispatch(getBrands()),
+        dispatch(getDiscounts()),
+        dispatch(getSpecifications()),
+        dispatch(getPromotions()),
+      ]);
+    };
+
+    fetchData();
   }, [dispatch]);
 
   useEffect(() => {
     setProduct(initialProduct);
   }, [initialProduct]);
+
+  useEffect(() => {
+    let temp = [];
+    if (
+      data?.[0]?.technicalSpecification &&
+      Array.isArray(data[0].technicalSpecification)
+    ) {
+      temp = [
+        ...temp,
+        ...data[0].technicalSpecification.map((techSpec) => ({
+          name:
+            techSpec.specificationName.specificationName ||
+            findSpecName(techSpec.specificationName),
+          specificationName:
+            techSpec.specificationName._id || techSpec.specificationName,
+          specificationDesc: techSpec.specificationDesc,
+        })),
+      ];
+    }
+    setSpecs(temp);
+  }, [data]);
+
+  const findSpecName = (specId) => {
+    const spec = specifications.find(
+      (specification) => specification._id === specId,
+    );
+    return spec?.specificationName;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -106,6 +170,26 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
       };
     }
 
+    updatedProduct = {
+      ...updatedProduct,
+      technicalSpecification: specs.map(
+        ({ specificationName, specificationDesc }) => ({
+          specificationName,
+          specificationDesc,
+        }),
+      ),
+    };
+
+    if (updatedProduct.discount === '') {
+      delete updatedProduct.discount;
+    }
+
+    if (updatedProduct.promotion === '') {
+      delete updatedProduct.promotion;
+    }
+
+    console.log('updatedProduct: ', updatedProduct);
+
     if (
       Array.isArray(updatedProduct.productImagePath) &&
       updatedProduct.productImagePath.length === 0
@@ -128,9 +212,33 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
         }
       }
 
+      setIsFirstStep(true);
+      setSpecs({});
       setNewFiles([]);
       onClose();
     }
+  };
+
+  const addNewSpec = () => {
+    setSpecs([
+      ...specs,
+      {
+        specificationName: '',
+        name: '',
+        specificationDesc: '',
+      },
+    ]);
+  };
+
+  const handleSpecChange = (index, field, value) => {
+    const updatedSpecs = [...specs];
+    updatedSpecs[index][field] = value;
+    setSpecs(updatedSpecs);
+  };
+
+  const removeSpec = (index) => {
+    const updatedSpecs = specs.filter((_, i) => i !== index);
+    setSpecs(updatedSpecs);
   };
 
   if (!isOpen) return null;
@@ -139,211 +247,405 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         className="fixed inset-0 bg-black opacity-30"
-        onClick={onClose}
+        onClick={() => {
+          onClose();
+          setIsFirstStep(true);
+        }}
       ></div>
       <Box
-        className="z-10 w-[80%] max-w-[95%] overflow-auto rounded-lg bg-white p-4 shadow-lg md:max-w-2xl lg:max-w-3xl"
-        sx={{ maxHeight: '100vh' }}
+        className="z-10 w-[80%] overflow-auto rounded-lg bg-white p-4 shadow-lg"
+        sx={{ height: '95vh' }}
       >
         <h1 className="mb-2 text-center text-2xl font-bold">
           {data && data.length > 0 ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}
         </h1>
         <form onSubmit={handleSubmit}>
-          <TextField
-            label="Tên sản phẩm"
-            name="productName"
-            value={product.productName}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <Box className="mb-3">
-            <Button
-              component="label"
-              role={undefined}
-              variant="contained"
-              tabIndex={-1}
-              startIcon={<CloudUploadIcon />}
-            >
-              Thêm hình ảnh
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleImageChange}
-                multiple
-              />
-            </Button>
-            <Box className="mt-3 flex flex-wrap">
-              {product.productImagePath &&
-                product.productImagePath.map((imagePath, index) => (
-                  <Box key={index} className="mb-2 mr-2">
-                    <img
-                      src={
-                        imagePath.startsWith('http') ||
-                        imagePath.startsWith('blob:')
-                          ? imagePath
-                          : `http://localhost:5000/${imagePath.replace(/\\/g, '/')}`
-                      }
-                      alt={`Product Image ${index + 1}`}
-                      className="mb-1 h-20 w-20 object-cover"
-                    />
-                    <Chip
-                      label={index + 1}
-                      onDelete={() => {
-                        setProduct((prevProduct) => ({
-                          ...prevProduct,
-                          productImagePath: prevProduct.productImagePath.filter(
-                            (_, i) => i !== index,
-                          ),
-                        }));
-                        setNewFiles((prevFiles) =>
-                          prevFiles.filter((_, i) => i !== index),
-                        );
-                      }}
-                    />
-                  </Box>
-                ))}
-            </Box>
-            <Box className="mb-3 mt-2 flex space-x-4">
-              <TextField
-                label="Giá"
-                type="number"
-                name="price"
-                value={product.price}
-                onChange={handleInputChange}
-                variant="outlined"
-                fullWidth
-                required
-                slotProps={{
-                  htmlInput: {
-                    min: 0,
-                  },
-                }}
-              />
-              <TextField
-                label="Số lượng"
-                type="number"
-                name="countInStock"
-                value={product.countInStock}
-                onChange={handleInputChange}
-                variant="outlined"
-                fullWidth
-                required
-                slotProps={{
-                  htmlInput: {
-                    min: 0,
-                  },
-                }}
-              />
-            </Box>
-            <Box className="mb-3 flex space-x-4">
-              <Autocomplete
-                options={productTypes.map(
-                  (productType) => productType.productTypeName,
-                )}
-                value={product.productTypeName}
-                onChange={(event, newValue) => {
-                  const selectedProductType = productTypes.find(
-                    (productType) => productType.productTypeName === newValue,
-                  );
-                  handleAutocompleteChange(
-                    'productType',
-                    selectedProductType?._id,
-                  );
-                  handleInputChange({
-                    target: { name: 'productTypeName', value: newValue },
-                  });
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Loại sản phẩm"
-                    name="productTypeName"
-                    variant="outlined"
-                    required
-                    fullWidth
-                  />
-                )}
-                className="flex-1"
-              />
-
-              <Autocomplete
-                options={brands.map((brand) => brand.brandName)}
-                value={product.productBrandName}
-                onChange={(event, newValue) => {
-                  const selectedBrand = brands.find(
-                    (brand) => brand.brandName === newValue,
-                  );
-                  handleAutocompleteChange('productBrand', selectedBrand?._id);
-                  handleInputChange({
-                    target: { name: 'productBrandName', value: newValue },
-                  });
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Thương hiệu"
-                    name="productBrandName"
-                    variant="outlined"
-                    required
-                    fullWidth
-                  />
-                )}
-                className="flex-1"
-              />
-            </Box>
-            <Autocomplete
-              options={(discounts || []).map((discount) => {
-                const startDate = new Date(
-                  discount.discountStartDate,
-                ).toLocaleDateString('vi-VN');
-                const expiredDate = new Date(
-                  discount.discountExpiredDate,
-                ).toLocaleDateString('vi-VN');
-
-                return `Giảm ${discount.discountPercent}% (từ ngày ${startDate} đến ngày ${expiredDate})`;
-              })}
-              value={product.discountField}
-              onChange={(event, newValue) => {
-                const selectedDiscount = (discounts || []).find((discount) => {
-                  const startDate = new Date(
-                    discount.discountStartDate,
-                  ).toLocaleDateString('vi-VN');
-                  const expiredDate = new Date(
-                    discount.discountExpiredDate,
-                  ).toLocaleDateString('vi-VN');
-                  return (
-                    `Giảm ${discount.discountPercent}% (từ ngày ${startDate} đến ngày ${expiredDate})` ===
-                    newValue
-                  );
-                });
-                handleAutocompleteChange('discount', selectedDiscount?._id);
-                handleInputChange({
-                  target: { name: 'discountField', value: newValue },
-                });
-              }}
-              renderInput={(params) => (
+          {isFirstStep ? (
+            <Box className="flex space-x-4">
+              {/* Left Column */}
+              <Box className="flex flex-1 flex-col space-y-4">
                 <TextField
-                  {...params}
-                  label="Giảm giá (%)"
-                  name="discountField"
-                  variant="outlined"
-                  required
+                  label="Tên sản phẩm"
+                  name="productName"
+                  value={product.productName}
+                  onChange={handleInputChange}
                   fullWidth
+                  margin="normal"
+                  required
                 />
-              )}
-              className="flex-1"
-            />
-          </Box>
+                <Box className="mb-8">
+                  <Button
+                    component="label"
+                    role={undefined}
+                    variant="contained"
+                    tabIndex={-1}
+                    startIcon={<CloudUploadIcon />}
+                  >
+                    Thêm hình ảnh
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={handleImageChange}
+                      multiple
+                    />
+                  </Button>
+                  <Box className="mt-3 flex flex-wrap">
+                    {product.productImagePath &&
+                      product.productImagePath.map((imagePath, index) => (
+                        <Box key={index} className="mb-2 mr-2">
+                          <img
+                            src={
+                              imagePath.startsWith('http') ||
+                              imagePath.startsWith('blob:')
+                                ? imagePath
+                                : `http://localhost:5000/${imagePath.replace(/\\/g, '/')}`
+                            }
+                            alt={`Product Image ${index + 1}`}
+                            className="mb-1 h-20 w-20 object-cover"
+                          />
+                          <Chip
+                            label={index + 1}
+                            onDelete={() => {
+                              setProduct((prevProduct) => ({
+                                ...prevProduct,
+                                productImagePath:
+                                  prevProduct.productImagePath.filter(
+                                    (_, i) => i !== index,
+                                  ),
+                              }));
+                              setNewFiles((prevFiles) =>
+                                prevFiles.filter((_, i) => i !== index),
+                              );
+                            }}
+                          />
+                        </Box>
+                      ))}
+                  </Box>
+                </Box>
+                <Box className="flex space-x-4">
+                  <TextField
+                    label="Giá"
+                    type="number"
+                    name="price"
+                    value={product.price}
+                    onChange={handleInputChange}
+                    variant="outlined"
+                    fullWidth
+                    required
+                    slotProps={{
+                      htmlInput: {
+                        min: 0,
+                      },
+                    }}
+                    className="flex-1"
+                  />
+                  <TextField
+                    label="Số lượng"
+                    type="number"
+                    name="countInStock"
+                    value={product.countInStock}
+                    onChange={handleInputChange}
+                    variant="outlined"
+                    fullWidth
+                    required
+                    slotProps={{
+                      htmlInput: {
+                        min: 0,
+                      },
+                    }}
+                    className="flex-1"
+                  />
+                </Box>
+                <Box className="flex space-x-4">
+                  <Autocomplete
+                    options={productTypes.map(
+                      (productType) => productType.productTypeName,
+                    )}
+                    value={product.productTypeName}
+                    onChange={(event, newValue) => {
+                      const selectedProductType = productTypes.find(
+                        (productType) =>
+                          productType.productTypeName === newValue,
+                      );
+                      handleAutocompleteChange(
+                        'productType',
+                        selectedProductType?._id,
+                      );
+                      handleInputChange({
+                        target: {
+                          name: 'productTypeName',
+                          value: newValue,
+                        },
+                      });
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Loại sản phẩm"
+                        name="productTypeName"
+                        variant="outlined"
+                        required
+                        fullWidth
+                      />
+                    )}
+                    className="flex-1"
+                  />
+                  <Autocomplete
+                    options={brands.map((brand) => brand.brandName)}
+                    value={product.productBrandName}
+                    onChange={(event, newValue) => {
+                      const selectedBrand = brands.find(
+                        (brand) => brand.brandName === newValue,
+                      );
+                      handleAutocompleteChange(
+                        'productBrand',
+                        selectedBrand?._id,
+                      );
+                      handleInputChange({
+                        target: {
+                          name: 'productBrandName',
+                          value: newValue,
+                        },
+                      });
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Thương hiệu"
+                        name="productBrandName"
+                        variant="outlined"
+                        required
+                        fullWidth
+                      />
+                    )}
+                    className="flex-1"
+                  />
+                </Box>
+                <Box className="flex space-x-4">
+                  <Autocomplete
+                    options={(discounts || []).map((discount) => {
+                      const startDate = new Date(
+                        discount.discountStartDate,
+                      ).toLocaleDateString('vi-VN');
+                      const expiredDate = new Date(
+                        discount.discountExpiredDate,
+                      ).toLocaleDateString('vi-VN');
+
+                      return `Giảm ${discount.discountPercent}% (từ ngày ${startDate} đến ngày ${expiredDate})`;
+                    })}
+                    value={product.discountField}
+                    onChange={(event, newValue) => {
+                      const selectedDiscount = (discounts || []).find(
+                        (discount) => {
+                          const startDate = new Date(
+                            discount.discountStartDate,
+                          ).toLocaleDateString('vi-VN');
+                          const expiredDate = new Date(
+                            discount.discountExpiredDate,
+                          ).toLocaleDateString('vi-VN');
+                          return (
+                            `Giảm ${discount.discountPercent}% (từ ngày ${startDate} đến ngày ${expiredDate})` ===
+                            newValue
+                          );
+                        },
+                      );
+                      handleAutocompleteChange(
+                        'discount',
+                        selectedDiscount?._id,
+                      );
+                      handleInputChange({
+                        target: { name: 'discountField', value: newValue },
+                      });
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Giảm giá (%)"
+                        name="discountField"
+                        variant="outlined"
+                        // required
+                        fullWidth
+                      />
+                    )}
+                    className="flex-1"
+                  />
+                </Box>
+                <Box className="flex space-x-4">
+                  <Autocomplete
+                    options={(promotions || []).map((promotion) => {
+                      const gifts = promotion.productIds.map(
+                        (product) => product.productName,
+                      );
+                      const services = promotion.serviceIds.map(
+                        (service) => service.serviceName,
+                      );
+
+                      return `- Quà tặng: ${gifts.join(', ')}\n- Dịch vụ: ${services.join(', ')}`;
+                    })}
+                    value={(promotions || [])
+                      .map((promotion) => {
+                        if (promotion._id === product.promotion) {
+                          const gifts = promotion.productIds.map(
+                            (product) => product.productName,
+                          );
+                          const services = promotion.serviceIds.map(
+                            (service) => service.serviceName,
+                          );
+
+                          return `- Quà tặng: ${gifts.join(', ')}\n- Dịch vụ: ${services.join(', ')}`;
+                        }
+                        return null;
+                      })
+                      .filter(Boolean)
+                      .join('')}
+                    onChange={(event, newValue) => {
+                      const selectedPromotion = (promotions || []).find(
+                        (promotion) => {
+                          const gifts = promotion.productIds.map(
+                            (product) => product.productName,
+                          );
+                          const services = promotion.serviceIds.map(
+                            (service) => service.serviceName,
+                          );
+                          return (
+                            `- Quà tặng: ${gifts.join(', ')}\n- Dịch vụ: ${services.join(', ')}` ===
+                            newValue
+                          );
+                        },
+                      );
+                      handleAutocompleteChange(
+                        'promotion',
+                        selectedPromotion?._id,
+                      );
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Ưu đãi"
+                        name="promotionField"
+                        variant="outlined"
+                        // required
+                        fullWidth
+                      />
+                    )}
+                    className="flex-1"
+                  />
+                </Box>
+              </Box>
+
+              {/* Right Column */}
+              <Box className="mt-4 flex flex-1 flex-col space-y-4">
+                <Box>
+                  {specs &&
+                    specs.map((spec, index) => (
+                      <div key={index} className="mb-3 flex space-x-4">
+                        <Autocomplete
+                          options={specifications.map(
+                            (specification) => specification.specificationName,
+                          )}
+                          value={spec.name}
+                          onChange={(e, newValue) => {
+                            handleSpecChange(index, 'name', newValue);
+                            const selectedSpec = specifications.find(
+                              (specification) =>
+                                specification.specificationName === newValue,
+                            );
+                            handleSpecChange(
+                              index,
+                              'specificationName',
+                              selectedSpec._id,
+                            );
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Thông số kỹ thuật"
+                              name="specName"
+                              variant="outlined"
+                              // required
+                              fullWidth
+                            />
+                          )}
+                          className="flex-1"
+                        />
+                        <TextField
+                          label="Specification Value"
+                          name="specDesc"
+                          value={spec.specificationDesc}
+                          onChange={(e) =>
+                            handleSpecChange(
+                              index,
+                              'specificationDesc',
+                              e.target.value,
+                            )
+                          }
+                          variant="outlined"
+                          fullWidth
+                          // required
+                          className="flex-1"
+                        />
+                        <button
+                          onClick={() => removeSpec(index)}
+                          className="rounded text-red-600"
+                        >
+                          <Trash2 strokeWidth={1} />
+                        </button>
+                      </div>
+                    ))}
+                  <button
+                    onClick={addNewSpec}
+                    className="flex items-center rounded p-1 text-blue-600"
+                  >
+                    <SquarePlus strokeWidth={1} className="mr-2" />
+                    <span>Thêm thông số</span>
+                  </button>
+                </Box>
+              </Box>
+            </Box>
+          ) : (
+            <Box>
+              <div>
+                <JoditEditor
+                  ref={editor}
+                  value={product.description[0] || product.description}
+                  tabIndex={1}
+                  onChange={(newContent) => {
+                    handleInputChange({
+                      target: { name: 'description', value: newContent },
+                    });
+                  }}
+                />
+              </div>
+            </Box>
+          )}
           <Box className="mt-4 flex justify-end space-x-2">
-            <Button variant="contained" color="secondary" onClick={onClose}>
-              Hủy
-            </Button>
-            <Button variant="contained" color="primary" type="submit">
-              {data && data.length > 0 ? 'Cập nhật' : 'Thêm'}
-            </Button>
+            {isFirstStep ? (
+              <>
+                <Button
+                  onClick={() => {
+                    onClose();
+                    setIsFirstStep(true);
+                  }}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleNextStep}
+                >
+                  Tiếp tục
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button onClick={handlePrevStep}>Trở về</Button>
+                <Button variant="contained" color="primary" type="submit">
+                  {data && data.length > 0 ? 'Cập nhật' : 'Thêm'}
+                </Button>
+              </>
+            )}
           </Box>
         </form>
       </Box>
