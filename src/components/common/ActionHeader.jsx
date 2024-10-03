@@ -8,7 +8,7 @@ const ActionHeader = ({ title, onApply, onAdd, onUpdate, onDelete, selectedRows 
       <div className="ml-auto flex flex-col space-y-2 md:flex-row md:space-x-2 md:space-y-0">
       {onApply && (
           <button
-            className="flex items-center rounded bg-orange-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
+            className="flex items-center rounded bg-orange-600 hover:bg-orange-700 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
             onClick={onApply}
           >
             <TicketPercent strokeWidth={1} className="mr-2" />
@@ -17,7 +17,7 @@ const ActionHeader = ({ title, onApply, onAdd, onUpdate, onDelete, selectedRows 
         )}
         {onAdd && (
           <button
-            className="flex items-center rounded bg-green-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
+            className="flex items-center rounded bg-green-600 hover:bg-green-700 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
             onClick={onAdd}
           >
             <CopyPlus strokeWidth={1} className="mr-2" />
@@ -26,7 +26,7 @@ const ActionHeader = ({ title, onApply, onAdd, onUpdate, onDelete, selectedRows 
         )}
         {onUpdate && (
           <button
-            className="flex items-center rounded bg-blue-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
+            className="flex items-center rounded bg-blue-600 hover:bg-blue-700 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
             onClick={onUpdate}
           >
             <FilePenLine strokeWidth={1} className="mr-2" />
@@ -35,7 +35,7 @@ const ActionHeader = ({ title, onApply, onAdd, onUpdate, onDelete, selectedRows 
         )}
         {onDelete && (
           <button
-            className="flex items-center rounded bg-red-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
+            className="flex items-center rounded bg-red-600 hover:bg-red-700 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
             onClick={() => onDelete(selectedRows)}
           >
             <Trash2 strokeWidth={1} className="mr-2" />
