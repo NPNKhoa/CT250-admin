@@ -28,11 +28,16 @@ const EditableView = () => {
     shopIntroduction: '',
   });
 
+  const [tempImg, setTempImg] = useState({
+    logo: '',
+    banners: [],
+  });
+
   const [openModal, setOpenModal] = useState(false);
   const [modalKey, setModalKey] = useState(null);
 
   // Handle change input logic
-  const handleChange = (e) => {
+  const handleChangeTextField = (e) => {
     const { name, value } = e.target;
 
     console.log(name, value);
@@ -43,15 +48,36 @@ const EditableView = () => {
     }));
   };
 
+  // Handle Change files logic
+  const handleChangeModalContent = (key, value) => {
+    setTempImg((prevData) => ({
+      ...prevData,
+      [key]: value,
+    }));
+  };
+
+  const onSaveModalContent = (key, value) => {
+    setConfigData((prevData) => ({
+      ...prevData,
+      [key]: value,
+    }));
+    setModalKey(null);
+    setOpenModal(false);
+  };
+
   // Handle modal opening
   const handleOpenModal = (key) => {
     setModalKey(key);
     setOpenModal(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseModal = (key) => {
+    setTempImg((prevData) => ({
+      ...prevData,
+      [key]: null,
+    }));
     setModalKey(null);
+    setOpenModal(false);
   };
 
   // Handle Save Change
@@ -147,13 +173,16 @@ const EditableView = () => {
               <img
                 src={'src/assets/image_placeholder.svg'}
                 alt="bla bla"
-                className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
+                className="h-36 w-36 rounded-full border-4 border-solid border-primary p-4"
               />
             ) : (
               <img
-                src={'http://localhost:5000/' + configData?.shopLogoImgPath}
+                src={
+                  tempImg.logo ||
+                  'http://localhost:5000/' + configData?.shopLogoImgPath
+                }
                 alt="logo"
-                className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
+                className="h-36 w-36 rounded-full border-4 border-solid border-primary p-2"
               />
             )}
             <Button
@@ -178,21 +207,21 @@ const EditableView = () => {
                 name="shopName"
                 className="w-full"
                 value={configData?.shopName}
-                onChange={(e) => handleChange(e)}
+                onChange={(e) => handleChangeTextField(e)}
               />
               <TextField
                 label="Email liên hệ"
                 name="shopEmail"
                 className="w-full"
                 value={configData?.shopEmail}
-                onChange={(e) => handleChange(e)}
+                onChange={(e) => handleChangeTextField(e)}
               />
               <TextField
                 label="Số điện thoại"
                 name="shopPhoneNumber"
                 className="w-full"
                 value={configData?.shopPhoneNumber}
-                onChange={(e) => handleChange(e)}
+                onChange={(e) => handleChangeTextField(e)}
               />
             </Stack>
           </form>
@@ -235,7 +264,14 @@ const EditableView = () => {
             <Droppable droppableId="banners-droppable">
               {(provided) => (
                 <div ref={provided.innerRef} {...provided.droppableProps}>
-                  <BannerList banners={configData?.bannerImgPath} />
+                  <BannerList
+                    banners={
+                      Array.isArray(tempImg.banners) &&
+                      tempImg.banners.length !== 0
+                        ? tempImg.banners
+                        : configData?.bannerImgPath
+                    }
+                  />
                   {provided.placeholder}
                 </div>
               )}
@@ -280,7 +316,15 @@ const EditableView = () => {
         open={openModal}
         onClose={handleCloseModal}
       >
-        {modalKey && <>{systemConfigModalContentData[modalKey].content}</>}
+        {modalKey && (
+          <>
+            {systemConfigModalContentData[modalKey].content({
+              onChange: handleChangeModalContent,
+              onSave: onSaveModalContent,
+              onCancel: handleCloseModal,
+            })}
+          </>
+        )}
       </ActionModal>
     </Stack>
   );

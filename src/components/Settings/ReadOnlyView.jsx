@@ -40,13 +40,13 @@ const ReadOnlyView = () => {
             <img
               src={'src/assets/image_placeholder.svg'}
               alt="bla bla"
-              className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
+              className="h-36 w-36 rounded-full border-4 border-solid border-primary p-2"
             />
           ) : (
             <img
               src={'http://localhost:5000/' + configData?.shopLogoImgPath}
               alt="logo"
-              className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
+              className="h-36 w-36 rounded-full border-4 border-solid border-primary p-4"
             />
           )}
         </div>
