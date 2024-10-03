@@ -8,36 +8,42 @@ const BannerList = ({ banners }) => {
 
   return (
     <Stack spacing={4} className="m-auto w-6/7">
-      {banners.map((banner, index) => {
-        {
-          return isEditable ? (
-            <Draggable
-              draggableId={`banner-${index}`}
-              index={index}
-              key={index}
-            >
-              {(provided) => (
-                <img
-                  src={banner}
-                  alt={banner + index}
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  className="w-full"
-                />
-              )}
-            </Draggable>
-          ) : (
-            <img src={banner} alt={banner + index} className="w-full" />
-          );
-        }
-      })}
+      {Array.isArray(banners) &&
+        banners.length !== 0 &&
+        banners.map((banner, index) => {
+          {
+            return isEditable ? (
+              <Draggable
+                draggableId={`banner-${index}`}
+                index={index}
+                key={index}
+              >
+                {(provided) => (
+                  <img
+                    src={`http://localhost:5000/${banner}`}
+                    alt={banner + index}
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className="w-full"
+                  />
+                )}
+              </Draggable>
+            ) : (
+              <img
+                src={`http://localhost:5000/${banner}`}
+                alt={'banner' + index}
+                className="w-full"
+              />
+            );
+          }
+        })}
     </Stack>
   );
 };
 
 BannerList.propTypes = {
-  banners: PropTypes.array.isRequired,
+  banners: PropTypes.array,
 };
 
 export default BannerList;

@@ -1,8 +1,8 @@
 import authService from './auth.service';
 
 class ApiService {
-  constructor(baseUrl) {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl = import.meta.env.VITE_API_BASE_URL) {
+    this.baseUrl = baseUrl || 'http://localhost:5000/api/v1';
     this.authService = authService;
   }
 
