@@ -219,7 +219,8 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
     }
   };
 
-  const addNewSpec = () => {
+  const addNewSpec = (e) => {
+    e.preventDefault();
     setSpecs([
       ...specs,
       {
@@ -236,7 +237,8 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
     setSpecs(updatedSpecs);
   };
 
-  const removeSpec = (index) => {
+  const removeSpec = (e, index) => {
+    e.preventDefault();
     const updatedSpecs = specs.filter((_, i) => i !== index);
     setSpecs(updatedSpecs);
   };
@@ -254,7 +256,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
       ></div>
       <Box
         className="z-10 w-[80%] overflow-auto rounded-lg bg-white p-4 shadow-lg"
-        sx={{ height: '95vh' }}
+        sx={{ maxHeight: '95vh' }}
       >
         <h1 className="mb-2 text-center text-2xl font-bold">
           {data && data.length > 0 ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}
@@ -586,7 +588,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
                           className="flex-1"
                         />
                         <button
-                          onClick={() => removeSpec(index)}
+                          onClick={(e) => removeSpec(e, index)}
                           className="rounded text-red-600"
                         >
                           <Trash2 strokeWidth={1} />
@@ -608,7 +610,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
               <div>
                 <JoditEditor
                   ref={editor}
-                  value={product.description[0] || product.description}
+                  value={product.description[0] || product.description || ''}
                   tabIndex={1}
                   onChange={(newContent) => {
                     handleInputChange({

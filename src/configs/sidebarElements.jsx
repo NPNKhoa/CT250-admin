@@ -73,6 +73,12 @@ export default [
     childItems: [
       {
         childId: `${uuidv4()}-child`,
+        label: 'Giảm giá',
+        path: '/discount',
+        element: <DiscountPage />,
+      },
+      {
+        childId: `${uuidv4()}-child`,
         label: 'Ưu đãi',
         path: '/promotion',
         element: <PromotionPage />,
@@ -88,12 +94,6 @@ export default [
         label: 'Voucher',
         path: '/voucher',
         element: <VoucherPage />,
-      },
-      {
-        childId: `${uuidv4()}-child`,
-        label: 'Giảm giá',
-        path: '/discount',
-        element: <DiscountPage />,
       },
       {
         childId: `${uuidv4()}-child`,
