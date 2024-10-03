@@ -176,7 +176,7 @@ const PromotionPage = () => {
   return (
     <div>
       <ActionHeader
-        title="Thương hiệu"
+        title="Ưu đãi"
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);

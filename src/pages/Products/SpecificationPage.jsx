@@ -125,7 +125,7 @@ const SpecificationPage = () => {
   return (
     <div>
       <ActionHeader
-        title="Thương hiệu"
+        title="Thông số kỹ thuật"
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);

@@ -123,7 +123,7 @@ const ProductTypePage = () => {
   return (
     <div>
       <ActionHeader
-        title="Thương hiệu"
+        title="Loại sản phẩm"
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);

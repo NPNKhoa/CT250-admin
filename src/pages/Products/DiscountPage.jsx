@@ -142,7 +142,7 @@ const DiscountPage = () => {
   return (
     <div>
       <ActionHeader
-        title="Thương hiệu"
+        title="Giảm giá"
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);
