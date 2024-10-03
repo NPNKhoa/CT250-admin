@@ -18,11 +18,29 @@ const TableComponent = ({
             variant: 'linear-progress',
             noRowsVariant: 'linear-progress',
           },
+          toolbar: {
+            showQuickFilter: true,
+            quickFilterProps: {
+              sx: {
+                backgroundColor: 'white',
+                borderRadius: 3,
+                padding: '4px 12px',
+                // border: '1px solid #d1d5db',
+                // boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                '& input': {
+                  color: 'black',
+                  padding: '8px',
+                },
+              },
+            },
+          },
         }}
         slots={{ toolbar: GridToolbar }}
         rows={rows}
         columns={columns}
-        initialState={{ pagination: { paginationModel } }}
+        initialState={{
+          pagination: { paginationModel },
+        }}
         pageSizeOptions={[5, 10]}
         checkboxSelection
         rowSelectionModel={loading ? [] : undefined}

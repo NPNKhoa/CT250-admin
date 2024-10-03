@@ -1,4 +1,3 @@
-import { Trash2, FilePenLine, BadgePlus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProducts, deleteProduct } from '../../redux/thunk/productThunk';
 import { useEffect, useState, useMemo, Fragment } from 'react';
@@ -7,6 +6,7 @@ import ProductPopup from '../../components/Popup/ProductPopup';
 import { toast } from 'react-toastify';
 import AlertDialog from '../../components/common/AlertDialog';
 import TableComponent from '../../components/common/TableComponent';
+import ActionHeader from '../../components/common/ActionHeader';
 
 const ProductPage = () => {
   const dispatch = useDispatch();
@@ -35,6 +35,10 @@ const ProductPage = () => {
       setIsPopupOpen(true);
     }
   };
+
+  const handleApply = () => {
+
+  }
 
   const handleDelete = (ids) => {
     if (ids.length === 0) {
@@ -157,35 +161,17 @@ const ProductPage = () => {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Sản phẩm</h1>
-        <div className="ml-auto flex flex-col space-y-2 md:flex-row md:space-x-2 md:space-y-0">
-          <button
-            className="flex items-center rounded bg-green-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
-            onClick={() => {
-              setSelectedRows([]);
-              setIsPopupOpen(true);
-            }}
-          >
-            <BadgePlus strokeWidth={1} className="mr-2" />
-            <span>Thêm</span>
-          </button>
-          <button
-            className="flex items-center rounded bg-blue-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
-            onClick={handleUpdate}
-          >
-            <FilePenLine strokeWidth={1} className="mr-2" />
-            <span>Cập nhật</span>
-          </button>
-          <button
-            className="flex items-center rounded bg-red-600 px-2 py-1 text-xs text-white md:px-4 md:py-2 md:text-base"
-            onClick={() => handleDelete(selectedRows.map((row) => row._id))}
-          >
-            <Trash2 strokeWidth={1} className="mr-2" />
-            <span>Xóa</span>
-          </button>
-        </div>
-      </div>
+      <ActionHeader
+        title="Sản phẩm"
+        onApply={handleApply}
+        onAdd={() => {
+          setSelectedRows([]);
+          setIsPopupOpen(true);
+        }}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+        selectedRows={selectedRows.map((row) => row._id)}
+      />
       <TableComponent
         loading={loading}
         rows={rows}
