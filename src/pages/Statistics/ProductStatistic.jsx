@@ -58,47 +58,9 @@ const productData = [
 ];
 
 // Hàm tạo dữ liệu thống kê hợp lý hơn
-const generateProductSalesData = (numPeriods, products, baseFactor) => {
-  return Array.from({ length: numPeriods }, () => {
-    return products.map((product, index) => ({
-      name: product.name,
-      sold: Math.floor(
-        baseFactor * (Math.random() * 0.5 + 0.5) * (1 + index * 0.3),
-      ), // Thay đổi để tạo sự lệch
-    }));
-  });
-};
+
 // Dữ liệu thống kê sản phẩm giả với mức cơ sở hợp lý
-const salesData = {
-  day: {
-    labels: Array.from({ length: 30 }, (_, i) => `Ngày ${i + 1}`),
-    // Base factor cho mỗi ngày sẽ nhỏ hơn tháng
-    data: generateProductSalesData(30, productData, 3),
-  },
-  month: {
-    labels: [
-      'Tháng 1',
-      'Tháng 2',
-      'Tháng 3',
-      'Tháng 4',
-      'Tháng 5',
-      'Tháng 6',
-      'Tháng 7',
-      'Tháng 8',
-      'Tháng 9',
-      'Tháng 10',
-      'Tháng 11',
-      'Tháng 12',
-    ],
-    // Base factor cho mỗi tháng lớn hơn ngày
-    data: generateProductSalesData(12, productData, 100),
-  },
-  year: {
-    labels: ['2023', '2024'],
-    // Base factor cho mỗi năm sẽ lớn hơn tháng
-    data: generateProductSalesData(2, productData, 1200),
-  },
-};
+
 const softColors = [
   'rgba(255, 99, 71, 0.6)',
   'rgba(54, 162, 235, 0.6)',
@@ -117,6 +79,8 @@ const ProductStatistic = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [productData, setProductData] = useState([]);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [productTypeFerYear, setProductTypeFerYear] = useState([]);
+  const year = 2024;
 
   useEffect(() => {
     // Gọi API để lấy dữ liệu
@@ -141,166 +105,154 @@ const ProductStatistic = () => {
         console.error('Lỗi khi lấy dữ liệu từ API', error);
       }
     };
+    const fetchProductDataPerYear = async () => {
+      try {
+        const response =
+          await statictisService.getQuantityPerProductTypePerYear(year);
 
+        setProductTypeFerYear(response.data);
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu từ API', error);
+      }
+    };
+
+    fetchProductDataPerYear();
     fetchProductData();
   }, []);
-  // Xuất dữ liệu sang PDF
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Thống kê sản phẩm', 20, 10);
-    doc.autoTable({ html: '#product-table' });
-    doc.save('thong_ke_san_pham.pdf');
-  };
 
-  // Xuất dữ liệu sang Excel
-  // Xuất dữ liệu sang Excel
-  const exportExcel = () => {
-    const workbook = XLSX.utils.book_new();
+  console.log(productTypeFerYear);
 
-    // Dữ liệu cho worksheet
-    const worksheetData = [
-      [
-        'Thời gian', // Cột thời gian
-        'Tên sản phẩm', // Cột tên sản phẩm
-        'Số lượng bán', // Cột số lượng bán
-      ],
-    ];
+  // const generateProductSalesData = (numPeriods, products, baseFactor) => {
+  //   return Array.from({ length: numPeriods }, () => {
+  //     return products.map((product, index) => ({
+  //       name: product.name,
+  //       sold: Math.floor(
+  //         baseFactor * (Math.random() * 0.5 + 0.5) * (1 + index * 0.3),
+  //       ), // Thay đổi để tạo sự lệch
+  //     }));
+  //   });
+  // };
+  // const productTypeForYear = {
+  //   data: [
+  //     {
+  //       productType: 'Balo cầu lông',
+  //       monthlySales: [
+  //         { month: 1, totalSold: 0 },
+  //         { month: 2, totalSold: 0 },
+  //         { month: 3, totalSold: 0 },
+  //         { month: 4, totalSold: 0 },
+  //         { month: 5, totalSold: 0 },
+  //         { month: 6, totalSold: 0 },
+  //         { month: 7, totalSold: 0 },
+  //         { month: 8, totalSold: 0 },
+  //         { month: 9, totalSold: 0 },
+  //         { month: 10, totalSold: 1 },
+  //         { month: 11, totalSold: 0 },
+  //         { month: 12, totalSold: 0 },
+  //       ],
+  //     },
+  //     {
+  //       productType: 'Túi vợt cầu lông',
+  //       monthlySales: [
+  //         { month: 1, totalSold: 0 },
+  //         { month: 2, totalSold: 0 },
+  //         { month: 3, totalSold: 0 },
+  //         { month: 4, totalSold: 0 },
+  //         { month: 5, totalSold: 0 },
+  //         { month: 6, totalSold: 0 },
+  //         { month: 7, totalSold: 0 },
+  //         { month: 8, totalSold: 0 },
+  //         { month: 9, totalSold: 0 },
+  //         { month: 10, totalSold: 6 },
+  //         { month: 11, totalSold: 0 },
+  //         { month: 12, totalSold: 0 },
+  //       ],
+  //     },
+  //     {
+  //       productType: 'Vợt cầu lông',
+  //       monthlySales: [
+  //         { month: 1, totalSold: 0 },
+  //         { month: 2, totalSold: 0 },
+  //         { month: 3, totalSold: 0 },
+  //         { month: 4, totalSold: 0 },
+  //         { month: 5, totalSold: 0 },
+  //         { month: 6, totalSold: 0 },
+  //         { month: 7, totalSold: 0 },
+  //         { month: 8, totalSold: 0 },
+  //         { month: 9, totalSold: 0 },
+  //         { month: 10, totalSold: 5 },
+  //         { month: 11, totalSold: 0 },
+  //         { month: 12, totalSold: 0 },
+  //       ],
+  //     },
+  //   ],
+  //   error: false,
+  // };
 
-    // Lặp qua dữ liệu để tổ chức theo cách mong muốn
-    salesData[timeFrame].data.forEach((salesArray, dateIndex) => {
-      let firstProduct = true; // Biến để theo dõi sản phẩm đầu tiên của ngày
+  // const productTypeAllYears = {
+  //   data: [
+  //     {
+  //       productTypes: [
+  //         {
+  //           productType: 'Túi vợt cầu lông',
+  //           totalSold: 6,
+  //         },
+  //         {
+  //           productType: 'Vợt cầu lông',
+  //           totalSold: 5,
+  //         },
+  //         {
+  //           productType: 'Balo cầu lông',
+  //           totalSold: 1,
+  //         },
+  //       ],
+  //       year: 2024,
+  //     },
+  //   ],
+  //   error: false,
+  // };
 
-      salesArray.forEach((item) => {
-        if (firstProduct) {
-          worksheetData.push([
-            timeFrame === 'day'
-              ? `Ngày ${dateIndex + 1}`
-              : timeFrame === 'month'
-                ? `Tháng ${dateIndex + 1}`
-                : `Năm ${2023 + dateIndex}`, // Gán thời gian tương ứng
-            item.name || '', // Tên sản phẩm
-            item.sold || 0, // Số lượng bán
-          ]);
-          firstProduct = false; // Đánh dấu rằng sản phẩm đầu tiên đã được thêm
-        } else {
-          worksheetData.push([
-            '', // Ô trống cho thời gian
-            item.name || '', // Tên sản phẩm
-            item.sold || 0, // Số lượng bán
-          ]);
-        }
-      });
-    });
+  // Dữ liệu cho từng tháng
+  // const monthSalesData = productTypeForYear.data.map((item) => {
+  //   return {
+  //     productType: item.productType,
+  //     monthlySales: item.monthlySales.map((sales) => sales.totalSold),
+  //   };
+  // });
 
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    // Gộp các ô cho thời gian
-    let rowIndex = 1; // Bắt đầu từ hàng thứ hai (hàng tiêu đề)
-    salesData[timeFrame].data.forEach((salesArray, dateIndex) => {
-      if (salesArray.length > 0) {
-        // Gộp ô cho ngày
-        const cellRange = XLSX.utils.encode_range({
-          s: { r: rowIndex, c: 0 }, // Cột thời gian
-          e: { r: rowIndex + salesArray.length - 1, c: 0 }, // Cột thời gian
-        });
-        worksheet[cellRange] = {
-          v:
-            timeFrame === 'day'
-              ? `Ngày ${dateIndex + 1}`
-              : timeFrame === 'month'
-                ? `Tháng ${dateIndex + 1}`
-                : `Năm ${2023 + dateIndex}`,
-          t: 's', // Kiểu dữ liệu là string
-        };
-        worksheet['!merges'] = worksheet['!merges'] || [];
-        worksheet['!merges'].push({
-          s: { r: rowIndex, c: 0 },
-          e: { r: rowIndex + salesArray.length - 1, c: 0 },
-        });
-        rowIndex += salesArray.length; // Cập nhật chỉ số hàng
-      }
-    });
-
-    // Tùy chỉnh chiều rộng cột
-    worksheet['!cols'] = [
-      { wch: 20 }, // Chiều rộng cột Thời gian
-      { wch: 30 }, // Chiều rộng cột Tên sản phẩm
-      { wch: 15 }, // Chiều rộng cột Số lượng bán
-    ];
-
-    // Tùy chỉnh kiểu chữ cho tiêu đề
-    const range = XLSX.utils.decode_range(worksheet['!ref']);
-    for (let col = range.s.c; col <= range.e.c; col++) {
-      const cell = worksheet[XLSX.utils.encode_cell({ r: 0, c: col })];
-      if (cell) {
-        cell.s = {
-          fill: { fgColor: { rgb: 'FFFF00' } }, // Màu nền vàng
-          font: { bold: true, color: { rgb: '000000' }, sz: 12 }, // Chữ đen, đậm và kích thước 12
-          alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa
-        };
-      }
-    }
-
-    // Căn giữa cho ô thời gian và các ô dữ liệu khác
-    for (let row = 1; row <= range.e.r; row++) {
-      for (let col = range.s.c; col <= range.e.c; col++) {
-        const cell = worksheet[XLSX.utils.encode_cell({ r: row, c: col })];
-        if (cell) {
-          cell.s = {
-            alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa cho ô dữ liệu
-          };
-        }
-      }
-    }
-
-    // Đặt căn giữa cho ô thời gian
-    for (let row = 1; row <= range.e.r; row++) {
-      const timeCell = worksheet[XLSX.utils.encode_cell({ r: row, c: 0 })];
-      if (timeCell) {
-        timeCell.s = {
-          alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa cho ô thời gian
-        };
-      }
-    }
-
-    // Thêm worksheet vào workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Thống kê sản phẩm');
-
-    // Xuất file Excel
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    const data = new Blob([excelBuffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-    saveAs(data, `product_${timeFrame}.xlsx`);
-  };
-
-  // Chuẩn bị dữ liệu cho biểu đồ Line
+  // Dữ liệu cho biểu đồ
   // const lineChartData = {
-  //   labels: salesData[timeFrame]?.labels || [], // Bổ sung xử lý nếu không có dữ liệu
-  //   datasets: productData.map((product, index) => ({
-  //     label: product.name,
-  //     data:
-  //       salesData[timeFrame]?.data.map(
-  //         (sales) => sales.find((s) => s.name === product.name)?.sold || 0,
-  //       ) || [], // Bổ sung xử lý nếu không có dữ liệu
-  //     borderColor: `rgba(${75 + index * 20}, ${192 - index * 30}, 192, 1)`,
+  //   labels: Array.from({ length: 12 }, (_, i) => `Tháng ${i + 1}`), // Nhãn cho tháng
+  //   datasets: monthSalesData.map((product, index) => ({
+  //     label: product.productType,
+  //     data: product.monthlySales, // Lấy số lượng bán hàng cho từng tháng
+  //     borderColor: softColors[index % softColors.length],
   //     backgroundColor: 'rgba(75, 192, 192, 0.2)',
   //     fill: true,
   //   })),
   // };
 
-  // Chuẩn bị dữ liệu cho biểu đồ Doughnut
-  const totalSales = productData.map((product) => ({
-    name: product.name,
-    sold: salesData[timeFrame].data.reduce(
-      (total, sales) =>
-        total + sales.find((s) => s.name === product.name)?.sold || 0,
-      0,
-    ),
-  }));
+  // const chartOptions = {
+  //   responsive: true,
+  //   plugins: {
+  //     legend: { position: 'top' },
+  //     tooltip: {
+  //       callbacks: {
+  //         label: function (tooltipItem) {
+  //           return `${tooltipItem.raw.toLocaleString()} sản phẩm`;
+  //         },
+  //       },
+  //     },
+  //   },
+  //   scales: {
+  //     y: {
+  //       beginAtZero: true,
+  //       ticks: {
+  //         callback: (value) => value.toLocaleString(),
+  //       },
+  //     },
+  //   },
+  // };
 
   const doughnutData = {
     labels: productData.map((item) => item.label),
@@ -313,7 +265,8 @@ const ProductStatistic = () => {
       },
     ],
   };
-  const chartOptions = {
+
+  const doughnutOptions = {
     responsive: true,
     plugins: {
       legend: {
@@ -327,14 +280,6 @@ const ProductStatistic = () => {
         },
       },
     },
-    // scales: {
-    //   y: {
-    //     beginAtZero: true,
-    //     ticks: {
-    //       callback: (value) => value.toLocaleString(),
-    //     },
-    //   },
-    // },
   };
 
   return (
@@ -346,27 +291,27 @@ const ProductStatistic = () => {
 
         {/* Lựa chọn thời gian */}
         {/* <div className="mb-6 flex justify-end">
-        <FormControl variant="outlined" className="w-1/4">
-          <InputLabel>Chọn thời gian</InputLabel>
-          <Select
-            value={timeFrame}
-            onChange={(e) => setTimeFrame(e.target.value)}
-            label="Chọn thời gian"
-          >
-            <MenuItem value="day">Theo ngày</MenuItem>
-            <MenuItem value="month">Theo tháng</MenuItem>
-            <MenuItem value="year">Theo năm</MenuItem>
-          </Select>
-        </FormControl>
-      </div> */}
+          <FormControl variant="outlined" className="w-1/4">
+            <InputLabel>Chọn thời gian</InputLabel>
+            <Select
+              value={timeFrame}
+              onChange={(e) => setTimeFrame(e.target.value)}
+              label="Chọn thời gian"
+            >
+              <MenuItem value="day">Theo ngày</MenuItem>
+              <MenuItem value="month">Theo tháng</MenuItem>
+              <MenuItem value="year">Theo năm</MenuItem>
+            </Select>
+          </FormControl>
+        </div> */}
 
         {/* Biểu đồ đường số lượng sản phẩm bán ra */}
         {/* <Card className="mb-6">
-        <CardHeader title="Biểu đồ đường số lượng loại sản phẩm bán ra" />
-        <CardContent>
-          <Line data={lineChartData} options={chartOptions} />
-        </CardContent>
-      </Card> */}
+          <CardHeader title="Biểu đồ đường số lượng loại sản phẩm bán ra" />
+          <CardContent>
+            <Line data={lineChartData} options={chartOptions} />
+          </CardContent>
+        </Card> */}
 
         {/* Biểu đồ donut thống kê số lượng sản phẩm */}
 
@@ -381,7 +326,7 @@ const ProductStatistic = () => {
                 >
                   <Doughnut
                     data={doughnutData}
-                    options={{ ...chartOptions, maintainAspectRatio: false }}
+                    options={{ ...doughnutOptions, maintainAspectRatio: false }}
                   />
                 </div>
               </CardContent>
@@ -425,13 +370,7 @@ const ProductStatistic = () => {
           </div>
         </Card>
 
-        <div className="my-6 flex justify-end gap-5">
-          <Button variant="contained" color="primary" onClick={exportPDF}>
-            Xuất file PDF
-          </Button>
-          <Button variant="contained" color="secondary" onClick={exportExcel}>
-            Xuất file Excel
-          </Button>
+        {/* <div className="my-6 flex justify-end gap-5">
           <Button
             variant="contained"
             color="default"
@@ -439,7 +378,7 @@ const ProductStatistic = () => {
           >
             {showDetails ? 'Ẩn chi tiết' : 'Xem chi tiết'}
           </Button>
-        </div>
+        </div> */}
 
         {/* Bảng chi tiết sản phẩm bán chạy */}
         {!showDetails ? (

@@ -86,7 +86,7 @@ const TotalSalesChart = () => {
   };
 
   return (
-    <div className="rounded-lg bg-white p-6 shadow-lg">
+    <div className="rounded-lg bg-white p-5 shadow-lg">
       <div className="grid gap-5">
         <div className="">
           <h2 className="mb-4 text-2xl font-bold text-gray-800">
@@ -105,7 +105,7 @@ const TotalSalesChart = () => {
               </div>
             </div>
           </div>
-          <div className="mt-4 flex flex-col items-center justify-center">
+          <div className="mt-2 flex flex-col items-center justify-center">
             <ul className="w-full space-y-1">
               {productData.map((product, index) => (
                 <li

@@ -35,6 +35,7 @@ ChartJS.register(
 );
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 import statictisService from '../../services/statictis.service';
 import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
@@ -136,6 +137,18 @@ const RevenueStatistic = () => {
   const getDateLabels = (data) => data?.map((item) => item.time);
   const getMonthLabels = (data) => data?.map((item) => item.time);
   const getYearLabels = (data) => data?.map((item) => item.time);
+
+  const handleStartDateChange = (date) => {
+    if (date) {
+      setStartDate(format(date, 'yyyy/MM/dd'));
+    }
+  };
+
+  const handleEndDateChange = (date) => {
+    if (date) {
+      setEndDate(format(date, 'yyyy/MM/dd'));
+    }
+  };
 
   // Lấy danh sách các ngày từ `orderDate`
 
@@ -459,7 +472,7 @@ const RevenueStatistic = () => {
           <div className="flex items-center space-x-4">
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              onChange={handleStartDateChange}
               selectsStart
               startDate={startDate}
               endDate={endDate}
@@ -468,7 +481,7 @@ const RevenueStatistic = () => {
             />
             <DatePicker
               selected={endDate}
-              onChange={(date) => setEndDate(date)}
+              onChange={handleEndDateChange}
               selectsEnd
               startDate={startDate}
               endDate={endDate}
