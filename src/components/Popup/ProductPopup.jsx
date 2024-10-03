@@ -40,7 +40,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
     [data],
   );
 
-  console.log(data);
+  // console.log(data);
 
   const [product, setProduct] = useState(initialProduct);
   const [newFiles, setNewFiles] = useState([]);
@@ -85,41 +85,52 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
       ],
     }));
 
-    setNewFiles(filesArray);
+    setNewFiles((prevFiles) => [...prevFiles, ...filesArray]);
+    e.target.value = '';
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const uploadedImageUrls = await productsService.uploadImage(newFiles);
-    const oldImageUrls = product.productImagePath.filter(
-      (url) => !url.startsWith('blob:'),
-    );
+    let updatedProduct = product;
 
-    const updatedProduct = {
-      ...product,
-      productImagePath: [...oldImageUrls, ...uploadedImageUrls],
-    };
+    if (newFiles && newFiles.length > 0) {
+      const uploadedImageUrls = await productsService.uploadImage(newFiles);
+      const oldImageUrls = product.productImagePath.filter(
+        (url) => !url.startsWith('blob:'),
+      );
 
-    // console.log(updatedProduct);
-
-    try {
-      if (data && data.length > 0) {
-        await dispatch(updateProduct(updatedProduct)).unwrap();
-        toast.success('Cập nhật thành công!');
-      } else {
-        await dispatch(createProduct(updatedProduct)).unwrap();
-        toast.success('Thêm thành công!');
-      }
-    } catch (err) {
-      if (err === 'Product is already exist!') {
-        toast.error('Sản phẩm đã tồn tại!');
-      } else {
-        toast.error('Có lỗi xảy ra!');
-      }
+      updatedProduct = {
+        ...product,
+        productImagePath: [...oldImageUrls, ...uploadedImageUrls],
+      };
     }
 
-    onClose();
+    if (
+      Array.isArray(updatedProduct.productImagePath) &&
+      updatedProduct.productImagePath.length === 0
+    )
+      toast.error('Thêm hình ảnh cho sản phẩm');
+    else {
+      try {
+        if (data && data.length > 0) {
+          await dispatch(updateProduct(updatedProduct)).unwrap();
+          toast.success('Cập nhật thành công!');
+        } else {
+          await dispatch(createProduct(updatedProduct)).unwrap();
+          toast.success('Thêm thành công!');
+        }
+      } catch (err) {
+        if (err === 'Product is already exist!') {
+          toast.error('Sản phẩm đã tồn tại!');
+        } else {
+          toast.error('Có lỗi xảy ra!');
+        }
+      }
+
+      setNewFiles([]);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -158,6 +169,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
               Thêm hình ảnh
               <input
                 type="file"
+                accept="image/*"
                 style={{ display: 'none' }}
                 onChange={handleImageChange}
                 multiple
@@ -186,6 +198,9 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
                             (_, i) => i !== index,
                           ),
                         }));
+                        setNewFiles((prevFiles) =>
+                          prevFiles.filter((_, i) => i !== index),
+                        );
                       }}
                     />
                   </Box>
