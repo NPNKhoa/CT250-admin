@@ -128,7 +128,7 @@ const ServicePage = () => {
   return (
     <div>
       <ActionHeader
-        title="Thương hiệu"
+        title="Dịch vụ"
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);
