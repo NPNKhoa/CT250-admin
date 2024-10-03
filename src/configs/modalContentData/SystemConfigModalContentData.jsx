@@ -1,6 +1,6 @@
-import { TextField } from '@mui/material';
 import ChangeLogo from '../../components/modalContents/ChangeLogo';
 import ChangeBanners from '../../components/modalContents/ChangeBanners';
+import AddPriceFilter from '../../components/modalContents/AddPriceFilter';
 
 const systemConfigModalContentData = {
   logo: {
@@ -13,12 +13,7 @@ const systemConfigModalContentData = {
   },
   priceFilter: {
     title: 'Thêm mới bộ lọc giá',
-    content: (
-      <div>
-        <TextField label="Tên bộ lọc" />
-        <TextField label="Giá trị" type="number" />
-      </div>
-    ),
+    content: (props) => <AddPriceFilter {...props} />,
   },
 };
 

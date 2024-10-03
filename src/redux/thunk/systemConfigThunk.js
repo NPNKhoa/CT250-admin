@@ -18,3 +18,17 @@ export const getCurrentSystemConfig = createAsyncThunk(
     }
   },
 );
+
+export const updateSystemConfig = createAsyncThunk(
+  'systemConfigs/updateConfig',
+  async (params, thunkAPI) => {
+    try {
+      const data = await systemConfigService.updateConfig(params);
+
+      return data.data;
+    } catch (error) {
+      console.log(error);
+      thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);

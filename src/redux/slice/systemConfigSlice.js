@@ -1,5 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getCurrentSystemConfig } from '../thunk/systemConfigThunk';
+import {
+  getCurrentSystemConfig,
+  updateSystemConfig,
+} from '../thunk/systemConfigThunk';
 
 const initialState = {
   currentConfigs: {},
@@ -22,6 +25,20 @@ const systemConfigSlice = createSlice({
         state.currentConfigs = action.payload;
       })
       .addCase(getCurrentSystemConfig.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // Update
+    builder
+      .addCase(updateSystemConfig.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateSystemConfig.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentConfigs = action.payload;
+      })
+      .addCase(updateSystemConfig.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

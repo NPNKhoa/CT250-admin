@@ -11,14 +11,26 @@ import PriceFilterList from './PriceFilterList';
 import ActionModal from '../common/ActionModal';
 import systemConfigModalContentData from '../../configs/modalContentData/SystemConfigModalContentData';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import {
+  getCurrentSystemConfig,
+  updateSystemConfig,
+} from '../../redux/thunk/systemConfigThunk';
+import { toast } from 'react-toastify';
+import { useEditMode } from '../../hooks/useEditMode';
 
 const EditableView = () => {
   const editor = useRef(null);
+
+  const { toggleEditMode } = useEditMode();
+
+  const dispatch = useDispatch();
 
   const currentConfigs = useSelector(
     (state) => state.systemConfigs.currentConfigs,
   );
   const loading = useSelector((state) => state.systemConfigs.loading);
+  const error = useSelector((state) => state.systemConfigs.error);
 
   const [tempImg, setTempImg] = useState({
     shopLogoImgPath: '',
@@ -26,13 +38,13 @@ const EditableView = () => {
   });
 
   const [newConfigs, setNewConfigs] = useState({
-    shopLogoImgPath: currentConfigs.shopLogoImgPath || '',
-    shopName: currentConfigs.shopName || '',
-    shopEmail: currentConfigs.shopEmail || '',
-    shopPhoneNumber: currentConfigs.shopPhoneNumber || '',
-    shopIntroduction: currentConfigs.shopIntroduction || '',
-    bannerImgPath: currentConfigs.bannerImgPath || [],
-    shopPriceFilter: currentConfigs.shopPriceFilter || [],
+    shopLogoImgPath: currentConfigs?.shopLogoImgPath || '',
+    shopName: currentConfigs?.shopName || '',
+    shopEmail: currentConfigs?.shopEmail || '',
+    shopPhoneNumber: currentConfigs?.shopPhoneNumber || '',
+    shopIntroduction: currentConfigs?.shopIntroduction || '',
+    bannerImgPath: currentConfigs?.bannerImgPath || [],
+    shopPriceFilter: currentConfigs?.shopPriceFilter || [],
   });
 
   const [openModal, setOpenModal] = useState(false);
@@ -85,6 +97,16 @@ const EditableView = () => {
   // Handle Save Change
   const handleSaveChange = () => {
     console.log(newConfigs);
+
+    dispatch(updateSystemConfig(newConfigs));
+
+    if (error) return console.log('Lỗi rồiiiiiiiiiii ' + error);
+
+    toast.success('Cập nhật thông tin thành công');
+
+    toggleEditMode((prevState) => !prevState);
+
+    dispatch(getCurrentSystemConfig());
   };
 
   // Rich Text logic

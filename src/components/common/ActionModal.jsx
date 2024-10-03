@@ -10,7 +10,7 @@ const ActionModal = ({ title, children, open, onClose }) => {
         sx={{
           p: '1.5rem 2rem',
           minWidth: '35%',
-          maxWidth: '80%',
+          maxWidth: '60%',
           minHeight: '30%',
           maxHeight: '80%',
           margin: 'auto',
