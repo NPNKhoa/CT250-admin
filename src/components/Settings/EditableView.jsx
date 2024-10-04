@@ -54,8 +54,6 @@ const EditableView = () => {
   const handleChangeTextField = (e) => {
     const { name, value } = e.target;
 
-    console.log(name, value);
-
     setNewConfigs((prevData) => ({
       ...prevData,
       [name]: value,
@@ -96,9 +94,12 @@ const EditableView = () => {
 
   // Handle Save Change
   const handleSaveChange = () => {
-    console.log(newConfigs);
-
-    dispatch(updateSystemConfig(newConfigs));
+    dispatch(
+      updateSystemConfig({
+        ...newConfigs,
+        bannerImgPath: tempImg.bannerImgPath,
+      }),
+    );
 
     if (error) return console.log('Lỗi rồiiiiiiiiiii ' + error);
 
@@ -106,7 +107,7 @@ const EditableView = () => {
 
     toggleEditMode((prevState) => !prevState);
 
-    dispatch(getCurrentSystemConfig());
+    // dispatch(getCurrentSystemConfig());
   };
 
   // Rich Text logic
@@ -156,7 +157,6 @@ const EditableView = () => {
 
   return (
     <Stack spacing={2} className="mt-2">
-      {console.log('first')}
       <span className="italic text-zinc-700 opacity-70">
         Sau khi thay đổi thông tin click vào nút
         {' "Lưu"'} ở cuối trang để áp dụng các thay đổi

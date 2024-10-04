@@ -23,6 +23,7 @@ export const updateSystemConfig = createAsyncThunk(
   'systemConfigs/updateConfig',
   async (params, thunkAPI) => {
     try {
+      console.log(params);
       const data = await systemConfigService.updateConfig(params);
 
       return data.data;

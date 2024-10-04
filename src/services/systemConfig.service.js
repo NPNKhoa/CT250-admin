@@ -40,15 +40,15 @@ class SystemConfigService {
         );
       }
 
-      const response = await this.api.put(`/`, formData, {
+      const data = await this.api.put(`/`, formData, {
         'Content-Type': 'multipart/form-data',
       });
 
-      if (response.error) {
-        throw new Error(response.error);
+      if (data.error) {
+        throw new Error(data.error);
       }
 
-      return response;
+      return data;
     } catch (error) {
       console.log(error.message || error);
       throw error;
