@@ -18,9 +18,6 @@ import VoucherPage from './Products/VoucherPage';
 import LoginPage from './LoginPage';
 import AuthorizationPage from './AuthorizationPage';
 import StatPage from './Statistics/StatPage';
-import RevenueStatistic from './Statistics/RevenueStatistic';
-import OrderStatistic from './Statistics/OrderStatistic';
-import ProductStatistic from './Statistics/ProductStatistic';
 import ServicePage from './Products/ServicePage.jsx';
 
 export {
@@ -43,8 +40,5 @@ export {
   LoginPage,
   AuthorizationPage,
   StatPage,
-  RevenueStatistic,
-  OrderStatistic,
-  ProductStatistic,
   ServicePage,
 };

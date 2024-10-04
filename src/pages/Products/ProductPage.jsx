@@ -81,7 +81,7 @@ const ProductPage = () => {
                 : `http://localhost:5000/${params.value.replace(/\\/g, '/')}`
             }
             alt="Product"
-            style={{  
+            style={{
               width: '50px',
               height: '50px',
               objectFit: 'cover',

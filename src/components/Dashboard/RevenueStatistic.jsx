@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  // Table,
+  // TableBody,
+  // TableCell,
+  // TableContainer,
+  // TableHead,
+  // TableRow,
+  // Paper,
   Select,
   MenuItem,
   FormControl,
@@ -36,23 +36,37 @@ ChartJS.register(
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
-import * as XLSX from 'xlsx';
 import statictisService from '../../services/statictis.service';
-import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
+import { toast } from 'react-toastify';
+
+// import * as XLSX from 'xlsx';
+// import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 
 const RevenueStatistic = () => {
-  const startYear = 2023;
   const currentYear = new Date().getFullYear();
   const years = [];
 
   const [timeFrame, setTimeFrame] = useState('day');
-  const [showDetails, setShowDetails] = useState(false);
+  // const [showDetails, setShowDetails] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [year, setYear] = useState(currentYear);
   const [revenue, setRevenue] = useState(null);
   const [revenueByTime, setRevenueByTime] = useState(null);
   const [revenueAllYears, setRevenueAllYears] = useState(null);
+  const [inputValue, setInputValue] = useState('');
+  const dropdownRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const today = new Date();
@@ -70,9 +84,29 @@ const RevenueStatistic = () => {
     setStartDate(formatDate(sevenDaysAgo));
     setEndDate(formatDate(today));
   }, []);
-  for (let i = startYear; i <= currentYear; i++) {
+  for (let i = currentYear; i > currentYear - 5; i--) {
     years.push(i);
   }
+  const [showDropdown, setShowDropdown] = useState(false); // State để điều khiển việc hiển thị dropdown
+
+  const handleSelectYear = (yearOption) => {
+    setYear(yearOption); // Gán giá trị khi người dùng chọn năm
+    setShowDropdown(false); // Ẩn dropdown sau khi chọn
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      if (inputValue) {
+        // Nếu khớp, gán giá trị của năm đó
+        setYear(inputValue);
+        setShowDropdown(false); // Ẩn dropdown sau khi chọn
+        setInputValue('');
+      } else {
+        // Nếu không khớp, chỉ hiện dropdown mà không gán giá trị
+        setShowDropdown(true);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchRevenueYear = async () => {
@@ -131,7 +165,8 @@ const RevenueStatistic = () => {
 
   useEffect(() => {
     console.log('Updated revenueByTime:', revenueByTime);
-  }, [revenueByTime]);
+    console.log('Updated revenuePerMonth:', revenue);
+  }, [revenueByTime, revenue]);
 
   // Hàm để lấy nhãn năm từ revenueResults
   const getDateLabels = (data) => data?.map((item) => item.time);
@@ -280,160 +315,160 @@ const RevenueStatistic = () => {
     },
   };
 
-  const exportToExcel = () => {
-    const dataToExport =
-      timeFrame === 'day'
-        ? revenueByTime
-        : timeFrame === 'month'
-          ? revenue?.data
-          : revenueAllYears?.data;
+  // const exportToExcel = () => {
+  //   const dataToExport =
+  //     timeFrame === 'day'
+  //       ? revenueByTime
+  //       : timeFrame === 'month'
+  //         ? revenue?.data
+  //         : revenueAllYears?.data;
 
-    const formattedData = dataToExport?.map((item) => ({
-      'Thời gian': item.time,
-      'Tổng Doanh Thu': item.totalRevenue,
-      'Đã Thanh Toán': item.paidRevenue,
-      'Chưa Thanh Toán': item.unpaidRevenue,
-    }));
+  //   const formattedData = dataToExport?.map((item) => ({
+  //     'Thời gian': item.time,
+  //     'Tổng Doanh Thu': item.totalRevenue,
+  //     'Đã Thanh Toán': item.paidRevenue,
+  //     'Chưa Thanh Toán': item.unpaidRevenue,
+  //   }));
 
-    const worksheet = XLSX.utils.json_to_sheet([]);
+  //   const worksheet = XLSX.utils.json_to_sheet([]);
 
-    // Thêm tiêu đề cho file Excel
-    const titleRow = ['KTB Sport'];
-    let subtitleText = '';
+  //   // Thêm tiêu đề cho file Excel
+  //   const titleRow = ['KTB Sport'];
+  //   let subtitleText = '';
 
-    if (timeFrame === 'day') {
-      const startDate = 'Ngày bắt đầu'; // Cần thay thế với giá trị thực tế
-      const endDate = 'Ngày kết thúc'; // Cần thay thế với giá trị thực tế
-      subtitleText = `Thống kê doanh thu từ ${startDate} đến ${endDate}`;
-    } else if (timeFrame === 'month') {
-      const year = new Date().getFullYear();
-      subtitleText = `Thống kê doanh thu các tháng trong năm ${year}`;
-    } else {
-      // Cần thay thế với giá trị thực tế
-      subtitleText = `Thống kê doanh thu tất cả các năm`;
-    }
+  //   if (timeFrame === 'day') {
+  //     const startDate = 'Ngày bắt đầu'; // Cần thay thế với giá trị thực tế
+  //     const endDate = 'Ngày kết thúc'; // Cần thay thế với giá trị thực tế
+  //     subtitleText = `Thống kê doanh thu từ ${startDate} đến ${endDate}`;
+  //   } else if (timeFrame === 'month') {
+  //     const year = new Date().getFullYear();
+  //     subtitleText = `Thống kê doanh thu các tháng trong năm ${year}`;
+  //   } else {
+  //     // Cần thay thế với giá trị thực tế
+  //     subtitleText = `Thống kê doanh thu tất cả các năm`;
+  //   }
 
-    const subtitleRow = [subtitleText];
+  //   const subtitleRow = [subtitleText];
 
-    // Tính số cột cho việc merge
-    const mergeColumnCount = Object.keys(formattedData[0] || {}).length;
+  //   // Tính số cột cho việc merge
+  //   const mergeColumnCount = Object.keys(formattedData[0] || {}).length;
 
-    // Gộp các ô cho tiêu đề
-    const mergedCells = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: mergeColumnCount - 1 } }, // Gộp hàng đầu tiên
-      { s: { r: 1, c: 0 }, e: { r: 1, c: mergeColumnCount - 1 } }, // Gộp hàng thứ hai
-    ];
+  //   // Gộp các ô cho tiêu đề
+  //   const mergedCells = [
+  //     { s: { r: 0, c: 0 }, e: { r: 0, c: mergeColumnCount - 1 } }, // Gộp hàng đầu tiên
+  //     { s: { r: 1, c: 0 }, e: { r: 1, c: mergeColumnCount - 1 } }, // Gộp hàng thứ hai
+  //   ];
 
-    // Thêm tiêu đề vào worksheet
-    XLSX.utils.sheet_add_aoa(worksheet, [titleRow], { origin: 'A1' });
-    XLSX.utils.sheet_add_aoa(worksheet, [subtitleRow], { origin: 'A2' });
+  //   // Thêm tiêu đề vào worksheet
+  //   XLSX.utils.sheet_add_aoa(worksheet, [titleRow], { origin: 'A1' });
+  //   XLSX.utils.sheet_add_aoa(worksheet, [subtitleRow], { origin: 'A2' });
 
-    // Gộp các ô tiêu đề
-    worksheet['!merges'] = mergedCells;
+  //   // Gộp các ô tiêu đề
+  //   worksheet['!merges'] = mergedCells;
 
-    // Thay đổi kiểu chữ cho tiêu đề
-    const titleCell = worksheet['A1'];
-    const subtitleCell = worksheet['A2'];
+  //   // Thay đổi kiểu chữ cho tiêu đề
+  //   const titleCell = worksheet['A1'];
+  //   const subtitleCell = worksheet['A2'];
 
-    if (titleCell) {
-      titleCell.s = {
-        font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } },
-        fill: { fgColor: { rgb: '0070C0' } },
-        alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
-      };
-    }
+  //   if (titleCell) {
+  //     titleCell.s = {
+  //       font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } },
+  //       fill: { fgColor: { rgb: '0070C0' } },
+  //       alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
+  //     };
+  //   }
 
-    if (subtitleCell) {
-      subtitleCell.s = {
-        font: { bold: true, sz: 12, color: { rgb: '0070C0' } },
-        alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
-      };
-    }
+  //   if (subtitleCell) {
+  //     subtitleCell.s = {
+  //       font: { bold: true, sz: 12, color: { rgb: '0070C0' } },
+  //       alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
+  //     };
+  //   }
 
-    // Đặt tiêu đề cho hàng
-    const headers = [
-      'Thời gian',
-      'Tổng Doanh Thu',
-      'Đã Thanh Toán',
-      'Chưa Thanh Toán',
-    ];
-    XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: 'A4' });
+  //   // Đặt tiêu đề cho hàng
+  //   const headers = [
+  //     'Thời gian',
+  //     'Tổng Doanh Thu',
+  //     'Đã Thanh Toán',
+  //     'Chưa Thanh Toán',
+  //   ];
+  //   XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: 'A4' });
 
-    // Đặt kiểu chữ cho tiêu đề hàng
-    headers.forEach((header, index) => {
-      const cell = worksheet[XLSX.utils.encode_cell({ r: 3, c: index })];
-      if (cell) {
-        cell.s = {
-          font: { bold: true, color: { rgb: 'FFFFFF' } },
-          fill: { fgColor: { rgb: '4F81BD' } },
-          alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
-          border: {
-            top: { style: 'thin', color: { rgb: '000000' } },
-            bottom: { style: 'thin', color: { rgb: '000000' } },
-            left: { style: 'thin', color: { rgb: '000000' } },
-            right: { style: 'thin', color: { rgb: '000000' } },
-          },
-        };
-      }
-    });
+  //   // Đặt kiểu chữ cho tiêu đề hàng
+  //   headers.forEach((header, index) => {
+  //     const cell = worksheet[XLSX.utils.encode_cell({ r: 3, c: index })];
+  //     if (cell) {
+  //       cell.s = {
+  //         font: { bold: true, color: { rgb: 'FFFFFF' } },
+  //         fill: { fgColor: { rgb: '4F81BD' } },
+  //         alignment: { horizontal: 'center', vertical: 'center' }, // Căn giữa theo chiều dọc
+  //         border: {
+  //           top: { style: 'thin', color: { rgb: '000000' } },
+  //           bottom: { style: 'thin', color: { rgb: '000000' } },
+  //           left: { style: 'thin', color: { rgb: '000000' } },
+  //           right: { style: 'thin', color: { rgb: '000000' } },
+  //         },
+  //       };
+  //     }
+  //   });
 
-    // Thêm dữ liệu vào worksheet
-    formattedData.forEach((item, index) => {
-      const row = [
-        item['Thời gian'],
-        item['Tổng Doanh Thu'].toLocaleString('vi-VN', {
-          style: 'currency',
-          currency: 'VND',
-        }),
-        item['Đã Thanh Toán'].toLocaleString('vi-VN', {
-          style: 'currency',
-          currency: 'VND',
-        }),
-        item['Chưa Thanh Toán'].toLocaleString('vi-VN', {
-          style: 'currency',
-          currency: 'VND',
-        }),
-      ];
-      XLSX.utils.sheet_add_aoa(worksheet, [row], { origin: `A${index + 5}` });
-    });
+  //   // Thêm dữ liệu vào worksheet
+  //   formattedData.forEach((item, index) => {
+  //     const row = [
+  //       item['Thời gian'],
+  //       item['Tổng Doanh Thu'].toLocaleString('vi-VN', {
+  //         style: 'currency',
+  //         currency: 'VND',
+  //       }),
+  //       item['Đã Thanh Toán'].toLocaleString('vi-VN', {
+  //         style: 'currency',
+  //         currency: 'VND',
+  //       }),
+  //       item['Chưa Thanh Toán'].toLocaleString('vi-VN', {
+  //         style: 'currency',
+  //         currency: 'VND',
+  //       }),
+  //     ];
+  //     XLSX.utils.sheet_add_aoa(worksheet, [row], { origin: `A${index + 5}` });
+  //   });
 
-    // Điều chỉnh kích thước cột
-    const colWidth = [150, 150, 150, 150]; // Chiều rộng cho các cột
-    colWidth.forEach((width, index) => {
-      worksheet['!cols'] = worksheet['!cols'] || [];
-      worksheet['!cols'][index] = { wpx: width };
-    });
+  //   // Điều chỉnh kích thước cột
+  //   const colWidth = [150, 150, 150, 150]; // Chiều rộng cho các cột
+  //   colWidth.forEach((width, index) => {
+  //     worksheet['!cols'] = worksheet['!cols'] || [];
+  //     worksheet['!cols'][index] = { wpx: width };
+  //   });
 
-    // Định dạng dữ liệu trong worksheet
-    for (let i = 5; i < 5 + formattedData.length; i++) {
-      for (let j = 0; j < headers.length; j++) {
-        const cell = worksheet[XLSX.utils.encode_cell({ r: i, c: j })];
-        if (cell) {
-          cell.s = {
-            border: {
-              top: { style: 'thin', color: { rgb: '000000' } },
-              bottom: { style: 'thin', color: { rgb: '000000' } },
-              left: { style: 'thin', color: { rgb: '000000' } },
-              right: { style: 'thin', color: { rgb: '000000' } },
-            },
-            alignment: { horizontal: 'center' }, // Căn giữa cho dữ liệu
-          };
-        }
-      }
-    }
+  //   // Định dạng dữ liệu trong worksheet
+  //   for (let i = 5; i < 5 + formattedData.length; i++) {
+  //     for (let j = 0; j < headers.length; j++) {
+  //       const cell = worksheet[XLSX.utils.encode_cell({ r: i, c: j })];
+  //       if (cell) {
+  //         cell.s = {
+  //           border: {
+  //             top: { style: 'thin', color: { rgb: '000000' } },
+  //             bottom: { style: 'thin', color: { rgb: '000000' } },
+  //             left: { style: 'thin', color: { rgb: '000000' } },
+  //             right: { style: 'thin', color: { rgb: '000000' } },
+  //           },
+  //           alignment: { horizontal: 'center' }, // Căn giữa cho dữ liệu
+  //         };
+  //       }
+  //     }
+  //   }
 
-    // Tạo tên file dựa trên timeFrame
+  //   // Tạo tên file dựa trên timeFrame
 
-    const fileName =
-      timeFrame === 'day'
-        ? `doanh_thu_tu_${startDate}_den_${endDate}.xlsx`
-        : timeFrame === 'month'
-          ? `doanh_thu_nam_${year}.xlsx`
-          : 'doanh_thu_cac_nam.xlsx';
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Doanh Thu');
-    XLSX.writeFile(workbook, fileName);
-  };
+  //   const fileName =
+  //     timeFrame === 'day'
+  //       ? `doanh_thu_tu_${startDate}_den_${endDate}.xlsx`
+  //       : timeFrame === 'month'
+  //         ? `doanh_thu_nam_${year}.xlsx`
+  //         : 'doanh_thu_cac_nam.xlsx';
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Doanh Thu');
+  //   XLSX.writeFile(workbook, fileName);
+  // };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -455,17 +490,33 @@ const RevenueStatistic = () => {
           </Select>
         </FormControl>
         {timeFrame === 'month' && (
-          <select
-            className="w-[200px] rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={year}
-            onChange={(e) => setYear(e.target.value)} // Cập nhật năm khi chọn
-          >
-            {years.map((yearOption) => (
-              <option key={yearOption} value={yearOption}>
-                {yearOption}
-              </option>
-            ))}
-          </select>
+          <div ref={dropdownRef} className="relative w-[200px]">
+            {/* Input để người dùng nhập hoặc chọn năm */}
+            <input
+              type="text"
+              className="w-full rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Nhập năm"
+              value={inputValue} // Sử dụng state tạm thời để hiển thị giá trị
+              onChange={(e) => setInputValue(e.target.value)} // Cho phép nhập trực tiếp
+              onFocus={() => setShowDropdown(true)} // Hiện dropdown khi focus vào input
+              onKeyDown={handleKeyDown}
+            />
+
+            {/* Dropdown hiển thị danh sách các năm */}
+            {showDropdown && (
+              <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded border border-gray-300 bg-white shadow-lg">
+                {years.map((yearOption) => (
+                  <li
+                    key={yearOption}
+                    className="cursor-pointer p-2 hover:bg-blue-500 hover:text-white"
+                    onClick={() => handleSelectYear(yearOption)} // Khi click chọn năm
+                  >
+                    {yearOption}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
 
         {timeFrame === 'day' && (
@@ -493,13 +544,16 @@ const RevenueStatistic = () => {
       </div>
 
       <Card className="mb-6">
-        <CardHeader title="Biểu đồ doanh thu" />
+        <CardHeader
+          title={`Biểu đồ doanh thu ${timeFrame === 'day' ? currentYear : timeFrame === 'month' ? year : 'tất cả các năm'}`}
+        />
+
         <CardContent>
           <Bar data={chartData} options={chartOptions} height={100} />
         </CardContent>
       </Card>
 
-      <Card className="mb-6">
+      {/* <Card className="mb-6">
         <CardHeader
           title="Chi tiết doanh thu"
           action={
@@ -565,7 +619,7 @@ const RevenueStatistic = () => {
             </TableContainer>
           </CardContent>
         )}
-      </Card>
+      </Card> */}
     </div>
   );
 };

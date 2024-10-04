@@ -1,6 +1,6 @@
 import Dashboard from '../components/Dashboard/Dashboard';
 import RecentOrders from '../components/Dashboard/RecentOrders ';
-import RevenueChart from '../components/Dashboard/RevenueChart ';
+import RevenueStatistic from '../components/Dashboard/RevenueStatistic';
 import TopSellingProduct from '../components/Dashboard/TopSellingProduct';
 import TotalSalesChart from '../components/Dashboard/TotalSalesChart';
 
@@ -12,7 +12,7 @@ const HomePage = () => {
         <div className="mt-6 grid grid-cols-1 gap-6">
           <div className="flex flex-col">
             <div className="h-full">
-              <RevenueChart />
+              <RevenueStatistic />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-5">

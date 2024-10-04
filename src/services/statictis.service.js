@@ -39,8 +39,8 @@ class StatictisService {
 
   async getRevenueByYear(year) {
     try {
-      const params = { year };
-      return await this.api.get('/totalrevenuebyyear', { params });
+      const queryString = `year=${year}`;
+      return await this.api.get(`/totalrevenuebyyear?${queryString}`);
     } catch (error) {
       console.error('Lỗi khi lấy doanh thu theo năm:', error);
       throw error;
