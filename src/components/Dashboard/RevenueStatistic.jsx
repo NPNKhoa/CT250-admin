@@ -164,9 +164,12 @@ const RevenueStatistic = () => {
   }, [year, timeFrame, startDate, endDate]);
 
   useEffect(() => {
-    console.log('Updated revenueByTime:', revenueByTime);
-    console.log('Updated revenuePerMonth:', revenue);
-  }, [revenueByTime, revenue]);
+    // console.log('Updated revenueByTime:', revenueByTime);
+    console.log('Updated revenuePerMonth:', revenue?.totalYearRevenue);
+    if (revenue?.totalYearRevenue === 0) {
+      toast.error(`Không tìm thấy dữ liệu`);
+    }
+  }, [revenue]);
 
   // Hàm để lấy nhãn năm từ revenueResults
   const getDateLabels = (data) => data?.map((item) => item.time);
@@ -545,7 +548,7 @@ const RevenueStatistic = () => {
 
       <Card className="mb-6">
         <CardHeader
-          title={`Biểu đồ doanh thu ${timeFrame === 'day' ? currentYear : timeFrame === 'month' ? year : 'tất cả các năm'}`}
+          title={`Biểu đồ doanh thu ${timeFrame === 'day' ? `năm ${currentYear}` : timeFrame === 'month' ? `năm ${year}` : 'tất cả các năm'}`}
         />
 
         <CardContent>
