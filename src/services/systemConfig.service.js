@@ -21,6 +21,7 @@ class SystemConfigService {
     shopPhoneNumber,
     shopIntroduction,
     bannerImgPath,
+    shopPriceFilter,
   }) {
     try {
       const formData = new FormData();
@@ -33,6 +34,7 @@ class SystemConfigService {
       formData.append('shopEmail', shopEmail);
       formData.append('shopPhoneNumber', shopPhoneNumber);
       formData.append('shopIntroduction', shopIntroduction);
+      formData.append('shopPriceFilter', shopPriceFilter);
 
       if (Array.isArray(bannerImgPath)) {
         bannerImgPath.forEach((banner, index) =>

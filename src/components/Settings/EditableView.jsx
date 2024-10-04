@@ -12,10 +12,7 @@ import ActionModal from '../common/ActionModal';
 import systemConfigModalContentData from '../../configs/modalContentData/SystemConfigModalContentData';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import {
-  getCurrentSystemConfig,
-  updateSystemConfig,
-} from '../../redux/thunk/systemConfigThunk';
+import { updateSystemConfig } from '../../redux/thunk/systemConfigThunk';
 import { toast } from 'react-toastify';
 import { useEditMode } from '../../hooks/useEditMode';
 
@@ -76,6 +73,8 @@ const EditableView = () => {
     setModalKey(null);
     setOpenModal(false);
   };
+
+  // Handle priceFiltering logic
 
   // Handle modal opening
   const handleOpenModal = (key) => {
