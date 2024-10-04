@@ -10,7 +10,7 @@ const TableComponent = ({
   handleSelected,
 }) => {
   return (
-    <Box sx={{ height: 450, width: '100%', overflowX: 'auto' }}>
+    <Box sx={{ height: 500, width: '100%', overflowX: 'auto' }}>
       <DataGrid
         loading={loading}
         slotProps={{

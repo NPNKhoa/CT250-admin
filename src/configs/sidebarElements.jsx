@@ -25,10 +25,7 @@ import {
   VoucherPage,
   AuthorizationPage,
   StatPage,
-  RevenueStatistic,
-  OrderStatistic,
-  ProductStatistic,
-  ServicePage
+  ServicePage,
 } from '../pages';
 
 export default [
@@ -46,23 +43,7 @@ export default [
     element: <StatPage />,
     icon: <AssessmentIcon />,
     label: 'Thống kê',
-    childItems: [
-      {
-        label: 'Doanh Thu',
-        path: '/revenue-stats',
-        element: <RevenueStatistic />,
-      },
-      {
-        label: 'Đơn hàng',
-        path: '/order-stats',
-        element: <OrderStatistic />,
-      },
-      {
-        label: 'Sản phẩm',
-        path: '/product-stats',
-        element: <ProductStatistic />,
-      },
-    ],
+    childItems: [],
   },
   {
     id: uuidv4(),
