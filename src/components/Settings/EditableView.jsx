@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import Divider from '@mui/material/Divider';
@@ -8,40 +8,73 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import BannerList from './BannerList';
 import PriceFilterList from './PriceFilterList';
 
-import systemConfigService from '../../services/systemConfig.service';
-import { toast } from 'react-toastify';
 import ActionModal from '../common/ActionModal';
 import systemConfigModalContentData from '../../configs/modalContentData/SystemConfigModalContentData';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { updateSystemConfig } from '../../redux/thunk/systemConfigThunk';
+import { toast } from 'react-toastify';
+import { useEditMode } from '../../hooks/useEditMode';
 
 const EditableView = () => {
   const editor = useRef(null);
 
-  const [loading, setLoading] = useState(true);
+  const { toggleEditMode } = useEditMode();
 
-  const [configData, setConfigData] = useState({
+  const dispatch = useDispatch();
+
+  const currentConfigs = useSelector(
+    (state) => state.systemConfigs.currentConfigs,
+  );
+  const loading = useSelector((state) => state.systemConfigs.loading);
+  const error = useSelector((state) => state.systemConfigs.error);
+
+  const [tempImg, setTempImg] = useState({
     shopLogoImgPath: '',
-    shopName: '',
-    shopEmail: '',
-    shopPhoneNumber: '',
     bannerImgPath: [],
-    shopPriceFilter: [],
-    shopIntroduction: '',
+  });
+
+  const [newConfigs, setNewConfigs] = useState({
+    shopLogoImgPath: currentConfigs?.shopLogoImgPath || '',
+    shopName: currentConfigs?.shopName || '',
+    shopEmail: currentConfigs?.shopEmail || '',
+    shopPhoneNumber: currentConfigs?.shopPhoneNumber || '',
+    shopIntroduction: currentConfigs?.shopIntroduction || '',
+    bannerImgPath: currentConfigs?.bannerImgPath || [],
+    shopPriceFilter: currentConfigs?.shopPriceFilter || [],
   });
 
   const [openModal, setOpenModal] = useState(false);
   const [modalKey, setModalKey] = useState(null);
 
   // Handle change input logic
-  const handleChange = (e) => {
+  const handleChangeTextField = (e) => {
     const { name, value } = e.target;
 
-    console.log(name, value);
-
-    setConfigData((prevData) => ({
+    setNewConfigs((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
+
+  // Handle Change files logic
+  const handleChangeModalContent = (key, value) => {
+    setTempImg((prevData) => ({
+      ...prevData,
+      [key]: value,
+    }));
+  };
+
+  const onSaveModalContent = (key, value) => {
+    setNewConfigs((prevData) => ({
+      ...prevData,
+      [key]: value,
+    }));
+    setModalKey(null);
+    setOpenModal(false);
+  };
+
+  // Handle priceFiltering logic
 
   // Handle modal opening
   const handleOpenModal = (key) => {
@@ -49,46 +82,36 @@ const EditableView = () => {
     setOpenModal(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseModal = (key) => {
+    setTempImg((prevData) => ({
+      ...prevData,
+      [key]: null,
+    }));
     setModalKey(null);
+    setOpenModal(false);
   };
 
   // Handle Save Change
   const handleSaveChange = () => {
-    console.log(configData);
+    dispatch(
+      updateSystemConfig({
+        ...newConfigs,
+        bannerImgPath: tempImg.bannerImgPath,
+      }),
+    );
+
+    if (error) return console.log('Lỗi rồiiiiiiiiiii ' + error);
+
+    toast.success('Cập nhật thông tin thành công');
+
+    toggleEditMode((prevState) => !prevState);
+
+    // dispatch(getCurrentSystemConfig());
   };
-
-  // Fetching Data logic
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const data = await systemConfigService.getConfig();
-
-        setConfigData({
-          shopLogoImgPath: data.data.shopLogoImgPath,
-          shopName: data.data.shopName,
-          shopEmail: data.data.shopEmail,
-          shopPhoneNumber: data.data.shopPhoneNumber,
-          bannerImgPath: data.data.bannerImgPath,
-          shopPriceFilter: data.data.shopPriceFilter,
-          shopIntroduction: data.data.shopIntroduction,
-        });
-      } catch (err) {
-        console.log(err);
-        toast.error('Lỗi khi tải cấu hình!');
-        throw new Error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchConfig();
-  }, []);
 
   // Rich Text logic
   const handleChangeContent = (newContent) => {
-    setConfigData((prevData) => ({
+    setNewConfigs((prevData) => ({
       ...prevData,
       shopIntroduction: newContent,
     }));
@@ -98,10 +121,10 @@ const EditableView = () => {
     () => ({
       readonly: false,
       placeholder:
-        configData?.shopIntroduction ||
+        newConfigs?.shopIntroduction ||
         'Nhập thông tin giới thiệu cho cửa hàng của bạn...',
     }),
-    [configData?.shopIntroduction],
+    [newConfigs?.shopIntroduction],
   );
 
   // Drag and Drop logic
@@ -119,13 +142,13 @@ const EditableView = () => {
       return;
     }
 
-    const updatedBanner = Array.from(configData?.bannerImgPath);
+    const updatedBanner = Array.from(newConfigs?.bannerImgPath);
 
     const [movedBanner] = updatedBanner.splice(source.index, 1);
 
     updatedBanner.splice(destination.index, 0, movedBanner);
 
-    setConfigData((prevData) => ({
+    setTempImg((prevData) => ({
       ...prevData,
       bannerImgPath: updatedBanner,
     }));
@@ -135,7 +158,7 @@ const EditableView = () => {
     <Stack spacing={2} className="mt-2">
       <span className="italic text-zinc-700 opacity-70">
         Sau khi thay đổi thông tin click vào nút
-        {'"Lưu"'} ở cuối trang để áp dụng các thay đổi
+        {' "Lưu"'} ở cuối trang để áp dụng các thay đổi
       </span>
       <div className="flex w-full items-center justify-center">
         <div className="w-1/2">
@@ -147,13 +170,16 @@ const EditableView = () => {
               <img
                 src={'src/assets/image_placeholder.svg'}
                 alt="bla bla"
-                className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
+                className="h-36 w-36 rounded-full border-4 border-solid border-primary p-4"
               />
             ) : (
               <img
-                src={'http://localhost:5000/' + configData?.shopLogoImgPath}
+                src={
+                  tempImg.shopLogoImgPath ||
+                  'http://localhost:5000/' + currentConfigs?.shopLogoImgPath
+                }
                 alt="logo"
-                className="w-1/4 rounded-full border-4 border-solid border-primary p-4"
+                className="h-36 w-36 rounded-full border-4 border-solid border-primary p-2"
               />
             )}
             <Button
@@ -177,22 +203,22 @@ const EditableView = () => {
                 label="Tên cửa hàng"
                 name="shopName"
                 className="w-full"
-                value={configData?.shopName}
-                onChange={(e) => handleChange(e)}
+                value={newConfigs?.shopName}
+                onChange={(e) => handleChangeTextField(e)}
               />
               <TextField
                 label="Email liên hệ"
                 name="shopEmail"
                 className="w-full"
-                value={configData?.shopEmail}
-                onChange={(e) => handleChange(e)}
+                value={newConfigs?.shopEmail}
+                onChange={(e) => handleChangeTextField(e)}
               />
               <TextField
                 label="Số điện thoại"
                 name="shopPhoneNumber"
                 className="w-full"
-                value={configData?.shopPhoneNumber}
-                onChange={(e) => handleChange(e)}
+                value={newConfigs?.shopPhoneNumber}
+                onChange={(e) => handleChangeTextField(e)}
               />
             </Stack>
           </form>
@@ -205,13 +231,10 @@ const EditableView = () => {
         </Typography>
         <JoditEditor
           ref={editor}
-          value={configData?.shopIntroduction}
+          value={currentConfigs?.shopIntroduction}
           config={config}
           tabIndex={1}
           onBlur={(newContent) => handleChangeContent(newContent)}
-          // onChange={(newContent) => {
-          //   // handleChangeContent(newContent);
-          // }}
         />
       </div>
       <Divider />
@@ -235,7 +258,14 @@ const EditableView = () => {
             <Droppable droppableId="banners-droppable">
               {(provided) => (
                 <div ref={provided.innerRef} {...provided.droppableProps}>
-                  <BannerList banners={configData?.bannerImgPath} />
+                  <BannerList
+                    banners={
+                      Array.isArray(tempImg.bannerImgPath) &&
+                      tempImg.bannerImgPath.length !== 0
+                        ? tempImg.bannerImgPath
+                        : currentConfigs?.bannerImgPath
+                    }
+                  />
                   {provided.placeholder}
                 </div>
               )}
@@ -261,7 +291,7 @@ const EditableView = () => {
               Thêm mới bộ lọc
             </Button>
           </div>
-          <PriceFilterList priceFilterList={configData?.shopPriceFilter} />
+          <PriceFilterList priceFilterList={currentConfigs?.shopPriceFilter} />
         </div>
       </div>
       <Divider />
@@ -280,7 +310,15 @@ const EditableView = () => {
         open={openModal}
         onClose={handleCloseModal}
       >
-        {modalKey && <>{systemConfigModalContentData[modalKey].content}</>}
+        {modalKey && (
+          <>
+            {systemConfigModalContentData[modalKey].content({
+              onChange: handleChangeModalContent,
+              onSave: onSaveModalContent,
+              onCancel: handleCloseModal,
+            })}
+          </>
+        )}
       </ActionModal>
     </Stack>
   );

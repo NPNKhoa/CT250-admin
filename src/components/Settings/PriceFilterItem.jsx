@@ -7,7 +7,7 @@ import { useEditMode } from '../../hooks/useEditMode';
 
 import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 
-const PriceFilterItem = ({ fromPrice, toPrice, index }) => {
+const PriceFilterItem = ({ priceFilterItem, index, onDelete }) => {
   const { isEditable } = useEditMode();
 
   return (
@@ -15,15 +15,20 @@ const PriceFilterItem = ({ fromPrice, toPrice, index }) => {
       className={`my-2 flex items-center justify-between rounded-md border border-slate-300 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-100'} p-4 shadow-md`}
     >
       <span>
-        {toPrice && 'Từ'} <strong>{toVietnamCurrencyFormat(fromPrice)}</strong>{' '}
-        {toPrice && 'đến'} <strong>{toVietnamCurrencyFormat(toPrice)}</strong>
+        {priceFilterItem.toPrice && 'Từ'}{' '}
+        <strong>{toVietnamCurrencyFormat(priceFilterItem.fromPrice)}</strong>{' '}
+        {priceFilterItem.toPrice && 'đến'}{' '}
+        <strong>{toVietnamCurrencyFormat(priceFilterItem.toPrice)}</strong>
       </span>
       {isEditable && (
         <div>
           <IconButton color="info">
             <InfoIcon />
           </IconButton>
-          <IconButton color="error">
+          <IconButton
+            color="error"
+            onClick={() => onDelete(priceFilterItem._id)}
+          >
             <DeleteIcon />
           </IconButton>
         </div>
@@ -33,9 +38,9 @@ const PriceFilterItem = ({ fromPrice, toPrice, index }) => {
 };
 
 PriceFilterItem.propTypes = {
-  fromPrice: PropTypes.any,
-  toPrice: PropTypes.any,
+  priceFilterItem: PropTypes.any,
   index: PropTypes.number,
+  onDelete: PropTypes.func,
 };
 
 export default PriceFilterItem;

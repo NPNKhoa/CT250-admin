@@ -5,8 +5,16 @@ import { useEditMode } from '../hooks/useEditMode';
 import { EditModeProvider } from '../contexts/EditModeContext';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useBeforeUnload, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { getCurrentSystemConfig } from '../redux/thunk/systemConfigThunk';
 
 const SettingsPage = () => {
+  const dispatch = useDispatch();
+
+  const error = useSelector((state) => state.systemConfigs.error);
+
   const { isEditable, toggleEditMode } = useEditMode();
   const [shouldAlert, setShouldAlert] = useState(false);
 
@@ -51,6 +59,18 @@ const SettingsPage = () => {
     },
     [navigate, shouldAlert],
   );
+
+  // Fetching data
+  useEffect(() => {
+    dispatch(getCurrentSystemConfig());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Lỗi khi tải cấu hình');
+    }
+  }, [error]);
 
   useEffect(() => {
     if (shouldAlert) {
