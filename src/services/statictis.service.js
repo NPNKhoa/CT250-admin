@@ -5,48 +5,6 @@ class StatictisService {
     this.api = new ApiService('http://localhost:5000/api/v1/stat');
   }
 
-  async getTotalRevenue() {
-    try {
-      return await this.api.get('/totalrevenue');
-    } catch (error) {
-      console.error('Lỗi khi lấy doanh thu:', error);
-      throw error;
-    }
-  }
-
-  async getRevenueByTime(startDate, endDate) {
-    try {
-      const queryString = `startDate=${startDate}&endDate=${endDate}`;
-
-      const response = await this.api.get(`/totalrevenuebytime?${queryString}`);
-
-      return response.data;
-    } catch (error) {
-      console.error('Lỗi khi lấy doanh thu theo thời gian:', error);
-      throw error;
-    }
-  }
-
-  async getMonthlyRevenue(month, year) {
-    try {
-      const queryString = `month=${month}&year=${year}`;
-      return await this.api.get(`/totalrevenuebymonth?${queryString}`);
-    } catch (error) {
-      console.error('Lỗi khi lấy doanh thu theo tháng:', error);
-      throw error;
-    }
-  }
-
-  async getRevenueByYear(year) {
-    try {
-      const queryString = `year=${year}`;
-      return await this.api.get(`/totalrevenuebyyear?${queryString}`);
-    } catch (error) {
-      console.error('Lỗi khi lấy doanh thu theo năm:', error);
-      throw error;
-    }
-  }
-
   async getRevenueForAllYears() {
     try {
       return await this.api.get('/totalrevenueallyears');
@@ -56,52 +14,24 @@ class StatictisService {
     }
   }
 
-  async getTotalOrders() {
-    try {
-      return await this.api.get('/totalorders');
-    } catch (error) {
-      console.error('Lỗi khi lấy tổng số đơn hàng:', error);
-      throw error;
-    }
-  }
-
-  async getTotalOrdersByMonth(month, year) {
-    try {
-      const queryString = `month=${month}&year=${year}`;
-
-      return await this.api.get(`/totalordersbymonth?${queryString}`);
-    } catch (error) {
-      console.error('Lỗi khi lấy đơn hàng theo tháng:', error);
-      throw error;
-    }
-  }
-
-  async getTotalOrdersPerYear(year) {
-    try {
-      const queryString = `year=${year}`;
-      return await this.api.get(`/totalordersperyear?${queryString}`);
-    } catch (error) {
-      console.error('Lỗi khi lấy đơn hàng theo tháng:', error);
-      throw error;
-    }
-  }
-
-  async getTotalOrdersByDateRange(startDate, endDate) {
+  async getStatisticsByDateRange(startDate, endDate) {
     try {
       const queryString = `startDate=${startDate}&endDate=${endDate}`;
 
-      return await this.api.get(`/totalorderbytime?${queryString}`);
+      return await this.api.get(`/gettime?${queryString}`);
     } catch (error) {
-      console.error('Lỗi khi lấy đơn hàng theo tháng:', error);
+      console.error('Lỗi khi lấy đơn hàng theo thời gian:', error);
       throw error;
     }
   }
 
-  async getTotalOrdersPerMonthByYear() {
+  async getStatisticsByYear(year) {
     try {
-      return await this.api.get('/totalordersallyear');
+      const queryString = `year=${year}`;
+
+      return await this.api.get(`/getyear?${queryString}`);
     } catch (error) {
-      console.error('Lỗi khi lấy đơn hàng theo các năm:', error);
+      console.error('Lỗi khi lấy đơn hàng theo năm:', error);
       throw error;
     }
   }
@@ -120,39 +50,6 @@ class StatictisService {
       return await this.api.get('/totalusersbymonth');
     } catch (error) {
       console.error('Lỗi khi lấy tổng số người dùng theo tháng:', error);
-      throw error;
-    }
-  }
-
-  async getQuantityPerProductType() {
-    try {
-      return await this.api.get('/quantityperproducttype');
-    } catch (error) {
-      console.error('Lỗi khi lấy số lượng từng loại sản phẩm:', error);
-      throw error;
-    }
-  }
-
-  async getQuantityPerProductTypePerYear(year) {
-    try {
-      const queryString = `year=${year}`;
-
-      return await this.api.get(`/quantityperyear?${queryString}`);
-    } catch (error) {
-      console.error(
-        'Lỗi khi lấy số lượng từng loại sản phẩm trong năm:',
-        error,
-      );
-      throw error;
-    }
-  }
-
-  async getTotalSoldPerMonth(month, year) {
-    try {
-      const queryString = `month=${month}&year=${year}`;
-      return await this.api.get(`/totalsoldpermonth?${queryString}`);
-    } catch (error) {
-      console.error('Lỗi khi lấy tổng sản phẩm bán ra theo tháng:', error);
       throw error;
     }
   }

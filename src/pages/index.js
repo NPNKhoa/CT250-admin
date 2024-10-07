@@ -17,7 +17,7 @@ import UserPage from './UserPage';
 import VoucherPage from './Products/VoucherPage';
 import LoginPage from './LoginPage';
 import AuthorizationPage from './AuthorizationPage';
-import StatPage from './Statistics/StatPage';
+import StatPage from './StatPage';
 import ServicePage from './Products/ServicePage.jsx';
 
 export {
