@@ -72,7 +72,7 @@ const RecentOrders = () => {
   }
 
   return (
-    <div className="container mx-auto mt-5">
+    <div className="container mx-auto">
       <DataTable
         title={'Đơn hàng gần nhất'}
         columns={columns}
