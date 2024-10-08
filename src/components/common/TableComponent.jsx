@@ -1,6 +1,8 @@
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
+import * as XLSX from 'xlsx';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import PropTypes from 'prop-types';
+import { viVN } from '@mui/x-data-grid/locales';
 
 const TableComponent = ({
   loading,
@@ -9,9 +11,33 @@ const TableComponent = ({
   paginationModel,
   handleSelected,
 }) => {
+
+  const handleExportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+    
+    XLSX.writeFile(workbook, "data.xlsx");
+  };
+
+  const customLocaleText = {
+    ...viVN.components.MuiDataGrid.defaultProps.localeText,
+    // filterOperatorDoesNotContain: 'Không chứa',
+    // filterOperatorDoesNotEqual: 'Không bằng',
+  };
+
   return (
     <Box sx={{ height: 500, width: '100%', overflowX: 'auto' }}>
+      {/* <Button
+        variant="contained"
+        color="primary"
+        onClick={handleExportExcel}
+        style={{ marginTop: 10 }}
+      >
+        Xuất Excel
+      </Button> */}
       <DataGrid
+        localeText={customLocaleText}
         loading={loading}
         slotProps={{
           loadingOverlay: {
