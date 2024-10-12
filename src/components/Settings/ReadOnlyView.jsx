@@ -106,7 +106,7 @@ const ReadOnlyView = () => {
           <Typography variant="h4" gutterBottom>
             Bộ lọc theo giá
           </Typography>
-          <PriceFilterList priceFilterList={currentConfigs?.shopPriceFilter} />
+          <PriceFilterList />
         </div>
       </div>
       <Divider />

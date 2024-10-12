@@ -291,7 +291,7 @@ const EditableView = () => {
               Thêm mới bộ lọc
             </Button>
           </div>
-          <PriceFilterList priceFilterList={currentConfigs?.shopPriceFilter} />
+          <PriceFilterList />
         </div>
       </div>
       <Divider />
