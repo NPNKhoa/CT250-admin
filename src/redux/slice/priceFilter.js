@@ -1,5 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { deletePriceFilter, updatePriceFilter } from '../thunk/priceFilter';
+import {
+  addPriceFilter,
+  deletePriceFilter,
+  getPriceFilters,
+  updatePriceFilter,
+} from '../thunk/priceFilter';
 
 const initialState = {
   priceFilterList: [],
@@ -12,6 +17,34 @@ const priceFilterSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    // GetAll
+    builder
+      .addCase(getPriceFilters.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPriceFilters.fulfilled, (state, action) => {
+        state.loading = false;
+        state.priceFilterList = action.payload;
+      })
+      .addCase(getPriceFilters.rejected, (state, action) => {
+        state.loading = true;
+        state.error = action.payload;
+      });
+
+    // Create
+    builder
+      .addCase(addPriceFilter.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addPriceFilter.fulfilled, (state, action) => {
+        state.loading = false;
+        state.priceFilterList.push(action.payload);
+      })
+      .addCase(addPriceFilter.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
     // Update
     builder
       .addCase(updatePriceFilter.pending, (state) => {
@@ -32,7 +65,10 @@ const priceFilterSlice = createSlice({
       })
       .addCase(deletePriceFilter.fulfilled, (state, action) => {
         state.loading = false;
-        state.priceFilterList = action.payload;
+
+        state.priceFilterList = state.priceFilterList.filter(
+          (item) => item._id !== action.payload._id,
+        );
       })
       .addCase(deletePriceFilter.rejected, (state, action) => {
         state.loading = false;

@@ -1,46 +1,44 @@
-import PropTypes from 'prop-types';
-
 import { Paper } from '@mui/material';
 import PriceFilterItem from './PriceFilterItem';
 import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 import { useDispatch } from 'react-redux';
-import { deletePriceFilter } from '../../redux/thunk/priceFilter';
-import { useState } from 'react';
+import {
+  deletePriceFilter,
+  getPriceFilters,
+} from '../../redux/thunk/priceFilter';
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
 
-const PriceFilterList = ({ priceFilterList }) => {
+const PriceFilterList = () => {
   const dispatch = useDispatch();
 
-  const [list, setList] = useState(priceFilterList);
+  const priceFilterList = useSelector(
+    (state) => state.priceFilters.priceFilterList,
+  );
 
   const handleDeletePriceFilter = (id) => {
-    console.log(priceFilterList);
-
-    const updatedList =
-      Array.isArray(priceFilterList) &&
-      priceFilterList.filter((filter) => filter._id !== id);
-
     dispatch(deletePriceFilter(id));
-
-    console.log(updatedList);
-    setList(updatedList);
   };
+
+  useEffect(() => {
+    dispatch(getPriceFilters());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="m-auto mb-8 w-1/2">
       <Paper elevation={4} className="p-6">
-        {Array.isArray(list) &&
-          list.length !== 0 &&
-          list.map((filter, index) => {
-            let fromPrice = filter.fromPrice;
-            let toPrice = filter.toPrice;
+        {Array.isArray(priceFilterList) &&
+          priceFilterList.length !== 0 &&
+          priceFilterList.map((filter, index) => {
+            let fromPrice = filter?.fromPrice;
+            let toPrice = filter?.toPrice;
 
-            if (fromPrice === 0) {
-              fromPrice = `Dưới ${toVietnamCurrencyFormat(filter.toPrice)}`;
+            if (!fromPrice) {
+              fromPrice = `Dưới ${toVietnamCurrencyFormat(filter?.toPrice)}`;
               toPrice = null;
-            }
-
-            if (toPrice === fromPrice) {
-              fromPrice = `Trên ${toVietnamCurrencyFormat(filter.toPrice)}`;
+            } else if (!toPrice) {
+              fromPrice = `Trên ${toVietnamCurrencyFormat(filter?.fromPrice)}`;
               toPrice = null;
             }
 
@@ -62,10 +60,6 @@ const PriceFilterList = ({ priceFilterList }) => {
       </Paper>
     </div>
   );
-};
-
-PriceFilterList.propTypes = {
-  priceFilterList: PropTypes.array,
 };
 
 export default PriceFilterList;

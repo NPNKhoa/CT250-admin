@@ -6,6 +6,35 @@ class PriceFilterService {
     this.api = new ApiService(`${import.meta.env.VITE_API_BASE_URL}${path}`);
   }
 
+  async getPriceFilters() {
+    try {
+      const data = await this.api.get('/');
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      return data;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async addPriceFilter(fromPrice, toPrice) {
+    try {
+      const data = await this.api.post('/', { fromPrice, toPrice });
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      return data;
+    } catch (error) {
+      console.log(error);
+      throw Error(error);
+    }
+  }
+
   async updatePriceFilter(id, payload) {
     try {
       const data = await this.api.put(`/${id}`, payload);
