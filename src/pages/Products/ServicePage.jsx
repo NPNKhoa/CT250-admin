@@ -76,17 +76,20 @@ const ServicePage = () => {
       {
         field: 'serviceName',
         headerName: 'Tên dịch vụ',
-        flex: 2,
+        flex: 3.5,
         headerAlign: 'center',
-        align: 'center',
+        // align: 'center',
       },
       {
         field: 'servicePrice',
-        headerName: 'Giá (VNĐ)',
-        flex: 3,
+        headerName: 'Giá',
+        flex: 1,
         headerAlign: 'center',
-        align: 'center',
-        type: "number"
+        align: 'right',
+        type: "number",
+        renderCell: (params) => (
+          <p>{Number(params.value).toLocaleString('vi-VN')} đ</p>
+        ),
       },
       {
         field: 'updatedAt',

@@ -69,7 +69,7 @@ const ProductPage = () => {
       {
         field: 'productImage',
         headerName: 'Hình ảnh',
-        flex: 2,
+        flex: 1,
         headerAlign: 'center',
         align: 'center',
         renderCell: (params) => (
@@ -93,36 +93,39 @@ const ProductPage = () => {
       {
         field: 'productName',
         headerName: 'Tên sản phẩm',
-        flex: 2,
+        flex: 3,
         headerAlign: 'center',
-        align: 'center',
+        // align: 'center',
       },
       {
         field: 'productTypeName',
         headerName: 'Loại sản phẩm',
-        flex: 2,
+        flex: 1.5,
         headerAlign: 'center',
-        align: 'center',
+        // align: 'center',
       },
       {
         field: 'brandName',
         headerName: 'Thương hiệu',
-        flex: 2,
+        flex: 1.5,
         headerAlign: 'center',
-        align: 'center',
+        // align: 'center',
       },
       {
         field: 'price',
-        headerName: 'Giá (VNĐ)',
+        headerName: 'Giá',
         type: 'number',
-        flex: 2,
+        flex: 1,
         headerAlign: 'center',
-        align: 'center',
+        align: 'right',
+        renderCell: (params) => (
+          <p>{Number(params.value).toLocaleString('vi-VN')} đ</p>
+        ),
       },
       {
         field: 'countInStock',
         headerName: 'Số lượng',
-        flex: 2,
+        flex: 1,
         headerAlign: 'center',
         align: 'center',
       },

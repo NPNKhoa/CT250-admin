@@ -572,7 +572,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
                           className="flex-1"
                         />
                         <TextField
-                          label="Specification Value"
+                          label="Giá trị thông số"
                           name="specDesc"
                           value={spec.specificationDesc}
                           onChange={(e) =>
