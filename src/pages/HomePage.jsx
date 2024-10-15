@@ -15,6 +15,7 @@ import TotalSalesChart from '../components/Dashboard/TotalSalesChart';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ProductSalesChart from '../components/Dashboard/ProductSalesChart';
+import UserStatistic from '../components/Dashboard/UserStatistic';
 
 const HomePage = () => {
   const currentYear = new Date().getFullYear();
@@ -28,7 +29,8 @@ const HomePage = () => {
   const [inputValue, setInputValue] = useState('');
   const [statictisByTime, setStatictisByTime] = useState(null);
   const [statictisByYear, setStatictisByYear] = useState(null);
-  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalUsersByYear, setTotalUsersByYear] = useState(0);
+  const [totalUsersByTime, setTotalUsersBytime] = useState(null);
   const dropdownRef = useRef();
   const [month, setMonth] = useState(new Date().getMonth() + 1);
 
@@ -126,12 +128,17 @@ const HomePage = () => {
     const fetchData = async () => {
       try {
         // Gọi cả hai API cùng một lúc
-        const [revenueResponse, allRevenueResponse, usersResponse] =
-          await Promise.all([
-            statictisService.getStatisticsByDateRange(startDate, endDate),
-            statictisService.getStatisticsByYear(year),
-            statictisService.getTotalUsers(),
-          ]);
+        const [
+          revenueResponse,
+          allRevenueResponse,
+          usersResponseByYear,
+          usersResponseByTime,
+        ] = await Promise.all([
+          statictisService.getStatisticsByDateRange(startDate, endDate),
+          statictisService.getStatisticsByYear(year),
+          statictisService.getTotalUsersByYear(year),
+          statictisService.getTotalUsersByDate(startDate, endDate),
+        ]);
 
         if (revenueResponse) {
           setStatictisByTime(revenueResponse.data);
@@ -145,8 +152,14 @@ const HomePage = () => {
           console.error('Không có dữ liệu doanh thu.');
         }
 
-        if (usersResponse) {
-          setTotalUsers(usersResponse.totalUsers);
+        if (usersResponseByYear) {
+          setTotalUsersByYear(usersResponseByYear);
+        } else {
+          console.error('Không có dữ liệu người dùng.');
+        }
+
+        if (usersResponseByTime) {
+          setTotalUsersBytime(usersResponseByTime);
         } else {
           console.error('Không có dữ liệu người dùng.');
         }
@@ -320,7 +333,7 @@ const HomePage = () => {
                 ? statictisByYear?.totalOrders
                 : statictisByTime?.totalOrders
             }
-            totalUsers={totalUsers}
+            totalUsers={totalUsersByTime?.totalUsersUntilEndDate}
             totalProductsSold={
               timeFrame === 'year'
                 ? statictisByYear?.totalProductsSold
@@ -376,6 +389,16 @@ const HomePage = () => {
             timeFrame === 'year'
               ? statictisByYear?.statisticsByMonth
               : statictisByTime?.statisticsByDate
+          }
+          time={statictisByTime?.dateRange}
+        />
+        <UserStatistic
+          timeFrame={timeFrame}
+          year={year}
+          statictisByTime={
+            timeFrame === 'year'
+              ? totalUsersByYear?.totalUsersByMonth
+              : totalUsersByTime?.totalUsersByDate
           }
           time={statictisByTime?.dateRange}
         />
