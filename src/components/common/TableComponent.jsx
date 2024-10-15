@@ -85,7 +85,6 @@ const TableComponent = ({
             lineHeight: '1.5',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
           },
           '& .MuiDataGrid-columnHeaders': {
             '& .MuiDataGrid-columnHeaderTitle': {

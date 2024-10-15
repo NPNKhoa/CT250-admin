@@ -77,16 +77,19 @@ const DiscountPage = () => {
       },
       {
         field: 'discountPercent',
-        headerName: 'Giảm giá (%)',
+        headerName: 'Giảm giá',
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          <p>{params.value}%</p>
+        ),
       },
       {
         field: 'discountStartDate',
         headerName: 'Ngày bắt đầu',
         type: 'Date',
-        flex: 3,
+        flex: 2,
         headerAlign: 'center',
         align: 'center',
       },
@@ -94,7 +97,7 @@ const DiscountPage = () => {
         field: 'discountExpiredDate',
         headerName: 'Ngày hết hạn',
         type: 'Date',
-        flex: 3,
+        flex: 2,
         headerAlign: 'center',
         align: 'center',
       },
