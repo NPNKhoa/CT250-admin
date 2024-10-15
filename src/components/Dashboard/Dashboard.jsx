@@ -13,7 +13,7 @@ function Dashboard({
 }) {
   const statsData = [
     {
-      title: `Doanh thu tháng ${new Date().getMonth() + 1}`,
+      title: 'Tổng doanh thu',
       value: toVietnamCurrencyFormat(totalRevenue),
       color: 'text-pink-500',
       icon: <LocalAtmIcon className="text-2xl text-white" />,
