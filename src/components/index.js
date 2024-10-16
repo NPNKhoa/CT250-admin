@@ -7,6 +7,8 @@ import BannerList from './Settings/BannerList';
 import PriceFilterList from './Settings/PriceFilterList';
 import EditableView from './Settings/EditableView';
 import ReadOnlyView from './Settings/ReadOnlyView';
+import CoreValueList from './Settings/CoreValueList';
+import CoreValue from './Settings/CoreValue';
 
 export {
   Router,
@@ -17,4 +19,6 @@ export {
   PriceFilterList,
   EditableView,
   ReadOnlyView,
+  CoreValueList,
+  CoreValue,
 };
