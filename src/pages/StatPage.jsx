@@ -1,5 +1,11 @@
+import RecentOrder from '../components/Dashboard/RecentOrders';
+
 const StatPage = () => {
-  return <>hehe</>;
+  return (
+    <>
+      <RecentOrder />
+    </>
+  );
 };
 
 export default StatPage;
