@@ -1,53 +1,41 @@
-import { useEffect, useState } from 'react';
-import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
-import DataTable from '../common/DataTable';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useMemo, useState } from 'react';
 import statictisService from '../../services/statictis.service';
+import TableComponent from '../../components/common/TableComponent';
+import ActionHeader from '../../components/common/ActionHeader';
+import { Eye } from 'lucide-react';
+import { toVietnamCurrencyFormat } from '../../helpers/currencyConvertion';
 
-const columns = [
-  {
-    id: `orderNumber`,
-    label: 'Mã đơn hàng',
-    type: 'text',
-  },
-  {
-    id: `orderDate`,
-    label: 'Ngày đặt',
-    type: 'text',
-  },
-  {
-    id: `price`,
-    label: 'Tổng tiền',
-    type: 'text',
-  },
-  {
-    id: `status`,
-    label: 'Trạng thái',
-    type: 'text',
-  },
-];
-
-const RecentOrders = () => {
+const ServicePage = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const handleViewDetails = async (order) => {
-    setSelectedOrder(order);
+    console.log('Order Data: ', order); // Kiểm tra dữ liệu đầy đủ của order
+    console.log('Order ID: ', order.orderNumber);
+    console.log('Order Date: ', order.orderDate);
+    console.log('Total Price: ', order.price);
+    console.log('Shipping Address: ', order.shippingAddress);
+    console.log('Order Status: ', order.status);
+    console.log('Order Details: ', order.orderDetail);
+    setSelectedOrder(order); // Sau khi kiểm tra, lưu lại order được chọn
   };
 
   const handleCloseModal = () => {
     setSelectedOrder(null);
   };
 
+  // Fetch data từ API và lưu vào state `orders`
   useEffect(() => {
     const getOrders = async () => {
       try {
+        setLoading(true);
         const response = await statictisService.getAllOrders();
-
         const formattedOrders = response.data.map((order) => ({
           orderNumber: `#${order._id}`,
           orderDate: new Date(order.orderDate).toLocaleDateString('vi-VN'),
-          price: toVietnamCurrencyFormat(order.totalPrice),
+          price: order.totalPrice,
           status: order.orderStatus.orderStatus,
           shippingAddress: order.shippingAddress,
           shippingMethod: order.shippingMethod,
@@ -55,7 +43,6 @@ const RecentOrders = () => {
           paymentMethod: order.paymentMethod,
           orderDetail: order.orderDetail,
         }));
-
         setOrders(formattedOrders);
       } catch (err) {
         console.log(err);
@@ -67,25 +54,87 @@ const RecentOrders = () => {
     getOrders();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // Sử dụng `orders` để làm dữ liệu cho `rows`
+  const rows = useMemo(
+    () =>
+      orders.map((order, index) => ({
+        id: index + 1,
+        ...order, // Truyền toàn bộ dữ liệu của order vào row
+        action: (
+          <button
+            onClick={() => handleViewDetails(order)} // Truyền toàn bộ order vào handleViewDetails
+            className="btn btn-primary"
+          >
+            Xem chi tiết
+          </button>
+        ),
+      })),
+    [orders],
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        field: 'orderNumber',
+        headerName: 'Mã đơn hàng',
+        flex: 1,
+        headerAlign: 'center',
+        align: 'left',
+      },
+      {
+        field: 'orderDate',
+        headerName: 'Ngày đặt',
+        type: 'Date',
+        flex: 1,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'price',
+        headerName: 'Tổng tiền',
+        flex: 0.6,
+        headerAlign: 'center',
+        align: 'right',
+        renderCell: (params) => (
+          <p>{Number(params.value).toLocaleString('vi-VN')} đ</p>
+        ),
+      },
+      {
+        field: 'status',
+        headerName: 'Trạng thái',
+        flex: 1.5,
+        headerAlign: 'center',
+        align: 'center',
+      },
+      {
+        field: 'action',
+        headerName: 'Thao tác',
+        flex: 1.5,
+        headerAlign: 'center',
+        align: 'center',
+        renderCell: (order) => (
+          <button onClick={() => handleViewDetails(order.row)}>
+            <Eye className="text-primary" />
+          </button>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const paginationModel = { page: 0, pageSize: 5 };
 
   return (
-    <div className="container mx-auto">
-      <DataTable
-        title={'Đơn hàng gần nhất'}
+    <div>
+      <ActionHeader title="Đơn hàng gần nhất" />
+      <TableComponent
+        loading={loading}
+        rows={rows}
         columns={columns}
-        data={orders}
-        sortable={true}
-        filterable={true}
-        actions={{ delete: false, view: true }}
-        pagination={{
-          rowsPerPageOptions: [5, 10],
-          defaultRowsPerPage: 5,
-        }}
-        onView={(order) => handleViewDetails(order)}
+        paginationModel={paginationModel}
+        handleSelected={() => {}}
       />
+
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-600 bg-opacity-50">
           <div className="max-h-[90vh] w-1/2 overflow-y-auto rounded-lg bg-white p-6 shadow-2xl">
@@ -109,14 +158,15 @@ const RecentOrders = () => {
                 <strong>Ngày đặt:</strong> {selectedOrder.orderDate}
               </p>
               <p>
-                <strong>Tổng tiền:</strong> {selectedOrder.price}
+                <strong>Tổng tiền:</strong>{' '}
+                {toVietnamCurrencyFormat(selectedOrder.price)}
               </p>
               <p>
                 <strong>Địa chỉ giao hàng:</strong>{' '}
-                {selectedOrder.shippingAddress.detail},{' '}
-                {selectedOrder.shippingAddress.commune},{' '}
-                {selectedOrder.shippingAddress.district},{' '}
-                {selectedOrder.shippingAddress.province}
+                {selectedOrder?.shippingAddress.detail},{' '}
+                {selectedOrder?.shippingAddress.commune},{' '}
+                {selectedOrder?.shippingAddress.district},{' '}
+                {selectedOrder?.shippingAddress.province}
               </p>
               <p>
                 <strong>Trạng thái:</strong> {selectedOrder.status}
@@ -171,4 +221,4 @@ const RecentOrders = () => {
   );
 };
 
-export default RecentOrders;
+export default ServicePage;
