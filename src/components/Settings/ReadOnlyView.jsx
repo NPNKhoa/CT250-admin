@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import BannerList from './BannerList';
 import PriceFilterList from './PriceFilterList';
 import ParagraphSkeleton from '../common/ParagraphSkeleton';
+import CoreValueList from './CoreValueList';
+import FounderList from './FounderList';
 
 const ReadOnlyView = () => {
   const currentConfigs = useSelector(
@@ -76,6 +78,7 @@ const ReadOnlyView = () => {
         </div>
       </div>
       <Divider />
+
       <div>
         <Typography variant="h3" gutterBottom>
           Giới thiệu cửa hàng
@@ -91,6 +94,27 @@ const ReadOnlyView = () => {
         )}
       </div>
       <Divider />
+
+      <div>
+        <Typography variant="h3" gutterBottom>
+          Giá trị cốt lõi
+        </Typography>
+        {loading ? (
+          <ParagraphSkeleton />
+        ) : (
+          <CoreValueList coreValueList={currentConfigs?.coreValue} />
+        )}
+      </div>
+      <Divider />
+
+      <div>
+        <Typography variant="h3" gutterBottom>
+          Đội Ngũ Điều Hành
+        </Typography>
+        {loading ? <ParagraphSkeleton /> : <FounderList />}
+      </div>
+      <Divider />
+
       <div>
         <Typography variant="h3">Banner hiện tại</Typography>
         <div className="mt-8">
@@ -98,6 +122,7 @@ const ReadOnlyView = () => {
         </div>
       </div>
       <Divider />
+
       <div>
         <Typography variant="h3" gutterBottom>
           Cài đặt khác
