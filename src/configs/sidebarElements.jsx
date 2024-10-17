@@ -37,14 +37,14 @@ export default [
     label: 'Trang chủ',
     childItems: [],
   },
-  {
-    id: uuidv4(),
-    path: '/statistics',
-    element: <StatPage />,
-    icon: <AssessmentIcon />,
-    label: 'Thống kê',
-    childItems: [],
-  },
+  // {
+  //   id: uuidv4(),
+  //   path: '/statistics',
+  //   element: <StatPage />,
+  //   icon: <AssessmentIcon />,
+  //   label: 'Thống kê',
+  //   childItems: [],
+  // },
   {
     id: uuidv4(),
     path: '/product',
@@ -103,21 +103,21 @@ export default [
     icon: <ListAltIcon />,
     label: 'Quản lý Đơn hàng',
     childItems: [
-      {
-        label: 'Trạng thái',
-        path: '/order-status',
-        element: <OrderStatusPage />,
-      },
-      {
-        label: 'Thanh toán',
-        path: '/payment',
-        element: <PaymentPage />,
-      },
-      {
-        label: 'Vận chuyển',
-        path: '/delivery',
-        element: <DeliveryPage />,
-      },
+      // {
+      //   label: 'Trạng thái',
+      //   path: '/order-status',
+      //   element: <OrderStatusPage />,
+      // },
+      // {
+      //   label: 'Thanh toán',
+      //   path: '/payment',
+      //   element: <PaymentPage />,
+      // },
+      // {
+      //   label: 'Vận chuyển',
+      //   path: '/delivery',
+      //   element: <DeliveryPage />,
+      // },
     ],
   },
   {

@@ -8,6 +8,7 @@ import statictisService from '../services/statictis.service';
 import Dashboard from '../components/Dashboard/Dashboard';
 import Header from '../components/Dashboard/Header';
 import RevenueStatistic from '../components/Dashboard/RevenueStatistic';
+import RecentOrders from '../components/Dashboard/RecentOrders';
 import OrderStatistics from '../components/Dashboard/OrderStatistic';
 import TotalSalesChart from '../components/Dashboard/TotalSalesChart';
 
