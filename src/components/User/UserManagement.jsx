@@ -148,6 +148,7 @@ const UserManagement = () => {
     <div>
       <ActionHeader title="Quản lý người dùng" />
       <TableComponent
+        checkbox={false}
         loading={loading}
         rows={rows}
         columns={columns}
@@ -171,17 +172,17 @@ const UserManagement = () => {
             </div>
 
             <div className="mb-4 flex items-center">
-              <img
-                src={
-                  selectedUser.avatar.startsWith('http')
-                    ? selectedUser.avatar
-                    : `http://localhost:5000/${selectedUser.avatar.replace(/\\/g, '/')}`
-                }
-                alt="avatar"
-                className="mr-4 h-20 w-20 rounded-full"
-              />
               <div>
                 <div className="flex flex-col space-y-4">
+                  <img
+                    src={
+                      selectedUser.avatar.startsWith('http')
+                        ? selectedUser.avatar
+                        : `http://localhost:5000/${selectedUser.avatar.replace(/\\/g, '/')}`
+                    }
+                    alt="avatar"
+                    className="mr-4 h-20 w-20 rounded-full"
+                  />
                   <div className="flex items-center">
                     <strong className="w-24 text-gray-800">ID:</strong>
                     <span className="text-gray-600">{selectedUser.id}</span>
