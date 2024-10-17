@@ -9,7 +9,8 @@ const TableComponent = ({
   rows,
   columns,
   paginationModel,
-  handleSelected,
+  checkbox = true,
+  handleSelected = () => {},
 }) => {
 
   const handleExportExcel = () => {
@@ -41,8 +42,8 @@ const TableComponent = ({
         loading={loading}
         slotProps={{
           loadingOverlay: {
-            variant: 'linear-progress',
-            noRowsVariant: 'linear-progress',
+            variant: 'skeleton',
+            noRowsVariant: 'skeleton',
           },
           toolbar: {
             showQuickFilter: true,
@@ -68,14 +69,14 @@ const TableComponent = ({
           pagination: { paginationModel },
         }}
         pageSizeOptions={[5, 10]}
-        checkboxSelection
+        checkboxSelection={checkbox}
         rowSelectionModel={loading ? [] : undefined}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           handleSelected(newRowSelectionModel);
         }}
         sx={{
           border: 0,
-          minWidth: 600,
+          // minWidth: 600,
           '& .MuiDataGrid-cell:focus': {
             outline: 'none',
           },
@@ -95,7 +96,6 @@ const TableComponent = ({
         }}
         disableColumnMenu
         disableDensitySelector
-        autoHeight
         getRowHeight={() => 'auto'}
       />
     </Box>
@@ -107,7 +107,8 @@ TableComponent.propTypes = {
   rows: PropTypes.array.isRequired,
   columns: PropTypes.array.isRequired,
   paginationModel: PropTypes.object.isRequired,
-  handleSelected: PropTypes.func.isRequired,
+  handleSelected: PropTypes.func,
+  checkbox: PropTypes.bool,
 };
 
 export default TableComponent;

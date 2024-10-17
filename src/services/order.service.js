@@ -12,7 +12,7 @@ class OrderService {
             const response = await this.api.request(`?${params.toString()}`);
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi lấy danh sách thương hiệu:", error);
+            console.error("Lỗi khi lấy danh sách đơn hàng:", error);
             throw error;
         }
     }
@@ -22,7 +22,17 @@ class OrderService {
             const response = await this.api.request(`/${id}`);
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi lấy thông tin thương hiệu:", error);
+            console.error("Lỗi khi lấy thông tin đơn hàng:", error);
+            throw error;
+        }
+    }
+
+    async updateOrderStatus(order) {
+        try {
+            const response = await this.api.request(`/update-status/${order.id}`, "PUT", { orderStatus: order.orderStatus });
+            return response.data;
+        } catch (error) {
+            console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
             throw error;
         }
     }
@@ -32,7 +42,7 @@ class OrderService {
             const response = await this.api.request("/", "POST", Order);
             return response.data;
         } catch (error) {
-            console.error("Lỗi khi tạo thương hiệu:", error);
+            console.error("Lỗi khi tạo đơn hàng:", error);
             throw error;
         }
     }

@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getOrders, getOrderById, createOrder} from '../thunk/orderThunk';
+import { getOrders, getOrderById, createOrder, updateOrderStatus} from '../thunk/orderThunk';
 
 const initialState = {
     orders: [],
@@ -48,6 +48,13 @@ const orderSlice = createSlice({
                 state.orders.push(action.payload);
             })
             .addCase(createOrder.rejected, setError)
+
+            .addCase(updateOrderStatus.pending, setLoading)
+            .addCase(updateOrderStatus.fulfilled, (state, action) => {
+                setFulfilled(state);
+                state.orders = state.orders.map(order => order._id === action.payload._id ? action.payload : order);
+            })
+            .addCase(updateOrderStatus.rejected, setError)
     }
 });
 

@@ -25,6 +25,18 @@ export const getOrderById = createAsyncThunk(
     }
 );
 
+export const updateOrderStatus = createAsyncThunk(
+    'order/updateOrderStatus',
+    async (order, { rejectWithValue }) => {
+        try {
+            const response = await orderService.updateOrderStatus(order);
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 export const createOrder = createAsyncThunk(
     'order/createOrder',
     async (order, { rejectWithValue }) => {
