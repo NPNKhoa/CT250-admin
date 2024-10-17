@@ -15,6 +15,10 @@ import { useDispatch } from 'react-redux';
 import { updateSystemConfig } from '../../redux/thunk/systemConfigThunk';
 import { toast } from 'react-toastify';
 import { useEditMode } from '../../hooks/useEditMode';
+import ParagraphSkeleton from '../common/ParagraphSkeleton';
+import CoreValueList from './CoreValueList';
+import FounderList from './FounderList';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 const EditableView = () => {
   const editor = useRef(null);
@@ -225,10 +229,12 @@ const EditableView = () => {
         </div>
       </div>
       <Divider />
+
       <div>
         <Typography variant="h3" gutterBottom>
           Giới thiệu cửa hàng
         </Typography>
+
         <JoditEditor
           ref={editor}
           value={currentConfigs?.shopIntroduction}
@@ -238,6 +244,50 @@ const EditableView = () => {
         />
       </div>
       <Divider />
+
+      <div>
+        <div className="flex items-center justify-between">
+          <Typography variant="h3" gutterBottom>
+            Giá trị cốt lõi
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => handleOpenModal('coreValue')}
+          >
+            <div className="flex items-center justify-between gap-1">
+              <AddCircleOutlineIcon fontSize="medium" /> Thêm mới
+            </div>
+          </Button>
+        </div>
+        {loading ? (
+          <ParagraphSkeleton />
+        ) : (
+          <CoreValueList coreValueList={currentConfigs?.coreValue} />
+        )}
+      </div>
+      <Divider />
+
+      <div>
+        <div className="flex items-center justify-between">
+          <Typography variant="h3" gutterBottom>
+            Đội Ngũ Điều Hành
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => handleOpenModal('founder')}
+          >
+            <div className="flex items-center justify-between gap-1">
+              <AddCircleOutlineIcon fontSize="medium" /> Thêm mới
+            </div>
+          </Button>
+        </div>
+
+        {loading ? <ParagraphSkeleton /> : <FounderList />}
+      </div>
+      <Divider />
+
       <div>
         <div className="flex items-center justify-between">
           <Typography variant="h3">Banner hiện tại</Typography>
@@ -260,10 +310,10 @@ const EditableView = () => {
                 <div ref={provided.innerRef} {...provided.droppableProps}>
                   <BannerList
                     banners={
-                      Array.isArray(tempImg.bannerImgPath) &&
-                      tempImg.bannerImgPath.length !== 0
-                        ? tempImg.bannerImgPath
-                        : currentConfigs?.bannerImgPath
+                      Array.isArray(tempImg.banners) &&
+                      tempImg.banners.length !== 0
+                        ? tempImg.banners
+                        : currentConfigs?.banners
                     }
                   />
                   {provided.placeholder}

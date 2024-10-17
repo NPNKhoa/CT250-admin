@@ -118,7 +118,7 @@ const ReadOnlyView = () => {
       <div>
         <Typography variant="h3">Banner hiện tại</Typography>
         <div className="mt-8">
-          <BannerList banners={currentConfigs?.bannerImgPath} />
+          <BannerList banners={currentConfigs?.banners} />
         </div>
       </div>
       <Divider />
