@@ -273,7 +273,7 @@ const OrderPage = () => {
         ...order,
         id: index + 1,
         userName: order.user.fullname,
-        orderStatus: order.orderStatus.orderStatus,
+        orderStatus: order.orderStatus?.orderStatus,
         orderDate: order.orderDate
           ? new Date(order.orderDate).toLocaleDateString('vi-VN')
           : '',

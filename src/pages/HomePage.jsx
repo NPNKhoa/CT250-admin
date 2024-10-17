@@ -171,41 +171,35 @@ const HomePage = () => {
     fetchData();
   }, [startDate, endDate, year]);
 
-  const exportToPDF = () => {
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const charts = document.querySelectorAll('canvas');
+  const handlePrintReport = async () => {
+    const pdf = new jsPDF();
+    let imgWidth = pdf.internal.pageSize.getWidth();
 
-    let pdfHeight = pdf.internal.pageSize.height;
-    let pdfWidth = pdf.internal.pageSize.width;
-    let yPosition = 10; // Vị trí Y bắt đầu
+    // const pdf = new jsPDF("p", "mm", "a4"); // A4 size page of PDF
+    // const imgWidth = 208;
+    const position = 0;
 
-    charts.forEach((chart) => {
-      const chartImg = chart.toDataURL('image/png');
+    let page1 = document.getElementById('page1');
+    let page2 = document.getElementById('page2');
+    const [imgPage1, imgPage2] = await Promise.all([
+      html2canvas(page1),
+      html2canvas(page2),
+    ]);
+    // Process first image
+    let imgHeight = (imgPage1.height * imgWidth) / imgPage1.width;
+    let contentDataURL = imgPage1.toDataURL('image/png');
+    pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+    pdf.addPage();
+    // Process second image
+    imgHeight = (imgPage2.height * imgWidth) / imgPage2.width;
+    contentDataURL = imgPage2.toDataURL('image/png');
+    pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
 
-      // Thêm hình ảnh biểu đồ vào PDF
-      pdf.addImage(
-        chartImg,
-        'PNG',
-        10,
-        yPosition,
-        pdfWidth - 20,
-        (chart.height * (pdfWidth - 20)) / chart.width,
-      );
-      yPosition += (chart.height * (pdfWidth - 20)) / chart.width + 10; // Cập nhật vị trí Y cho biểu đồ tiếp theo
-
-      // Nếu yPosition vượt quá chiều cao trang, thêm trang mới
-      if (yPosition > pdfHeight - 10) {
-        pdf.addPage();
-        yPosition = 10; // Reset vị trí Y
-      }
-    });
-
-    pdf.save('charts.pdf');
+    pdf.save('report.pdf'); // Generated PDF
   };
-
   return (
     <>
-      <div className="p-2" id="dashboard-content">
+      <div className="p-2" id="page1">
         <Header />
 
         {/* form control */}
@@ -313,13 +307,6 @@ const HomePage = () => {
           )}
         </div>
 
-        {/* <button
-          className="mb-4 rounded bg-blue-500 p-2 text-white"
-          onClick={exportToPDF}
-        >
-          Xuất PDF
-        </button> */}
-
         {/* Nội dung chính */}
         <div>
           <Dashboard
@@ -340,69 +327,79 @@ const HomePage = () => {
                 : statictisByTime?.totalProductsSold
             }
           />
-          <RevenueStatistic
-            timeFrame={timeFrame}
-            year={year}
-            statictisByTime={
-              timeFrame === 'year'
-                ? statictisByYear?.statisticsByMonth
-                : statictisByTime?.statisticsByDate
-            }
-            time={statictisByTime?.dateRange}
-          />
-          <div className="grid grid-cols-3">
-            <div className="col-span-2">
-              <OrderStatistics
-                timeFrame={timeFrame}
-                totalOrderByTime={
-                  timeFrame === 'year'
-                    ? statictisByYear?.statisticsByMonth
-                    : statictisByTime?.statisticsByDate
-                }
-                year={year}
-                time={statictisByTime?.dateRange}
-              />
+
+          <div className="" id="page2">
+            <RevenueStatistic
+              timeFrame={timeFrame}
+              year={year}
+              statictisByTime={
+                timeFrame === 'year'
+                  ? statictisByYear?.statisticsByMonth
+                  : statictisByTime?.statisticsByDate
+              }
+              time={statictisByTime?.dateRange}
+            />
+            <div className="grid grid-cols-3">
+              <div className="col-span-2">
+                <OrderStatistics
+                  timeFrame={timeFrame}
+                  totalOrderByTime={
+                    timeFrame === 'year'
+                      ? statictisByYear?.statisticsByMonth
+                      : statictisByTime?.statisticsByDate
+                  }
+                  year={year}
+                  time={statictisByTime?.dateRange}
+                />
+              </div>
+              <div>
+                <TotalSalesChart
+                  timeFrame={timeFrame}
+                  productTypeSummary={
+                    timeFrame === 'year'
+                      ? statictisByYear?.productTypeSummary
+                      : statictisByTime?.productTypeSummary
+                  }
+                  totalProductsSold={
+                    timeFrame === 'year'
+                      ? statictisByYear?.totalProductsSold
+                      : statictisByTime?.totalProductsSold
+                  }
+                  year={year}
+                  time={statictisByTime?.dateRange}
+                />
+              </div>
             </div>
-            <div>
-              <TotalSalesChart
-                timeFrame={timeFrame}
-                productTypeSummary={
-                  timeFrame === 'year'
-                    ? statictisByYear?.productTypeSummary
-                    : statictisByTime?.productTypeSummary
-                }
-                totalProductsSold={
-                  timeFrame === 'year'
-                    ? statictisByYear?.totalProductsSold
-                    : statictisByTime?.totalProductsSold
-                }
-                year={year}
-                time={statictisByTime?.dateRange}
-              />
-            </div>
+
+            <ProductSalesChart
+              timeFrame={timeFrame}
+              year={year}
+              statictisByTime={
+                timeFrame === 'year'
+                  ? statictisByYear?.statisticsByMonth
+                  : statictisByTime?.statisticsByDate
+              }
+              time={statictisByTime?.dateRange}
+            />
+            <UserStatistic
+              timeFrame={timeFrame}
+              year={year}
+              statictisByTime={
+                timeFrame === 'year'
+                  ? totalUsersByYear?.totalUsersByMonth
+                  : totalUsersByTime?.totalUsersByDate
+              }
+              time={statictisByTime?.dateRange}
+            />
           </div>
         </div>
-        <ProductSalesChart
-          timeFrame={timeFrame}
-          year={year}
-          statictisByTime={
-            timeFrame === 'year'
-              ? statictisByYear?.statisticsByMonth
-              : statictisByTime?.statisticsByDate
-          }
-          time={statictisByTime?.dateRange}
-        />
-        <UserStatistic
-          timeFrame={timeFrame}
-          year={year}
-          statictisByTime={
-            timeFrame === 'year'
-              ? totalUsersByYear?.totalUsersByMonth
-              : totalUsersByTime?.totalUsersByDate
-          }
-          time={statictisByTime?.dateRange}
-        />
         {/* <RecentOrders /> */}
+        <button
+          className="mb-4 rounded bg-blue-500 p-2 text-white"
+          onClick={handlePrintReport}
+        >
+          Xuất PDF
+        </button>
       </div>
     </>
   );
