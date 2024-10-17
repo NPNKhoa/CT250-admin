@@ -21,7 +21,7 @@ const Header = () => {
               và tính kỷ luật
             </p>
             <button className="mt-4 rounded-lg bg-primary px-5 py-2 text-white transition hover:bg-hover-primary sm:mt-0">
-              Tạo đơn hàng ngay
+              Khám phá ngay
             </button>
           </div>
         </div>
