@@ -26,6 +26,7 @@ import {
   AuthorizationPage,
   StatPage,
   ServicePage,
+  CategoryPage,
 } from '../pages';
 
 export default [
@@ -75,6 +76,12 @@ export default [
         label: 'Voucher',
         path: '/voucher',
         element: <VoucherPage />,
+      },
+      {
+        childId: `${uuidv4()}-child`,
+        label: 'Danh mục',
+        path: '/category',
+        element: <CategoryPage />,
       },
       {
         childId: `${uuidv4()}-child`,
