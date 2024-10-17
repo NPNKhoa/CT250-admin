@@ -93,9 +93,9 @@ const TotalSalesChart = ({
           }
         />
         <CardContent className="grid h-[458px] rounded-lg bg-white shadow-xl">
-          <div className="relative flex h-[360px] w-full justify-center">
+          <div className="relative flex h-[340px] w-full justify-center">
             <Doughnut data={doughnutData} options={doughnutOptions} />
-            <div className="absolute top-44 flex items-center justify-center">
+            <div className="absolute top-40 flex items-center justify-center">
               <div className="text-center">
                 <p className="text-sm font-semibold text-gray-600">
                   Tổng sản phẩm
