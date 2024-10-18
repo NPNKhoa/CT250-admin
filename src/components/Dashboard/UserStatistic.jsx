@@ -1,49 +1,44 @@
 import { Card, CardContent, CardHeader } from '@mui/material';
 import { format } from 'date-fns';
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  AreaChart,
+  Area,
 } from 'recharts';
+import { curveCardinal } from 'd3-shape';
 
 // eslint-disable-next-line react/prop-types
-const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
-  // Chuyển đổi dữ liệu thành định dạng phù hợp với biểu đồ
-  const chartData = totalOrderByTime?.map((item) => {
-    const orderStatusSummary = item.orderStatusSummary.reduce((acc, status) => {
-      acc[status.orderStatus] = status.totalOrders;
-      return acc;
-    }, {});
+const UserStatistic = ({ statictisByTime, timeFrame, year, time }) => {
+  const chartData = statictisByTime?.map((item) => {
+    // Xác định label dựa trên timeFrame
+    const label =
+      timeFrame === 'day' || timeFrame === 'month'
+        ? item.time
+        : timeFrame === 'year'
+          ? item.month
+          : [];
 
     return {
-      label:
-        timeFrame === 'day' || timeFrame === 'month'
-          ? item.time
-          : timeFrame === 'year'
-            ? item.month
-            : [],
-      'Chờ xử lý': orderStatusSummary['Chờ xử lý'] || 0, // Tổng đơn hàng chờ xử lý
-      'Đã giao hàng': orderStatusSummary['Đã giao hàng'] || 0, // Tổng đơn hàng đã giao
-      'Đã hủy': orderStatusSummary['Đã hủy'] || 0, // Tổng đơn hàng đã hủy (nếu có)
+      label,
+      'Người dùng': item.totalUsers || 0,
     };
   });
 
   const formatDate = (date) => {
     return format(new Date(date), 'dd/MM/yyyy');
   };
-
+  const cardinal = curveCardinal.tension(0.2);
   return (
-    <div className="container mx-auto px-2 py-6">
-      {/* Biểu đồ đơn hàng */}
+    <div className="container mx-auto px-2">
       <Card className="mb-6">
         <CardHeader
           title={
             <span className="text-xl font-semibold italic">
-              {`Đơn hàng ${
+              {`Số người dùng ${
                 timeFrame === 'day'
                   ? `từ ${
                       time?.startDate
@@ -63,7 +58,17 @@ const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
         />
         <CardContent>
           <ResponsiveContainer width="100%" height={450}>
-            <LineChart data={chartData}>
+            <AreaChart
+              width={500}
+              height={400}
+              data={chartData}
+              margin={{
+                top: 20,
+                right: 20,
+                bottom: 20,
+                left: 20,
+              }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" tick={{ fontSize: '12px' }} />
               <YAxis
@@ -72,11 +77,21 @@ const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
                 tickFormatter={(value) => Math.round(value)}
               />
               <Tooltip />
-              {/* Vẽ các đường biểu diễn cho các trạng thái đơn hàng */}
-              <Line type="monotone" dataKey="Chờ xử lý" stroke="#ff7300" />
-              <Line type="monotone" dataKey="Đã giao hàng" stroke="#00ff00" />
-              <Line type="monotone" dataKey="Đã hủy" stroke="#ff0000" />
-            </LineChart>
+              <Area
+                type="monotone"
+                dataKey="Người dùng"
+                stroke="#8884d8"
+                fill="#8884d8"
+                fillOpacity={0.3}
+              />
+              <Area
+                type={cardinal}
+                dataKey="Người dùng"
+                stroke="#82ca9d"
+                fill="#82ca9d"
+                fillOpacity={0.3}
+              />
+            </AreaChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
@@ -84,4 +99,4 @@ const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
   );
 };
 
-export default OrderStatistics;
+export default UserStatistic;

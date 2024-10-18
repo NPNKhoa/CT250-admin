@@ -1,34 +1,30 @@
 import { Card, CardContent, CardHeader } from '@mui/material';
 import { format } from 'date-fns';
 import {
-  LineChart,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Bar,
+  ComposedChart,
 } from 'recharts';
 
 // eslint-disable-next-line react/prop-types
-const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
-  // Chuyển đổi dữ liệu thành định dạng phù hợp với biểu đồ
-  const chartData = totalOrderByTime?.map((item) => {
-    const orderStatusSummary = item.orderStatusSummary.reduce((acc, status) => {
-      acc[status.orderStatus] = status.totalOrders;
-      return acc;
-    }, {});
+const ProductSalesChart = ({ statictisByTime, timeFrame, year, time }) => {
+  const chartData = statictisByTime?.map((item) => {
+    // Xác định label dựa trên timeFrame
+    const label =
+      timeFrame === 'day' || timeFrame === 'month'
+        ? item.time
+        : timeFrame === 'year'
+          ? item.month
+          : [];
 
     return {
-      label:
-        timeFrame === 'day' || timeFrame === 'month'
-          ? item.time
-          : timeFrame === 'year'
-            ? item.month
-            : [],
-      'Chờ xử lý': orderStatusSummary['Chờ xử lý'] || 0, // Tổng đơn hàng chờ xử lý
-      'Đã giao hàng': orderStatusSummary['Đã giao hàng'] || 0, // Tổng đơn hàng đã giao
-      'Đã hủy': orderStatusSummary['Đã hủy'] || 0, // Tổng đơn hàng đã hủy (nếu có)
+      label,
+      'Đã bán': item.totalProductsSold || 0,
     };
   });
 
@@ -37,13 +33,12 @@ const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
   };
 
   return (
-    <div className="container mx-auto px-2 py-6">
-      {/* Biểu đồ đơn hàng */}
+    <div className="container mx-auto px-2">
       <Card className="mb-6">
         <CardHeader
           title={
             <span className="text-xl font-semibold italic">
-              {`Đơn hàng ${
+              {`Số lượng sản phẩm bán ra ${
                 timeFrame === 'day'
                   ? `từ ${
                       time?.startDate
@@ -63,7 +58,17 @@ const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
         />
         <CardContent>
           <ResponsiveContainer width="100%" height={450}>
-            <LineChart data={chartData}>
+            <ComposedChart
+              width={500}
+              height={400}
+              data={chartData}
+              margin={{
+                top: 20,
+                right: 20,
+                bottom: 20,
+                left: 20,
+              }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" tick={{ fontSize: '12px' }} />
               <YAxis
@@ -72,11 +77,11 @@ const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
                 tickFormatter={(value) => Math.round(value)}
               />
               <Tooltip />
-              {/* Vẽ các đường biểu diễn cho các trạng thái đơn hàng */}
-              <Line type="monotone" dataKey="Chờ xử lý" stroke="#ff7300" />
-              <Line type="monotone" dataKey="Đã giao hàng" stroke="#00ff00" />
-              <Line type="monotone" dataKey="Đã hủy" stroke="#ff0000" />
-            </LineChart>
+              {/* Biểu đồ cột hiển thị tổng số sản phẩm đã bán */}
+              <Bar dataKey="Đã bán" barSize={50} fill="#66b0ff" />
+              {/* Biểu đồ đường hiển thị tổng số sản phẩm đã bán */}
+              <Line type="monotone" dataKey="Đã bán" stroke="#ff7300" />
+            </ComposedChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
@@ -84,4 +89,4 @@ const OrderStatistics = ({ totalOrderByTime, timeFrame, year, time }) => {
   );
 };
 
-export default OrderStatistics;
+export default ProductSalesChart;

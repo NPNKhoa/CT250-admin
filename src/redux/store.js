@@ -11,6 +11,8 @@ import systemConfigSlice from './slice/systemConfigSlice';
 import priceFilterSlice from './slice/priceFilter';
 import coreValueSlice from './slice/coreValueSlice';
 import founderSlice from './slice/founderSlice';
+import orderSlice from './slice/orderSlice';
+import categorySlice from './slice/categorySlice';
 
 const store = configureStore({
   reducer: {
@@ -26,6 +28,8 @@ const store = configureStore({
     priceFilters: priceFilterSlice,
     coreValues: coreValueSlice,
     founders: founderSlice,
+    order: orderSlice,
+    category: categorySlice,
   },
 });
 

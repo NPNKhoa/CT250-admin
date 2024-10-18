@@ -1,7 +1,11 @@
+import UserManagement from '../components/User/UserManagement';
+
 const UserPage = () => {
   return (
     <div>
-      <h1>UserPage nè</h1>
+      <>
+        <UserManagement />
+      </>
     </div>
   );
 };

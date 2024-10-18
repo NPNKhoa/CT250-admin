@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { format } from 'date-fns';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -18,7 +19,7 @@ ChartJS.register(
   Legend,
 );
 // eslint-disable-next-line react/prop-types
-const RevenueStatistic = ({ timeFrame, year, statictisByTime }) => {
+const RevenueStatistic = ({ timeFrame, year, statictisByTime, time }) => {
   const getDataset = (data, label, backgroundColor, borderColor) => ({
     label,
     data,
@@ -27,7 +28,6 @@ const RevenueStatistic = ({ timeFrame, year, statictisByTime }) => {
     borderWidth: 1,
   });
 
-  console.log(timeFrame);
   const getDateLabels = (data) => data?.map((item) => item.time);
   const getYearLabels = (data) => data?.map((item) => item.month);
   const chartData = {
@@ -103,15 +103,33 @@ const RevenueStatistic = ({ timeFrame, year, statictisByTime }) => {
     },
   };
 
-  return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="mb-6 text-4xl font-bold text-gray-800">
-        Thống kê doanh thu
-      </h1>
+  const formatDate = (date) => {
+    return format(new Date(date), 'dd/MM/yyyy');
+  };
 
+  return (
+    <div className="container mx-auto pt-6">
       <Card className="mb-6">
         <CardHeader
-          title={`Biểu đồ doanh thu ${timeFrame === 'day' ? `khoảng thời gian` : timeFrame === 'month' ? `của tháng` : `năm ${year}`}`}
+          title={
+            <span className="text-xl font-semibold italic">
+              {`Doanh thu ${
+                timeFrame === 'day'
+                  ? `từ ${
+                      time?.startDate
+                        ? formatDate(time.startDate)
+                        : 'ngày bắt đầu không hợp lệ'
+                    } đến ${
+                      time?.endDate
+                        ? formatDate(time.endDate)
+                        : 'ngày kết thúc không hợp lệ'
+                    }`
+                  : timeFrame === 'month'
+                    ? `của tháng ${format(new Date(), ` MM/${year}`)}`
+                    : `năm ${year}`
+              }`}
+            </span>
+          }
         />
 
         <CardContent>

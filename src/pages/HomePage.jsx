@@ -8,9 +8,14 @@ import statictisService from '../services/statictis.service';
 import Dashboard from '../components/Dashboard/Dashboard';
 import Header from '../components/Dashboard/Header';
 import RevenueStatistic from '../components/Dashboard/RevenueStatistic';
-import RecentOrders from '../components/Dashboard/RecentOrders ';
+import RecentOrders from '../components/Dashboard/RecentOrders';
 import OrderStatistics from '../components/Dashboard/OrderStatistic';
 import TotalSalesChart from '../components/Dashboard/TotalSalesChart';
+
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import ProductSalesChart from '../components/Dashboard/ProductSalesChart';
+import UserStatistic from '../components/Dashboard/UserStatistic';
 
 const HomePage = () => {
   const currentYear = new Date().getFullYear();
@@ -24,7 +29,8 @@ const HomePage = () => {
   const [inputValue, setInputValue] = useState('');
   const [statictisByTime, setStatictisByTime] = useState(null);
   const [statictisByYear, setStatictisByYear] = useState(null);
-  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalUsersByYear, setTotalUsersByYear] = useState(0);
+  const [totalUsersByTime, setTotalUsersBytime] = useState(null);
   const dropdownRef = useRef();
   const [month, setMonth] = useState(new Date().getMonth() + 1);
 
@@ -122,12 +128,17 @@ const HomePage = () => {
     const fetchData = async () => {
       try {
         // Gọi cả hai API cùng một lúc
-        const [revenueResponse, allRevenueResponse, usersResponse] =
-          await Promise.all([
-            statictisService.getStatisticsByDateRange(startDate, endDate),
-            statictisService.getStatisticsByYear(year),
-            statictisService.getTotalUsers(),
-          ]);
+        const [
+          revenueResponse,
+          allRevenueResponse,
+          usersResponseByYear,
+          usersResponseByTime,
+        ] = await Promise.all([
+          statictisService.getStatisticsByDateRange(startDate, endDate),
+          statictisService.getStatisticsByYear(year),
+          statictisService.getTotalUsersByYear(year),
+          statictisService.getTotalUsersByDate(startDate, endDate),
+        ]);
 
         if (revenueResponse) {
           setStatictisByTime(revenueResponse.data);
@@ -141,8 +152,14 @@ const HomePage = () => {
           console.error('Không có dữ liệu doanh thu.');
         }
 
-        if (usersResponse) {
-          setTotalUsers(usersResponse.totalUsers);
+        if (usersResponseByYear) {
+          setTotalUsersByYear(usersResponseByYear);
+        } else {
+          console.error('Không có dữ liệu người dùng.');
+        }
+
+        if (usersResponseByTime) {
+          setTotalUsersBytime(usersResponseByTime);
         } else {
           console.error('Không có dữ liệu người dùng.');
         }
@@ -154,9 +171,39 @@ const HomePage = () => {
     fetchData();
   }, [startDate, endDate, year]);
 
+  const handlePrintReport = async () => {
+    const pdf = new jsPDF();
+    let imgWidth = pdf.internal.pageSize.getWidth();
+    const position = 0;
+
+    try {
+      let page1 = document.getElementById('page1');
+      let page2 = document.getElementById('page2');
+      const [imgPage1, imgPage2] = await Promise.all([
+        html2canvas(page1),
+        html2canvas(page2),
+      ]);
+
+      // Process first image
+      let imgHeight = (imgPage1.height * imgWidth) / imgPage1.width;
+      let contentDataURL = imgPage1.toDataURL('image/png');
+      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.addPage();
+
+      // Process second image
+      imgHeight = (imgPage2.height * imgWidth) / imgPage2.width;
+      contentDataURL = imgPage2.toDataURL('image/png');
+      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+
+      pdf.save('report.pdf'); // Generated PDF
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
   return (
     <>
-      <div className="p-2">
+      <div className="p-2" id="page1">
         <Header />
 
         {/* form control */}
@@ -175,25 +222,22 @@ const HomePage = () => {
           </FormControl>
           {timeFrame === 'year' && (
             <div ref={dropdownRef} className="relative w-[200px]">
-              {/* Input để người dùng nhập hoặc chọn năm */}
               <input
                 type="text"
                 className="w-full rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Nhập năm"
-                value={inputValue} // Sử dụng state tạm thời để hiển thị giá trị
-                onChange={(e) => setInputValue(e.target.value)} // Cho phép nhập trực tiếp
-                onFocus={() => setShowDropdown(true)} // Hiện dropdown khi focus vào input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onFocus={() => setShowDropdown(true)}
                 onKeyDown={handleKeyDown}
               />
-
-              {/* Dropdown hiển thị danh sách các năm */}
               {showDropdown && (
                 <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded border border-gray-300 bg-white shadow-lg">
                   {years.map((yearOption) => (
                     <li
                       key={yearOption}
                       className="cursor-pointer p-2 hover:bg-blue-500 hover:text-white"
-                      onClick={() => handleSelectYear(yearOption)} // Khi click chọn năm
+                      onClick={() => handleSelectYear(yearOption)}
                     >
                       {yearOption}
                     </li>
@@ -219,94 +263,147 @@ const HomePage = () => {
                   ))}
                 </Select>
               </FormControl>
+
+              <div ref={dropdownRef} className="relative w-[200px]">
+                <input
+                  type="text"
+                  className="w-full rounded border p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập năm"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onFocus={() => setShowDropdown(true)}
+                  onKeyDown={handleKeyDown}
+                />
+                {showDropdown && (
+                  <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded border border-gray-300 bg-white shadow-lg">
+                    {years.map((yearOption) => (
+                      <li
+                        key={yearOption}
+                        className="cursor-pointer p-2 hover:bg-blue-500 hover:text-white"
+                        onClick={() => handleSelectYear(yearOption)}
+                      >
+                        {yearOption}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
 
           {timeFrame === 'day' && (
-            <div className="relative z-[9999] flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
               <DatePicker
-                selected={startDate}
+                selected={startDate ? new Date(startDate) : null}
                 onChange={handleStartDateChange}
-                selectsStart
-                startDate={startDate}
-                endDate={endDate}
-                placeholderText="Ngày bắt đầu"
-                className="relative z-[9999] rounded-xl border-2 p-2"
-                popperClassName="z-[9999]" // Đảm bảo popper có z-index cao
-                portalId="root-portal" // Tùy chọn nếu bạn muốn sử dụng cổng
+                dateFormat="yyyy/MM/dd"
+                className="rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholderText="Chọn ngày bắt đầu"
               />
               <DatePicker
-                selected={endDate}
+                selected={endDate ? new Date(endDate) : null}
                 onChange={handleEndDateChange}
-                selectsEnd
-                startDate={startDate}
-                endDate={endDate}
-                placeholderText="Ngày kết thúc"
-                className="relative z-[9999] rounded-xl border-2 p-2"
-                popperClassName="z-[9999]" // Tương tự như trên
-                portalId="root-portal"
+                dateFormat="yyyy/MM/dd"
+                className="rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholderText="Chọn ngày kết thúc"
               />
             </div>
           )}
         </div>
-        {/* <Dashboard /> */}
-        <Dashboard
-          totalRevenue={
-            timeFrame === 'year'
-              ? statictisByYear?.totalRevenue
-              : statictisByTime?.totalRevenue
-          }
-          totalOrders={
-            timeFrame === 'year'
-              ? statictisByYear?.totalOrders
-              : statictisByTime?.totalOrders
-          }
-          totalUsers={totalUsers}
-          totalProductsSold={
-            timeFrame === 'year'
-              ? statictisByYear?.totalProductsSold
-              : statictisByTime?.totalProductsSold
-          }
-        />
 
-        <RevenueStatistic
-          timeFrame={timeFrame}
-          year={year}
-          statictisByTime={
-            timeFrame === 'year'
-              ? statictisByYear?.statisticsByMonth
-              : statictisByTime?.statisticsByDate
-          }
-        />
-        <div className="grid grid-cols-3">
-          <div className="col-span-2">
-            <OrderStatistics
+        {/* Nội dung chính */}
+        <div>
+          <Dashboard
+            totalRevenue={
+              timeFrame === 'year'
+                ? statictisByYear?.totalRevenue
+                : statictisByTime?.totalRevenue
+            }
+            totalOrders={
+              timeFrame === 'year'
+                ? statictisByYear?.totalOrders
+                : statictisByTime?.totalOrders
+            }
+            totalUsers={totalUsersByTime?.totalUsersUntilEndDate}
+            totalProductsSold={
+              timeFrame === 'year'
+                ? statictisByYear?.totalProductsSold
+                : statictisByTime?.totalProductsSold
+            }
+          />
+
+          <div className="" id="page2">
+            <RevenueStatistic
               timeFrame={timeFrame}
-              totalOrderByTime={
+              year={year}
+              statictisByTime={
                 timeFrame === 'year'
                   ? statictisByYear?.statisticsByMonth
                   : statictisByTime?.statisticsByDate
               }
+              time={statictisByTime?.dateRange}
             />
-          </div>
-          <div>
-            <TotalSalesChart
-              productTypeSummary={
+            <div className="grid grid-cols-3">
+              <div className="col-span-2">
+                <OrderStatistics
+                  timeFrame={timeFrame}
+                  totalOrderByTime={
+                    timeFrame === 'year'
+                      ? statictisByYear?.statisticsByMonth
+                      : statictisByTime?.statisticsByDate
+                  }
+                  year={year}
+                  time={statictisByTime?.dateRange}
+                />
+              </div>
+              <div>
+                <TotalSalesChart
+                  timeFrame={timeFrame}
+                  productTypeSummary={
+                    timeFrame === 'year'
+                      ? statictisByYear?.productTypeSummary
+                      : statictisByTime?.productTypeSummary
+                  }
+                  totalProductsSold={
+                    timeFrame === 'year'
+                      ? statictisByYear?.totalProductsSold
+                      : statictisByTime?.totalProductsSold
+                  }
+                  year={year}
+                  time={statictisByTime?.dateRange}
+                />
+              </div>
+            </div>
+
+            <ProductSalesChart
+              timeFrame={timeFrame}
+              year={year}
+              statictisByTime={
                 timeFrame === 'year'
-                  ? statictisByYear?.productTypeSummary
-                  : statictisByTime?.productTypeSummary
+                  ? statictisByYear?.statisticsByMonth
+                  : statictisByTime?.statisticsByDate
               }
-              totalProductsSold={
+              time={statictisByTime?.dateRange}
+            />
+            <UserStatistic
+              timeFrame={timeFrame}
+              year={year}
+              statictisByTime={
                 timeFrame === 'year'
-                  ? statictisByYear?.totalProductsSold
-                  : statictisByTime?.totalProductsSold
+                  ? totalUsersByYear?.totalUsersByMonth
+                  : totalUsersByTime?.totalUsersByDate
               }
+              time={statictisByTime?.dateRange}
             />
           </div>
         </div>
-        <div className="p-2">
-          <RecentOrders />
-        </div>
+        {/* <RecentOrders /> */}
+        <button
+          className="mb-4 rounded bg-blue-500 p-2 text-white"
+          onClick={handlePrintReport}
+        >
+          Xuất PDF
+        </button>
       </div>
     </>
   );

@@ -45,6 +45,28 @@ class StatictisService {
     }
   }
 
+  async getTotalUsersByDate(startDate, endDate) {
+    try {
+      const queryString = `startDate=${startDate}&endDate=${endDate}`;
+
+      return await this.api.get(`/totalusersbytime?${queryString}`);
+    } catch (error) {
+      console.error('Lỗi khi lấy số người dùng theo thời gian:', error);
+      throw error;
+    }
+  }
+
+  async getTotalUsersByYear(year) {
+    try {
+      const queryString = `year=${year}`;
+
+      return await this.api.get(`/totalusersbyear?${queryString}`);
+    } catch (error) {
+      console.error('Lỗi khi lấy số người dùng theo năm:', error);
+      throw error;
+    }
+  }
+
   async getTotalUsersByMonth() {
     try {
       return await this.api.get('/totalusersbymonth');
