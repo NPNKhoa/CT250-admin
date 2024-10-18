@@ -111,14 +111,18 @@ const ReadOnlyView = () => {
         <Typography variant="h3" gutterBottom>
           Đội Ngũ Điều Hành
         </Typography>
-        {loading ? <ParagraphSkeleton /> : <FounderList />}
+        {loading ? (
+          <ParagraphSkeleton />
+        ) : (
+          <FounderList founders={currentConfigs?.founders} />
+        )}
       </div>
       <Divider />
 
       <div>
         <Typography variant="h3">Banner hiện tại</Typography>
         <div className="mt-8">
-          <BannerList banners={currentConfigs?.bannerImgPath} />
+          <BannerList banners={currentConfigs?.banners} />
         </div>
       </div>
       <Divider />

@@ -20,7 +20,7 @@ const BannerList = ({ banners }) => {
               >
                 {(provided) => (
                   <img
-                    src={`http://localhost:5000/${banner}`}
+                    src={`http://localhost:5000/${banner.bannerImgPath}`}
                     alt={banner + index}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
@@ -31,7 +31,7 @@ const BannerList = ({ banners }) => {
               </Draggable>
             ) : (
               <img
-                src={`http://localhost:5000/${banner}`}
+                src={`http://localhost:5000/${banner.bannerImgPath}`}
                 alt={'banner' + index}
                 className="w-full"
               />

@@ -1,6 +1,6 @@
 import EditableView from '../components/Settings/EditableView';
 import ReadOnlyView from '../components/Settings/ReadOnlyView';
-import { Switch, Typography } from '@mui/material';
+import { Button, Switch, Typography } from '@mui/material';
 import { useEditMode } from '../hooks/useEditMode';
 import { EditModeProvider } from '../contexts/EditModeContext';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -8,7 +8,10 @@ import { useBeforeUnload, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-import { getCurrentSystemConfig } from '../redux/thunk/systemConfigThunk';
+import {
+  backup,
+  getCurrentSystemConfig,
+} from '../redux/thunk/systemConfigThunk';
 
 const SettingsPage = () => {
   const dispatch = useDispatch();
@@ -104,6 +107,13 @@ const SettingsPage = () => {
           <Typography variant="h6">Chế độ chỉnh sửa: </Typography>
           <Switch checked={isEditable} onChange={handleChangeEditMode} />
         </div>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => dispatch(backup())}
+        >
+          Phục hồi dữ liệu
+        </Button>
       </div>
     </div>
   );

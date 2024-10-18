@@ -9,6 +9,8 @@ import specificationSlice from './slice/specificationSlice';
 import serviceSlice from './slice/serviceSlice';
 import systemConfigSlice from './slice/systemConfigSlice';
 import priceFilterSlice from './slice/priceFilter';
+import coreValueSlice from './slice/coreValueSlice';
+import founderSlice from './slice/founderSlice';
 import orderSlice from './slice/orderSlice';
 import categorySlice from './slice/categorySlice';
 
@@ -24,6 +26,8 @@ const store = configureStore({
     service: serviceSlice,
     systemConfigs: systemConfigSlice,
     priceFilters: priceFilterSlice,
+    coreValues: coreValueSlice,
+    founders: founderSlice,
     order: orderSlice,
     category: categorySlice,
   },

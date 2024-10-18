@@ -2,10 +2,7 @@ import PropTypes from 'prop-types';
 
 const Founder = ({ founder }) => {
   return (
-    <div
-      key={founder._id}
-      className="w-1/3 rounded-lg bg-gray-100 p-6 text-center shadow-md"
-    >
+    <div className="w-1/3 rounded-lg bg-gray-100 p-6 text-center shadow-md">
       <img
         src={`http://localhost:5000/${founder?.founderAvatarPath}`}
         alt="images"

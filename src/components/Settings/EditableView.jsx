@@ -15,6 +15,12 @@ import { useDispatch } from 'react-redux';
 import { updateSystemConfig } from '../../redux/thunk/systemConfigThunk';
 import { toast } from 'react-toastify';
 import { useEditMode } from '../../hooks/useEditMode';
+import ParagraphSkeleton from '../common/ParagraphSkeleton';
+import CoreValueList from './CoreValueList';
+import FounderList from './FounderList';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { addCoreValue } from '../../redux/thunk/coreValueThunk';
+import { addFounder } from '../../redux/thunk/founderThunk';
 
 const EditableView = () => {
   const editor = useRef(null);
@@ -27,11 +33,14 @@ const EditableView = () => {
     (state) => state.systemConfigs.currentConfigs,
   );
   const loading = useSelector((state) => state.systemConfigs.loading);
-  const error = useSelector((state) => state.systemConfigs.error);
+  const systemConfigError = useSelector((state) => state.systemConfigs.error);
 
-  const [tempImg, setTempImg] = useState({
-    shopLogoImgPath: '',
-    bannerImgPath: [],
+  const [tempData, setTempData] = useState({
+    founder: null,
+    coreValue: null,
+    banner: null,
+    priceFilter: null,
+    percentFilter: null,
   });
 
   const [newConfigs, setNewConfigs] = useState({
@@ -40,8 +49,6 @@ const EditableView = () => {
     shopEmail: currentConfigs?.shopEmail || '',
     shopPhoneNumber: currentConfigs?.shopPhoneNumber || '',
     shopIntroduction: currentConfigs?.shopIntroduction || '',
-    bannerImgPath: currentConfigs?.bannerImgPath || [],
-    shopPriceFilter: currentConfigs?.shopPriceFilter || [],
   });
 
   const [openModal, setOpenModal] = useState(false);
@@ -59,14 +66,14 @@ const EditableView = () => {
 
   // Handle Change files logic
   const handleChangeModalContent = (key, value) => {
-    setTempImg((prevData) => ({
+    setNewConfigs((prevData) => ({
       ...prevData,
       [key]: value,
     }));
   };
 
-  const onSaveModalContent = (key, value) => {
-    setNewConfigs((prevData) => ({
+  const handleSaveModalContent = (key, value) => {
+    setTempData((prevData) => ({
       ...prevData,
       [key]: value,
     }));
@@ -83,7 +90,7 @@ const EditableView = () => {
   };
 
   const handleCloseModal = (key) => {
-    setTempImg((prevData) => ({
+    setTempData((prevData) => ({
       ...prevData,
       [key]: null,
     }));
@@ -93,20 +100,31 @@ const EditableView = () => {
 
   // Handle Save Change
   const handleSaveChange = () => {
+    // dispatch system config
     dispatch(
       updateSystemConfig({
         ...newConfigs,
-        bannerImgPath: tempImg.bannerImgPath,
       }),
     );
 
-    if (error) return console.log('Lỗi rồiiiiiiiiiii ' + error);
+    // dispatch core value
+    if (tempData.coreValue) {
+      dispatch(addCoreValue({ ...tempData.coreValue }));
+    }
+
+    if (tempData.founder) {
+      dispatch(addFounder({ ...tempData.founder }));
+    }
+
+    if (systemConfigError) {
+      console.log('Lỗi rồiiiiiiiiiii ' + systemConfigError);
+      toast.error('Có lỗi xảy ra trong quá trình cập nhật. Thử lại sau!');
+      return;
+    }
 
     toast.success('Cập nhật thông tin thành công');
 
     toggleEditMode((prevState) => !prevState);
-
-    // dispatch(getCurrentSystemConfig());
   };
 
   // Rich Text logic
@@ -148,14 +166,14 @@ const EditableView = () => {
 
     updatedBanner.splice(destination.index, 0, movedBanner);
 
-    setTempImg((prevData) => ({
+    setTempData((prevData) => ({
       ...prevData,
       bannerImgPath: updatedBanner,
     }));
   };
 
   return (
-    <Stack spacing={2} className="mt-2">
+    <Stack spacing={4} className="mt-2">
       <span className="italic text-zinc-700 opacity-70">
         Sau khi thay đổi thông tin click vào nút
         {' "Lưu"'} ở cuối trang để áp dụng các thay đổi
@@ -175,7 +193,7 @@ const EditableView = () => {
             ) : (
               <img
                 src={
-                  tempImg.shopLogoImgPath ||
+                  tempData.shopLogoImgPath ||
                   'http://localhost:5000/' + currentConfigs?.shopLogoImgPath
                 }
                 alt="logo"
@@ -225,10 +243,12 @@ const EditableView = () => {
         </div>
       </div>
       <Divider />
+
       <div>
         <Typography variant="h3" gutterBottom>
           Giới thiệu cửa hàng
         </Typography>
+
         <JoditEditor
           ref={editor}
           value={currentConfigs?.shopIntroduction}
@@ -238,6 +258,53 @@ const EditableView = () => {
         />
       </div>
       <Divider />
+
+      <div>
+        <div className="flex items-center justify-between">
+          <Typography variant="h3" gutterBottom>
+            Giá trị cốt lõi
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => handleOpenModal('coreValue')}
+          >
+            <div className="flex items-center justify-between gap-1">
+              <AddCircleOutlineIcon fontSize="medium" /> Thêm mới
+            </div>
+          </Button>
+        </div>
+        {loading ? (
+          <ParagraphSkeleton />
+        ) : (
+          <CoreValueList coreValueList={currentConfigs?.coreValue} />
+        )}
+      </div>
+      <Divider />
+      <div>
+        <div className="flex items-center justify-between">
+          <Typography variant="h3" gutterBottom>
+            Đội Ngũ Điều Hành
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => handleOpenModal('founder')}
+          >
+            <div className="flex items-center justify-between gap-1">
+              <AddCircleOutlineIcon fontSize="medium" /> Thêm mới
+            </div>
+          </Button>
+        </div>
+
+        {loading ? (
+          <ParagraphSkeleton />
+        ) : (
+          <FounderList founders={currentConfigs?.founders} />
+        )}
+      </div>
+      <Divider />
+
       <div>
         <div className="flex items-center justify-between">
           <Typography variant="h3">Banner hiện tại</Typography>
@@ -260,10 +327,10 @@ const EditableView = () => {
                 <div ref={provided.innerRef} {...provided.droppableProps}>
                   <BannerList
                     banners={
-                      Array.isArray(tempImg.bannerImgPath) &&
-                      tempImg.bannerImgPath.length !== 0
-                        ? tempImg.bannerImgPath
-                        : currentConfigs?.bannerImgPath
+                      Array.isArray(tempData.banners) &&
+                      tempData.banners.length !== 0
+                        ? tempData.banners
+                        : currentConfigs?.banners
                     }
                   />
                   {provided.placeholder}
@@ -314,7 +381,7 @@ const EditableView = () => {
           <>
             {systemConfigModalContentData[modalKey].content({
               onChange: handleChangeModalContent,
-              onSave: onSaveModalContent,
+              onSave: handleSaveModalContent,
               onCancel: handleCloseModal,
             })}
           </>

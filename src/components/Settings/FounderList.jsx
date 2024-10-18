@@ -1,13 +1,8 @@
-import { useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 import Founder from './Founder';
 
-const FounderList = () => {
-  const systemConfigs = useSelector(
-    (state) => state.systemConfigs.currentConfigs,
-  );
-
-  const founders = systemConfigs?.founders;
-
+const FounderList = ({ founders }) => {
+  console.log(founders);
   return (
     <div className="flex items-center justify-between gap-4">
       {Array.isArray(founders) &&
@@ -16,6 +11,10 @@ const FounderList = () => {
         ))}
     </div>
   );
+};
+
+FounderList.propTypes = {
+  founders: PropTypes.array,
 };
 
 export default FounderList;
