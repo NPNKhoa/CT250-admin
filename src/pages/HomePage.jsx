@@ -171,31 +171,85 @@ const HomePage = () => {
     fetchData();
   }, [startDate, endDate, year]);
 
+  // const handlePrintReport = async () => {
+  //   const pdf = new jsPDF();
+  //   let imgWidth = pdf.internal.pageSize.getWidth();
+  //   const position = 0;
+
+  //   try {
+  //     let page1 = document.getElementById('page1');
+  //     let page2 = document.getElementById('page2');
+  //     const [imgPage1, imgPage2] = await Promise.all([
+  //       html2canvas(page1),
+  //       html2canvas(page2),
+  //     ]);
+
+  //     // Process first image
+  //     let imgHeight = (imgPage1.height * imgWidth) / imgPage1.width;
+  //     let contentDataURL = imgPage1.toDataURL('image/png');
+  //     pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+  //     pdf.addPage();
+
+  //     // Process second image
+  //     imgHeight = (imgPage2.height * imgWidth) / imgPage2.width;
+  //     contentDataURL = imgPage2.toDataURL('image/png');
+  //     pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+
+  //     pdf.save('report.pdf'); // Generated PDF
+  //   } catch (error) {
+  //     console.error('Error generating PDF:', error);
+  //   }
+  // };
+
   const handlePrintReport = async () => {
     const pdf = new jsPDF();
-    let imgWidth = pdf.internal.pageSize.getWidth();
+    const imgWidth = pdf.internal.pageSize.getWidth();
     const position = 0;
 
     try {
-      let page1 = document.getElementById('page1');
-      let page2 = document.getElementById('page2');
+      const page1 = document.getElementById('page1');
+      const page2 = document.getElementById('page2');
+
+      if (!page1 || !page2) {
+        console.error('One of the pages is missing');
+        return;
+      }
+
+      // Ensure the elements are visible
+      page2.style.display = 'block';
+      page2.style.visibility = 'visible';
+
+      // Generate images from the pages
       const [imgPage1, imgPage2] = await Promise.all([
-        html2canvas(page1),
-        html2canvas(page2),
+        html2canvas(page1, { useCORS: true, logging: true, scale: 2 }),
+        html2canvas(page2, { useCORS: true, logging: true, scale: 2 }),
       ]);
 
-      // Process first image
+      // Add first page image to PDF
       let imgHeight = (imgPage1.height * imgWidth) / imgPage1.width;
-      let contentDataURL = imgPage1.toDataURL('image/png');
-      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.addImage(
+        imgPage1.toDataURL('image/png'),
+        'PNG',
+        0,
+        position,
+        imgWidth,
+        imgHeight,
+      );
       pdf.addPage();
 
-      // Process second image
+      // Add second page image to PDF
       imgHeight = (imgPage2.height * imgWidth) / imgPage2.width;
-      contentDataURL = imgPage2.toDataURL('image/png');
-      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.addImage(
+        imgPage2.toDataURL('image/png'),
+        'PNG',
+        0,
+        position,
+        imgWidth,
+        imgHeight,
+      );
 
-      pdf.save('report.pdf'); // Generated PDF
+      // Save the PDF
+      pdf.save('report.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
@@ -394,12 +448,13 @@ const HomePage = () => {
                   : totalUsersByTime?.totalUsersByDate
               }
               time={statictisByTime?.dateRange}
+              totalUsers={totalUsersByTime?.totalUsersUntilEndDate}
             />
           </div>
         </div>
         {/* <RecentOrders /> */}
         <button
-          className="mb-4 rounded bg-blue-500 p-2 text-white"
+          className="mb-4 rounded bg-primary p-2 text-white"
           onClick={handlePrintReport}
         >
           Xuất PDF
