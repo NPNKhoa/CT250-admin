@@ -201,60 +201,6 @@ const HomePage = () => {
   //   }
   // };
 
-  // const handlePrintReport = async () => {
-  //   const pdf = new jsPDF();
-  //   const imgWidth = pdf.internal.pageSize.getWidth();
-  //   const position = 0;
-
-  //   try {
-  //     const page1 = document.getElementById('page1');
-  //     const page2 = document.getElementById('page2');
-
-  //     if (!page1 || !page2) {
-  //       console.error('One of the pages is missing');
-  //       return;
-  //     }
-
-  //     // Ensure the elements are visible
-  //     page2.style.display = 'block';
-  //     page2.style.visibility = 'visible';
-
-  //     // Generate images from the pages
-  //     const [imgPage1, imgPage2] = await Promise.all([
-  //       html2canvas(page1, { useCORS: true, logging: true }),
-  //       html2canvas(page2, { useCORS: true, logging: true }),
-  //     ]);
-
-  //     // Add first page image to PDF
-  //     let imgHeight = (imgPage1.height * imgWidth) / imgPage1.width;
-  //     pdf.addImage(
-  //       imgPage1.toDataURL('image/png'),
-  //       'PNG',
-  //       0,
-  //       position,
-  //       imgWidth,
-  //       imgHeight,
-  //     );
-  //     pdf.addPage();
-
-  //     // Add second page image to PDF
-  //     imgHeight = (imgPage2.height * imgWidth) / imgPage2.width;
-  //     pdf.addImage(
-  //       imgPage2.toDataURL('image/png'),
-  //       'PNG',
-  //       0,
-  //       position,
-  //       imgWidth,
-  //       imgHeight,
-  //     );
-
-  //     // Save the PDF
-  //     pdf.save('report.pdf');
-  //   } catch (error) {
-  //     console.error('Error generating PDF:', error);
-  //   }
-  // };
-
   const handlePrintReport = async () => {
     const pdf = new jsPDF();
     const imgWidth = pdf.internal.pageSize.getWidth();
