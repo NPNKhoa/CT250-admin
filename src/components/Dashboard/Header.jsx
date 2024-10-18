@@ -1,10 +1,12 @@
+import Banner from '../../assets/banners/BannerDB.jpg';
+
 const Header = () => {
   return (
     <div>
       <div className="mb-6 flex-col items-center justify-between rounded-lg bg-white shadow-md sm:flex-row">
         <div className="relative h-64 overflow-hidden rounded-lg bg-white p-6 shadow-md">
           <img
-            src="https://cdn.luongsport.com/wp-content/uploads/2020/10/vot-cau-long-lining-banner.jpg"
+            src={Banner}
             alt="Sport Banner"
             className="absolute inset-0 z-0 h-full w-full object-cover"
           />
