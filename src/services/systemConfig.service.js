@@ -56,6 +56,21 @@ class SystemConfigService {
       throw error;
     }
   }
+
+  async backup() {
+    try {
+      const response = await this.api.post('/backup');
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.log(error.message || error);
+      throw error;
+    }
+  }
 }
 
 export default new SystemConfigService();

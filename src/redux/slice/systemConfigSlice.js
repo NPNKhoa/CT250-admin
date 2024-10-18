@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
+  backup,
   getCurrentSystemConfig,
   updateSystemConfig,
 } from '../thunk/systemConfigThunk';
@@ -39,6 +40,20 @@ const systemConfigSlice = createSlice({
         state.currentConfigs = action.payload;
       })
       .addCase(updateSystemConfig.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // Backup
+    builder
+      .addCase(backup.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(backup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentConfigs = action.payload;
+      })
+      .addCase(backup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

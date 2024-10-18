@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { FileUploader } from 'react-drag-drop-files';
 import { toast } from 'react-toastify';
 
-const AddFounder = ({ onSave, onCancel }) => {
+const AddFounder = ({ onChange, onSave, onCancel }) => {
   const dispatch = useDispatch();
 
   const allowedTypes = ['JPEG', 'PNG', 'JPG'];

@@ -1,22 +1,12 @@
 import PropTypes from 'prop-types';
 import { Button, TextField } from '@mui/material';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
 
 const AddCoreValue = ({ onSave, onCancel }) => {
-  const dispatch = useDispatch();
-
   const [coreValue, setCoreValue] = useState({
-    title: null,
-    content: null,
+    title: '',
+    content: '',
   });
-
-  const priceFilterList = useSelector(
-    (state) => state.priceFilters.priceFilterList,
-  );
-
-  const handleSaveNewCoreValue = () => {};
 
   const handleChangeCoreValue = (e) => {
     const { name, value } = e.target;
@@ -56,7 +46,7 @@ const AddCoreValue = ({ onSave, onCancel }) => {
         <Button
           variant="contained"
           onClick={() => {
-            // onSave('shopPriceFilter', newList);
+            onSave('coreValue', coreValue);
           }}
         >
           OK

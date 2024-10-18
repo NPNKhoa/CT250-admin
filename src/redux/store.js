@@ -9,6 +9,7 @@ import specificationSlice from './slice/specificationSlice';
 import serviceSlice from './slice/serviceSlice';
 import systemConfigSlice from './slice/systemConfigSlice';
 import priceFilterSlice from './slice/priceFilter';
+import coreValueSlice from './slice/coreValueSlice';
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     service: serviceSlice,
     systemConfigs: systemConfigSlice,
     priceFilters: priceFilterSlice,
+    coreValues: coreValueSlice,
   },
 });
 

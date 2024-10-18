@@ -6,8 +6,6 @@ import { useEditMode } from '../../hooks/useEditMode';
 const BannerList = ({ banners }) => {
   const { isEditable } = useEditMode();
 
-  console.log(banners);
-
   return (
     <Stack spacing={4} className="m-auto w-6/7">
       {Array.isArray(banners) &&
