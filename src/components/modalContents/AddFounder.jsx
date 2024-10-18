@@ -1,26 +1,16 @@
 import PropTypes from 'prop-types';
 import { Button, TextField } from '@mui/material';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
 import { FileUploader } from 'react-drag-drop-files';
 import { toast } from 'react-toastify';
 
-const AddFounder = ({ onChange, onSave, onCancel }) => {
-  const dispatch = useDispatch();
-
+const AddFounder = ({ onSave, onCancel }) => {
   const allowedTypes = ['JPEG', 'PNG', 'JPG'];
 
   const [founderName, setFounderName] = useState('');
 
   const [imgReview, setImgReview] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
-
-  const priceFilterList = useSelector(
-    (state) => state.priceFilters.priceFilterList,
-  );
-
-  const handleSaveNewFounder = () => {};
 
   const handleChangeFounderName = (e) => {
     setFounderName(e.target.value);
@@ -91,7 +81,7 @@ const AddFounder = ({ onChange, onSave, onCancel }) => {
         <Button
           variant="contained"
           onClick={() => {
-            // onSave('shopPriceFilter', newList);
+            onSave('founder', { founderName, founderAvatarPath: uploadedFile });
           }}
         >
           OK

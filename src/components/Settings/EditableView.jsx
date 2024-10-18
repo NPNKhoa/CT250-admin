@@ -20,6 +20,7 @@ import CoreValueList from './CoreValueList';
 import FounderList from './FounderList';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { addCoreValue } from '../../redux/thunk/coreValueThunk';
+import { addFounder } from '../../redux/thunk/founderThunk';
 
 const EditableView = () => {
   const editor = useRef(null);
@@ -108,9 +109,11 @@ const EditableView = () => {
 
     // dispatch core value
     if (tempData.coreValue) {
-      console.log('hiiiiiiiiiiiiii');
-      console.log(tempData.coreValue);
       dispatch(addCoreValue({ ...tempData.coreValue }));
+    }
+
+    if (tempData.founder) {
+      dispatch(addFounder({ ...tempData.founder }));
     }
 
     if (systemConfigError) {
@@ -278,7 +281,6 @@ const EditableView = () => {
         )}
       </div>
       <Divider />
-
       <div>
         <div className="flex items-center justify-between">
           <Typography variant="h3" gutterBottom>
@@ -295,7 +297,11 @@ const EditableView = () => {
           </Button>
         </div>
 
-        {loading ? <ParagraphSkeleton /> : <FounderList />}
+        {loading ? (
+          <ParagraphSkeleton />
+        ) : (
+          <FounderList founders={currentConfigs?.founders} />
+        )}
       </div>
       <Divider />
 

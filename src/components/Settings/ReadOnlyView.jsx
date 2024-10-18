@@ -111,7 +111,11 @@ const ReadOnlyView = () => {
         <Typography variant="h3" gutterBottom>
           Đội Ngũ Điều Hành
         </Typography>
-        {loading ? <ParagraphSkeleton /> : <FounderList />}
+        {loading ? (
+          <ParagraphSkeleton />
+        ) : (
+          <FounderList founders={currentConfigs?.founders} />
+        )}
       </div>
       <Divider />
 
