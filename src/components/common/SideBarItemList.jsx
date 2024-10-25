@@ -14,7 +14,7 @@ const SideBarItemList = () => {
   };
 
   return (
-    <div className="no-scrollbar h-3/4 w-full overflow-auto pl-4 pr-6 pt-2">
+    <div className="no-scrollbar h-3/4 w-full overflow-auto py-2 pl-4 pr-6">
       {itemList.map(({ icon, label, path, childItems }) => {
         const key = path.split('/')[1];
 
