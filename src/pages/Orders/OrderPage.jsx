@@ -339,6 +339,13 @@ const OrderPage = () => {
     );
   }, 0);
 
+  const maxPriceDiscount = selectedOrder?.voucher
+    ? Math.min(
+        totalPriceItems * (selectedOrder.voucher.discountPercent / 100),
+        selectedOrder.voucher.maxPriceDiscount * 1000,
+      )
+    : 0;
+
   const paginationModel = { page: 0, pageSize: 5 };
 
   return (
@@ -431,14 +438,17 @@ const OrderPage = () => {
                 {selectedOrder?.voucher?.discountPercent ? (
                   <div>
                     <p className="font-semibold text-red-700">
-                      -
-                      {toVietnamCurrencyFormat(
-                        selectedOrder.totalPrice *
-                          (selectedOrder?.voucher?.discountPercent / 100),
-                      )}
+                      - {toVietnamCurrencyFormat(maxPriceDiscount)}
                     </p>
                     <p className="text-sm">
-                      (-{selectedOrder?.voucher?.discountPercent}%)
+                      (Giảm {selectedOrder?.voucher?.discountPercent}%{' '}
+                      <span className="text-primary">
+                        tối đa{' '}
+                        {toVietnamCurrencyFormat(
+                          selectedOrder?.voucher?.maxPriceDiscount * 1000,
+                        )}
+                      </span>
+                      )
                     </p>
                   </div>
                 ) : (
