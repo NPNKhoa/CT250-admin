@@ -83,7 +83,7 @@ const PromotionPage = () => {
       {
         field: 'gifts',
         headerName: 'Quà tặng',
-        flex: 2,
+        flex: 4,
         headerAlign: 'center',
         // align: 'center',
         renderCell: (params) => (
@@ -103,7 +103,7 @@ const PromotionPage = () => {
       {
         field: 'services',
         headerName: 'Dịch vụ',
-        flex: 3,
+        flex: 4,
         headerAlign: 'center',
         // align: 'center',
         renderCell: (params) => (
@@ -136,22 +136,6 @@ const PromotionPage = () => {
         headerAlign: 'center',
         align: 'center',
       },
-      {
-        field: 'updatedAt',
-        headerName: 'Ngày cập nhật',
-        type: 'Date',
-        flex: 2,
-        headerAlign: 'center',
-        align: 'center',
-      },
-      {
-        field: 'createdAt',
-        headerName: 'Ngày tạo',
-        type: 'Date',
-        flex: 2,
-        headerAlign: 'center',
-        align: 'center',
-      },
     ],
     [],
   );
@@ -166,12 +150,6 @@ const PromotionPage = () => {
           : '',
         promotionExpiredDate: promotion.promotionExpiredDate
           ? new Date(promotion.promotionExpiredDate).toLocaleDateString('vi-VN')
-          : '',
-        updatedAt: promotion.updatedAt
-          ? new Date(promotion.updatedAt).toLocaleDateString('vi-VN')
-          : '',
-        createdAt: promotion.createdAt
-          ? new Date(promotion.createdAt).toLocaleDateString('vi-VN')
           : '',
         gifts: promotion.productIds.map((product) => product.productName),
         services: promotion.serviceIds.map((service) => service.serviceName),

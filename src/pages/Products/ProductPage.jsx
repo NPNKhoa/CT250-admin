@@ -95,21 +95,12 @@ const ProductPage = () => {
         headerName: 'Tên sản phẩm',
         flex: 3,
         headerAlign: 'center',
-        // align: 'center',
       },
       {
-        field: 'productTypeName',
-        headerName: 'Loại sản phẩm',
+        field: 'categoryName',
+        headerName: 'Danh mục',
         flex: 1.5,
         headerAlign: 'center',
-        // align: 'center',
-      },
-      {
-        field: 'brandName',
-        headerName: 'Thương hiệu',
-        flex: 1.5,
-        headerAlign: 'center',
-        // align: 'center',
       },
       {
         field: 'price',
@@ -138,13 +129,7 @@ const ProductPage = () => {
       products.map((product, index) => ({
         ...product,
         id: index + 1,
-        productType: product.productType?._id || product.productType,
-        productBrand: product.productBrand?._id || product.productBrand,
-        productTypeName:
-          product.productType?.productTypeName ||
-          product.productTypeDetails?.productTypeName,
-        brandName:
-          product.productBrand?.brandName || product.brandDetails?.brandName,
+        categoryName: product.categoryDetails?.categoryName || product.category?.categoryName,
         productImage: product.productImagePath[0],
         updatedAt: product.updatedAt
           ? new Date(product.updatedAt).toLocaleDateString('vi-VN')
