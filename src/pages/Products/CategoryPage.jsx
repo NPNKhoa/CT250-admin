@@ -119,7 +119,7 @@ const CategoryPage = () => {
   return (
     <div>
       <ActionHeader
-        title="Thương hiệu"
+        title="Danh mục"
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);
