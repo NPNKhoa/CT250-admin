@@ -5,8 +5,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { createProduct, updateProduct } from '../../redux/thunk/productThunk';
-import { getProductTypes } from '../../redux/thunk/productTypeThunk';
-import { getBrands } from '../../redux/thunk/brandThunk';
+import { getCategories } from '../../redux/thunk/categoryThunk';
 import { getDiscounts } from '../../redux/thunk/discountThunk';
 import { getPromotions } from '../../redux/thunk/promotionThunk';
 import { getSpecifications } from '../../redux/thunk/specificationThunk';
@@ -16,24 +15,16 @@ import JoditEditor from 'jodit-react';
 
 const ProductPopup = ({ isOpen, onClose, data }) => {
   const dispatch = useDispatch();
+
   const initialProduct = useMemo(
     () => ({
       _id: data?.[0]?._id || '',
       productName: data?.[0]?.productName || '',
       price: data?.[0]?.price || 0,
+      category: data?.[0]?.category?._id || data?.[0]?.category || '',
+      categoryName: data?.[0]?.categoryDetails?.categoryName || data?.[0]?.category?.categoryName || '',
       productImagePath: data?.[0]?.productImagePath || [],
-      productType: data?.[0]?.productType?._id || data?.[0]?.productType || '',
-      productBrand:
-        data?.[0]?.productBrand?._id || data?.[0]?.productBrand || '',
       countInStock: data?.[0]?.countInStock || 0,
-      productBrandName:
-        data?.[0]?.brandDetails?.brandName ||
-        data?.[0]?.productBrand?.brandName ||
-        '',
-      productTypeName:
-        data?.[0]?.productTypeDetails?.productTypeName ||
-        data?.[0]?.productType?.productTypeName ||
-        '',
       discount: data?.[0]?.discount?._id || data?.[0]?.discount || '',
       discountField: data?.[0]?.discountDetails
         ? `Giảm ${data[0].discountDetails.discountPercent}% (từ ngày ${new Date(data[0].discountDetails.discountStartDate).toLocaleDateString('vi-VN')} đến ngày ${new Date(data[0].discountDetails.discountExpiredDate).toLocaleDateString('vi-VN')})`
@@ -46,26 +37,38 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
     [data],
   );
 
-  // console.log(data);
+  console.log('data: ', data);
 
   const [product, setProduct] = useState(initialProduct);
   const [newFiles, setNewFiles] = useState([]);
-  const [specs, setSpecs] = useState([
-    {
-      specificationName: '',
-      name: '',
-      specificationDesc: '',
-    },
-  ]);
-  const { productTypes } = useSelector((state) => state.productType);
-  const { brands } = useSelector((state) => state.brand);
+  const { categories } = useSelector((state) => state.category);
   const { discounts } = useSelector((state) => state.discount);
   const { promotions } = useSelector((state) => state.promotion);
   const { specifications } = useSelector((state) => state.specification);
+  const [specs, setSpecs] = useState([]);
 
   const [isFirstStep, setIsFirstStep] = useState(true);
 
   const editor = useRef(null);
+
+  const findSpecName = (specId) => {
+    const spec = specifications.find(
+      (specification) => specification._id === specId,
+    );
+    return spec?.specificationName;
+  };
+
+  useEffect(() => {
+    if (data[0] && data[0].technicalSpecification && Array.isArray(data[0].technicalSpecification)) {
+      const mappedSpecs = data[0].technicalSpecification.map((techSpec) => ({
+        name: techSpec.specificationName?.specificationName || findSpecName(techSpec.specificationName),
+        specificationName: techSpec.specificationName?._id || techSpec.specificationName,
+        specificationDesc: techSpec.specificationDesc,
+      }));
+      setSpecs(mappedSpecs);
+    }
+    else setSpecs([]);
+  }, [data]);
 
   const handleNextStep = (e) => {
     e.preventDefault();
@@ -79,8 +82,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
   useEffect(() => {
     const fetchData = async () => {
       await Promise.all([
-        dispatch(getProductTypes()),
-        dispatch(getBrands()),
+        dispatch(getCategories()),
         dispatch(getDiscounts()),
         dispatch(getSpecifications()),
         dispatch(getPromotions()),
@@ -93,34 +95,6 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
   useEffect(() => {
     setProduct(initialProduct);
   }, [initialProduct]);
-
-  useEffect(() => {
-    let temp = [];
-    if (
-      data?.[0]?.technicalSpecification &&
-      Array.isArray(data[0].technicalSpecification)
-    ) {
-      temp = [
-        ...temp,
-        ...data[0].technicalSpecification.map((techSpec) => ({
-          name:
-            techSpec.specificationName.specificationName ||
-            findSpecName(techSpec.specificationName),
-          specificationName:
-            techSpec.specificationName._id || techSpec.specificationName,
-          specificationDesc: techSpec.specificationDesc,
-        })),
-      ];
-    }
-    setSpecs(temp);
-  }, [data]);
-
-  const findSpecName = (specId) => {
-    const spec = specifications.find(
-      (specification) => specification._id === specId,
-    );
-    return spec?.specificationName;
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -213,7 +187,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
       }
 
       setIsFirstStep(true);
-      setSpecs({});
+      setSpecs([]);
       setNewFiles([]);
       onClose();
     }
@@ -361,22 +335,19 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
                 </Box>
                 <Box className="flex space-x-4">
                   <Autocomplete
-                    options={productTypes.map(
-                      (productType) => productType.productTypeName,
-                    )}
-                    value={product.productTypeName}
+                    options={categories.map((category) => category.categoryName)}
+                    value={product.categoryName}
                     onChange={(event, newValue) => {
-                      const selectedProductType = productTypes.find(
-                        (productType) =>
-                          productType.productTypeName === newValue,
+                      const selectedCategory = categories.find(
+                        (category) => category.categoryName === newValue,
                       );
                       handleAutocompleteChange(
-                        'productType',
-                        selectedProductType?._id,
+                        'category',
+                        selectedCategory?._id,
                       );
                       handleInputChange({
                         target: {
-                          name: 'productTypeName',
+                          name: 'categoryName',
                           value: newValue,
                         },
                       });
@@ -384,38 +355,8 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Loại sản phẩm"
-                        name="productTypeName"
-                        variant="outlined"
-                        required
-                        fullWidth
-                      />
-                    )}
-                    className="flex-1"
-                  />
-                  <Autocomplete
-                    options={brands.map((brand) => brand.brandName)}
-                    value={product.productBrandName}
-                    onChange={(event, newValue) => {
-                      const selectedBrand = brands.find(
-                        (brand) => brand.brandName === newValue,
-                      );
-                      handleAutocompleteChange(
-                        'productBrand',
-                        selectedBrand?._id,
-                      );
-                      handleInputChange({
-                        target: {
-                          name: 'productBrandName',
-                          value: newValue,
-                        },
-                      });
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Thương hiệu"
-                        name="productBrandName"
+                        label="Danh mục"
+                        name="categoryName"
                         variant="outlined"
                         required
                         fullWidth
@@ -610,7 +551,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
               <div>
                 <JoditEditor
                   ref={editor}
-                  value={product.description[0] || product.description || ''}
+                  value={typeof product.description[0] === 'string' ? product.description[0] : ''}
                   tabIndex={1}
                   onChange={(newContent) => {
                     handleInputChange({

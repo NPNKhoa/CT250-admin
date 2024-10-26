@@ -15,6 +15,7 @@ const CategoryPopup = ({ isOpen, onClose, data }) => {
   const initialCategory = useMemo(
     () => ({
       _id: data?.[0]?._id || '',
+      categoryName: data?.[0]?.categoryName || '',
       productType: data?.[0]?.productType?._id  || '',
       brand: data?.[0]?.brand?._id || '',
       productBrandName:
@@ -72,7 +73,7 @@ const CategoryPopup = ({ isOpen, onClose, data }) => {
         toast.success('Thêm thành công!');
       }
     } catch (err) {
-      if (err === 'Category is already exist!') {
+      if (err === 'Category already exists') {
         toast.error('Danh mục đã tồn tại!');
       } else {
         toast.error('Có lỗi xảy ra!');
@@ -98,6 +99,14 @@ const CategoryPopup = ({ isOpen, onClose, data }) => {
           {data && data.length > 0 ? 'Cập nhật danh mục' : 'Thêm danh mục mới'}
         </h1>
         <form onSubmit={handleSubmit}>
+        <TextField
+            label="Tên danh mục"
+            name="categoryName"
+            value={category.categoryName}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
           <Autocomplete
             options={productTypes.map(
               (productType) => productType.productTypeName,
@@ -148,7 +157,6 @@ const CategoryPopup = ({ isOpen, onClose, data }) => {
                 label="Thương hiệu"
                 name="productBrandName"
                 variant="outlined"
-                required
                 fullWidth
               />
             )}

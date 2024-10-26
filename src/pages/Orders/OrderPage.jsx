@@ -259,7 +259,7 @@ const OrderPage = () => {
         align: 'center',
         renderCell: (order) => (
           <button onClick={() => handleViewDetails(order.row)}>
-            <Eye className="text-primary" />
+            <Eye strokeWidth={1} className="text-primary" />
           </button>
         ),
       },
@@ -330,6 +330,15 @@ const OrderPage = () => {
     }
   };
 
+  const totalPriceItems = selectedOrder?.orderDetail.reduce((total, item) => {
+    return (
+      total +
+      item.itemPrice *
+        item.quantity *
+        (1 - item.product.discount.discountPercent / 100)
+    );
+  }, 0);
+
   const paginationModel = { page: 0, pageSize: 5 };
 
   return (
@@ -375,7 +384,7 @@ const OrderPage = () => {
               <h1 className="text-2xl font-semibold">
                 Order #{selectedOrder._id}
               </h1>
-              <div className="flex space-x-2">
+              <div className="flex space-x-3">
                 <select
                   value={orderStatus}
                   onChange={handleStatusChange}
@@ -387,36 +396,61 @@ const OrderPage = () => {
                   <option value="Đã hủy">Đã hủy</option>
                 </select>
                 <button
-                  className="rounded-lg bg-primary px-3 py-1 text-white"
+                  className="rounded-lg bg-orange-600 px-3 py-1 text-white"
                   onClick={() => generateInvoice(selectedOrder)}
                 >
                   Xuất hóa đơn
                 </button>
                 <button
                   onClick={handleCloseModal}
-                  className="rounded-xl bg-gray-200 px-4 py-2 transition duration-300 ease-in-out hover:bg-gray-300"
+                  className="rounded-xl bg-gray-200 px-4 py-2 transition duration-300 ease-in-out hover:bg-red-600"
                 >
                   X
                 </button>
               </div>
             </div>
 
-            <div className="mb-6 grid grid-cols-3 gap-4">
+            <div className="mb-6 grid grid-cols-4 gap-4">
               <div className="rounded-lg bg-gray-100 p-2 text-center">
                 <p>Ngày đặt:</p>
-                <p className="font-semibold">{selectedOrder.orderDate}</p>
+                <p className="font-semibold text-orange-700">
+                  {selectedOrder.orderDate}
+                </p>
               </div>
               <div className="rounded-lg bg-gray-100 p-2 text-center">
                 <p>Phí vận chuyển:</p>
-                <p className="font-semibold">
+                <p className="font-semibold text-green-700">
                   {toVietnamCurrencyFormat(selectedOrder.shippingFee)}
+                </p>
+                <p className="text-sm">
+                  ({selectedOrder.shippingMethod.shippingMethod})
                 </p>
               </div>
               <div className="rounded-lg bg-gray-100 p-2 text-center">
-                <p>Tổng tiền</p>
-                <p className="font-semibold">
+                <p>Voucher:</p>
+                {selectedOrder?.voucher?.discountPercent ? (
+                  <div>
+                    <p className="font-semibold text-red-700">
+                      -
+                      {toVietnamCurrencyFormat(
+                        selectedOrder.totalPrice *
+                          (selectedOrder?.voucher?.discountPercent / 100),
+                      )}
+                    </p>
+                    <p className="text-sm">
+                      (-{selectedOrder?.voucher?.discountPercent}%)
+                    </p>
+                  </div>
+                ) : (
+                  <p className="font-semibold">Không có voucher</p>
+                )}
+              </div>
+              <div className="rounded-lg bg-gray-100 p-2 text-center">
+                <p>Tổng tiền:</p>
+                <p className="font-semibold text-blue-700">
                   {toVietnamCurrencyFormat(selectedOrder.totalPrice)}
                 </p>
+                <p className="text-sm">(Đã bao gồm phí vận chuyển)</p>
               </div>
             </div>
 
@@ -428,7 +462,7 @@ const OrderPage = () => {
                 </div>
                 <p>
                   <span className="font-semibold">Tên:</span>{' '}
-                  {selectedOrder.user.fullname}
+                  {selectedOrder.shippingAddress.fullname}
                 </p>
                 <p>
                   <span className="font-semibold">Email:</span>{' '}
@@ -436,7 +470,7 @@ const OrderPage = () => {
                 </p>
                 <p>
                   <span className="font-semibold">Số điện thoại:</span>{' '}
-                  {selectedOrder.user.phone}
+                  {selectedOrder.shippingAddress.phone}
                 </p>
               </div>
 
@@ -462,6 +496,14 @@ const OrderPage = () => {
                     ? 'Đã thanh toán'
                     : 'Chờ thanh toán'}
                 </p>
+                {selectedOrder.paidDate && (
+                  <p>
+                    <span className="font-semibold">Ngày thanh toán:</span>{' '}
+                    {new Date(selectedOrder.paidDate).toLocaleDateString(
+                      'vi-VN',
+                    )}
+                  </p>
+                )}
                 <p>
                   <span className="font-semibold">Phương thức:</span>{' '}
                   {selectedOrder.paymentMethod.paymentMethodName}
@@ -510,6 +552,9 @@ const OrderPage = () => {
                     </div>
                   ))}
                 </div>
+                <p className="text-right font-semibold">
+                  Tổng: {toVietnamCurrencyFormat(totalPriceItems)}
+                </p>
               </div>
             </div>
           </div>
