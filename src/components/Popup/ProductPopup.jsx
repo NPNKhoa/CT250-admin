@@ -551,7 +551,7 @@ const ProductPopup = ({ isOpen, onClose, data }) => {
               <div>
                 <JoditEditor
                   ref={editor}
-                  value={typeof product.description[0] === 'string' ? product.description[0] : ''}
+                  value={typeof product.description === 'string' ? product.description : ''}
                   tabIndex={1}
                   onChange={(newContent) => {
                     handleInputChange({
