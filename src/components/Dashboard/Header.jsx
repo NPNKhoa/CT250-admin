@@ -1,4 +1,4 @@
-import Banner from '../../assets/banners/BannerDB.jpg';
+import Banner from '../../assets/banners/bannerDB.jpg';
 
 const Header = () => {
   return (
