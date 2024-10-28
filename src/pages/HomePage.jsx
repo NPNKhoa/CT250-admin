@@ -8,7 +8,6 @@ import statictisService from '../services/statictis.service';
 import Dashboard from '../components/Dashboard/Dashboard';
 import Header from '../components/Dashboard/Header';
 import RevenueStatistic from '../components/Dashboard/RevenueStatistic';
-import RecentOrders from '../components/Dashboard/RecentOrders';
 import OrderStatistics from '../components/Dashboard/OrderStatistic';
 import TotalSalesChart from '../components/Dashboard/TotalSalesChart';
 
@@ -171,31 +170,96 @@ const HomePage = () => {
     fetchData();
   }, [startDate, endDate, year]);
 
+  // const handlePrintReport = async () => {
+  //   const pdf = new jsPDF();
+  //   let imgWidth = pdf.internal.pageSize.getWidth();
+  //   const position = 0;
+
+  //   try {
+  //     let page1 = document.getElementById('page1');
+  //     let page2 = document.getElementById('page2');
+  //     const [imgPage1, imgPage2] = await Promise.all([
+  //       html2canvas(page1),
+  //       html2canvas(page2),
+  //     ]);
+
+  //     // Process first image
+  //     let imgHeight = (imgPage1.height * imgWidth) / imgPage1.width;
+  //     let contentDataURL = imgPage1.toDataURL('image/png');
+  //     pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+  //     pdf.addPage();
+
+  //     // Process second image
+  //     imgHeight = (imgPage2.height * imgWidth) / imgPage2.width;
+  //     contentDataURL = imgPage2.toDataURL('image/png');
+  //     pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+
+  //     pdf.save('report.pdf'); // Generated PDF
+  //   } catch (error) {
+  //     console.error('Error generating PDF:', error);
+  //   }
+  // };
+
   const handlePrintReport = async () => {
     const pdf = new jsPDF();
-    let imgWidth = pdf.internal.pageSize.getWidth();
+    const imgWidth = pdf.internal.pageSize.getWidth();
     const position = 0;
 
     try {
-      let page1 = document.getElementById('page1');
-      let page2 = document.getElementById('page2');
-      const [imgPage1, imgPage2] = await Promise.all([
-        html2canvas(page1),
-        html2canvas(page2),
-      ]);
+      const page1 = document.getElementById('page1');
+      const page2 = document.getElementById('page2');
 
-      // Process first image
+      if (!page1 || !page2) {
+        console.error('One of the pages is missing');
+        return;
+      }
+
+      // Đảm bảo page2 được hiển thị
+      page2.style.display = 'block';
+      page2.style.visibility = 'visible';
+
+      // Chụp ảnh từ page1
+      const imgPage1 = await html2canvas(page1, { useCORS: true });
       let imgHeight = (imgPage1.height * imgWidth) / imgPage1.width;
-      let contentDataURL = imgPage1.toDataURL('image/png');
-      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.addImage(
+        imgPage1.toDataURL('image/png'),
+        'PNG',
+        0,
+        position,
+        imgWidth,
+        imgHeight,
+      );
       pdf.addPage();
 
-      // Process second image
-      imgHeight = (imgPage2.height * imgWidth) / imgPage2.width;
-      contentDataURL = imgPage2.toDataURL('image/png');
-      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+      // Chụp ảnh từ page2
+      const imgPage2 = await html2canvas(page2, { useCORS: true, scale: 2 });
+      const contentDataURL = imgPage2.toDataURL('image/png');
 
-      pdf.save('report.pdf'); // Generated PDF
+      // Kiểm tra chiều cao và thêm ảnh vào PDF
+      imgHeight = (imgPage2.height * imgWidth) / imgPage2.width;
+      let currentHeight = 0;
+      let pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Nếu chiều cao ảnh lớn hơn chiều cao của một trang, chia thành nhiều trang
+      while (currentHeight < imgHeight) {
+        pdf.addImage(
+          contentDataURL,
+          'PNG',
+          0,
+          position - currentHeight,
+          imgWidth,
+          imgHeight,
+        );
+        currentHeight += pageHeight;
+
+        // Nếu còn nội dung, thêm trang mới
+        if (currentHeight < imgHeight) {
+          pdf.addPage();
+        }
+      }
+
+      // Lưu PDF
+      pdf.save('report.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
@@ -205,7 +269,6 @@ const HomePage = () => {
     <>
       <div className="p-2" id="page1">
         <Header />
-
         {/* form control */}
         <div className="mb-6 flex justify-between">
           <FormControl className="w-1/4">
@@ -310,7 +373,6 @@ const HomePage = () => {
             </div>
           )}
         </div>
-
         {/* Nội dung chính */}
         <div>
           <Dashboard
@@ -331,80 +393,79 @@ const HomePage = () => {
                 : statictisByTime?.totalProductsSold
             }
           />
-
-          <div className="" id="page2">
-            <RevenueStatistic
-              timeFrame={timeFrame}
-              year={year}
-              statictisByTime={
-                timeFrame === 'year'
-                  ? statictisByYear?.statisticsByMonth
-                  : statictisByTime?.statisticsByDate
-              }
-              time={statictisByTime?.dateRange}
-            />
-            <div className="grid grid-cols-3">
-              <div className="col-span-2">
-                <OrderStatistics
-                  timeFrame={timeFrame}
-                  totalOrderByTime={
-                    timeFrame === 'year'
-                      ? statictisByYear?.statisticsByMonth
-                      : statictisByTime?.statisticsByDate
-                  }
-                  year={year}
-                  time={statictisByTime?.dateRange}
-                />
-              </div>
-              <div>
-                <TotalSalesChart
-                  timeFrame={timeFrame}
-                  productTypeSummary={
-                    timeFrame === 'year'
-                      ? statictisByYear?.productTypeSummary
-                      : statictisByTime?.productTypeSummary
-                  }
-                  totalProductsSold={
-                    timeFrame === 'year'
-                      ? statictisByYear?.totalProductsSold
-                      : statictisByTime?.totalProductsSold
-                  }
-                  year={year}
-                  time={statictisByTime?.dateRange}
-                />
-              </div>
+          <RevenueStatistic
+            timeFrame={timeFrame}
+            year={year}
+            statictisByTime={
+              timeFrame === 'year'
+                ? statictisByYear?.statisticsByMonth
+                : statictisByTime?.statisticsByDate
+            }
+            time={statictisByTime?.dateRange}
+          />
+          <div className="grid grid-cols-3">
+            <div className="col-span-2">
+              <OrderStatistics
+                timeFrame={timeFrame}
+                totalOrderByTime={
+                  timeFrame === 'year'
+                    ? statictisByYear?.statisticsByMonth
+                    : statictisByTime?.statisticsByDate
+                }
+                year={year}
+                time={statictisByTime?.dateRange}
+              />
             </div>
-
-            <ProductSalesChart
-              timeFrame={timeFrame}
-              year={year}
-              statictisByTime={
-                timeFrame === 'year'
-                  ? statictisByYear?.statisticsByMonth
-                  : statictisByTime?.statisticsByDate
-              }
-              time={statictisByTime?.dateRange}
-            />
-            <UserStatistic
-              timeFrame={timeFrame}
-              year={year}
-              statictisByTime={
-                timeFrame === 'year'
-                  ? totalUsersByYear?.totalUsersByMonth
-                  : totalUsersByTime?.totalUsersByDate
-              }
-              time={statictisByTime?.dateRange}
-            />
-          </div>
+            <div>
+              <TotalSalesChart
+                timeFrame={timeFrame}
+                productTypeSummary={
+                  timeFrame === 'year'
+                    ? statictisByYear?.productTypeSummary
+                    : statictisByTime?.productTypeSummary
+                }
+                totalProductsSold={
+                  timeFrame === 'year'
+                    ? statictisByYear?.totalProductsSold
+                    : statictisByTime?.totalProductsSold
+                }
+                year={year}
+                time={statictisByTime?.dateRange}
+              />
+            </div>
+          </div>{' '}
         </div>
-        {/* <RecentOrders /> */}
-        <button
-          className="mb-4 rounded bg-blue-500 p-2 text-white"
-          onClick={handlePrintReport}
-        >
-          Xuất PDF
-        </button>
       </div>
+      <div className="" id="page2">
+        <ProductSalesChart
+          timeFrame={timeFrame}
+          year={year}
+          statictisByTime={
+            timeFrame === 'year'
+              ? statictisByYear?.statisticsByMonth
+              : statictisByTime?.statisticsByDate
+          }
+          time={statictisByTime?.dateRange}
+        />
+        <UserStatistic
+          timeFrame={timeFrame}
+          year={year}
+          statictisByTime={
+            timeFrame === 'year'
+              ? totalUsersByYear?.totalUsersByMonth
+              : totalUsersByTime?.totalUsersByDate
+          }
+          time={statictisByTime?.dateRange}
+          totalUsers={totalUsersByTime?.totalUsersUntilEndDate}
+        />
+      </div>
+
+      <button
+        className="mb-4 rounded bg-primary p-2 text-white"
+        onClick={handlePrintReport}
+      >
+        Xuất PDF
+      </button>
     </>
   );
 };

@@ -12,7 +12,13 @@ import {
 import { curveCardinal } from 'd3-shape';
 
 // eslint-disable-next-line react/prop-types
-const UserStatistic = ({ statictisByTime, timeFrame, year, time }) => {
+const UserStatistic = ({
+  statictisByTime,
+  timeFrame,
+  year,
+  time,
+  totalUsers,
+}) => {
   const chartData = statictisByTime?.map((item) => {
     // Xác định label dựa trên timeFrame
     const label =
@@ -52,7 +58,7 @@ const UserStatistic = ({ statictisByTime, timeFrame, year, time }) => {
                   : timeFrame === 'month'
                     ? `của tháng ${format(new Date(), ` MM/${year}`)}`
                     : `năm ${year}`
-              }`}
+              } (${totalUsers} người dùng)`}
             </span>
           }
         />

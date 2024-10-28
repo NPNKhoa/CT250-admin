@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import NewOrderNotification from './NewOrderNotification';
+import FeedbackNotification from './FeedbackNotification';
 
 const Header = ({ currentPage, loggedInUserName }) => {
   return (
@@ -9,10 +11,16 @@ const Header = ({ currentPage, loggedInUserName }) => {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">{currentPage}</h2>
         <div>
-          Xin chào,
-          <span className="text-lg font-semibold">
-            {' ' + loggedInUserName}
-          </span>
+          <div className="flex items-center gap-5">
+            <NewOrderNotification />
+            <FeedbackNotification />
+            <div className="">
+              Xin chào,
+              <span className="text-lg font-semibold">
+                {' ' + loggedInUserName}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
