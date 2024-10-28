@@ -1,12 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
   backup,
+  getAllBanners,
   getCurrentSystemConfig,
+  updateActiveBanners,
   updateSystemConfig,
 } from '../thunk/systemConfigThunk';
 
 const initialState = {
   currentConfigs: {},
+  banners: [],
   loading: false,
   error: '',
 };
@@ -54,6 +57,34 @@ const systemConfigSlice = createSlice({
         state.currentConfigs = action.payload;
       })
       .addCase(backup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // update active banners
+    builder
+      .addCase(updateActiveBanners.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateActiveBanners.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentConfigs = action.payload;
+      })
+      .addCase(updateActiveBanners.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // get all banners
+    builder
+      .addCase(getAllBanners.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getAllBanners.fulfilled, (state, action) => {
+        state.loading = false;
+        state.banners = action.payload;
+      })
+      .addCase(getAllBanners.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import Founder from './Founder';
 
 const FounderList = ({ founders }) => {
-  console.log(founders);
   return (
     <div className="flex items-center justify-between gap-4">
       {Array.isArray(founders) &&

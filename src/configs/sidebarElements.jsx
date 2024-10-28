@@ -23,7 +23,6 @@ import {
   SpecificationPage,
   UserPage,
   VoucherPage,
-  AuthorizationPage,
   StatPage,
   ServicePage,
   CategoryPage,
@@ -133,14 +132,6 @@ export default [
     element: <UserPage />,
     icon: <PeopleIcon />,
     label: 'Quản lý Người dùng',
-    childItems: [],
-  },
-  {
-    id: uuidv4(),
-    path: '/authorization',
-    element: <AuthorizationPage />,
-    icon: <AccessibilityIcon />,
-    label: 'Phân quyền người dùng',
     childItems: [],
   },
   {
