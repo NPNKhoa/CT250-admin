@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import HomeIcon from '@mui/icons-material/Home';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
@@ -10,12 +9,9 @@ import AccessibilityIcon from '@mui/icons-material/Accessibility';
 
 import {
   BrandPage,
-  DeliveryPage,
   DiscountPage,
   HomePage,
   OrderPage,
-  OrderStatusPage,
-  PaymentPage,
   ProductPage,
   ProductTypePage,
   PromotionPage,
@@ -24,7 +20,6 @@ import {
   UserPage,
   VoucherPage,
   AuthorizationPage,
-  StatPage,
   ServicePage,
   CategoryPage,
 } from '../pages';
@@ -38,14 +33,6 @@ export default [
     label: 'Trang chủ',
     childItems: [],
   },
-  // {
-  //   id: uuidv4(),
-  //   path: '/statistics',
-  //   element: <StatPage />,
-  //   icon: <AssessmentIcon />,
-  //   label: 'Thống kê',
-  //   childItems: [],
-  // },
   {
     id: uuidv4(),
     path: '/product',
@@ -109,23 +96,7 @@ export default [
     element: <OrderPage />,
     icon: <ListAltIcon />,
     label: 'Quản lý Đơn hàng',
-    childItems: [
-      // {
-      //   label: 'Trạng thái',
-      //   path: '/order-status',
-      //   element: <OrderStatusPage />,
-      // },
-      // {
-      //   label: 'Thanh toán',
-      //   path: '/payment',
-      //   element: <PaymentPage />,
-      // },
-      // {
-      //   label: 'Vận chuyển',
-      //   path: '/delivery',
-      //   element: <DeliveryPage />,
-      // },
-    ],
+    childItems: [],
   },
   {
     id: uuidv4(),

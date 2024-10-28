@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials } from '../redux/slice/authSlice';
 import { getLoggedInUser } from '../redux/thunk/userThunk';
+import PrivateRoute from '../configs/PrivateRoute';
 
 const CommonLayout = ({ children }) => {
   const dispatch = useDispatch();
@@ -78,7 +79,7 @@ const CommonLayout = ({ children }) => {
           loggedInUserName={userExist?.fullname}
         />
         <div className="no-scrollbar absolute bottom-0 right-0 h-6/7 w-4/5 overflow-auto p-4 pb-0">
-          {children}
+          <PrivateRoute>{children}</PrivateRoute>
         </div>
       </div>
     </div>
