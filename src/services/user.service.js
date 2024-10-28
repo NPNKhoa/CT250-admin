@@ -15,6 +15,22 @@ class UserService {
       throw error;
     }
   }
+
+  async getLoggedInUser(accessToken) {
+    try {
+      return await this.api.get('/me', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.error ||
+        'Lỗi khi lấy dữ liệu người dùng đã đăng nhập';
+      console.error('Lỗi:', errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
 }
 
 export default new UserService();

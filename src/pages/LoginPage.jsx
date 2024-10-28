@@ -11,63 +11,80 @@ import {
   TextField,
   FormHelperText,
 } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { isValidEmail } from '../helpers/validation';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginThunk } from '../redux/thunk/authThunk';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
+  const navigate = useNavigate();
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const dispatch = useDispatch();
   const [error, setError] = useState({
     email: '',
     password: '',
   });
-
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleChangeEmail = (e) => {
-    setEmail(e.target.value);
+  const handleChange = useCallback((e) => {
+    const { id, value } = e.target;
+    setCredentials((prev) => ({ ...prev, [id]: value }));
 
-    if (e.target.value.length === 0) {
-      setError({ ...error, email: 'Email không được để trống' });
-    } else if (!isValidEmail(e.target.value)) {
-      setError({ ...error, email: 'Email không đúng định dạng' });
-    } else {
-      setError({ ...error, email: '' });
+    // Validation
+    if (id === 'email') {
+      if (value.length === 0) {
+        setError((prevError) => ({
+          ...prevError,
+          email: 'Email không được để trống',
+        }));
+      } else if (!isValidEmail(value)) {
+        setError((prevError) => ({
+          ...prevError,
+          email: 'Email không đúng định dạng',
+        }));
+      } else {
+        setError((prevError) => ({ ...prevError, email: '' }));
+      }
+    } else if (id === 'password') {
+      if (value.length < 8) {
+        setError((prevError) => ({
+          ...prevError,
+          password: 'Password phải có ít nhất 8 ký tự',
+        }));
+      } else {
+        setError((prevError) => ({ ...prevError, password: '' }));
+      }
     }
-  };
+  }, []);
 
-  const handleChangePassword = (e) => {
-    setPassword(e.target.value);
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
 
-    if (e.target.value.length < 8) {
-      setError({ ...error, password: 'Password phải có ít nhất 8 ký tự' });
-    } else {
-      setError((prevError) => ({
-        ...prevError,
-        password: '',
-      }));
-    }
-  };
+      if (!credentials.email || !credentials.password) {
+        return toast.error('Vui lòng nhập đủ các trường');
+      }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+      if (error.email || error.password) {
+        return toast.error(error.email || error.password);
+      }
 
-    if (!email || !password) {
-      return toast.error('Vui lòng nhập đủ các trường');
-    }
-
-    if (error.email || error.password) {
-      return toast.error(error.email || error.password);
-    }
-
-    alert(`Email: ${email} - Password: ${password}`);
-    toast.success('Đăng nhập thành công');
-  };
+      try {
+        await dispatch(loginThunk(credentials)).unwrap();
+        toast.success('Đăng nhập thành công');
+        navigate('/'); // Điều hướng sau khi đăng nhập thành công
+      } catch (err) {
+        toast.error('Đăng nhập thất bại');
+        console.log(err);
+      }
+    },
+    [credentials, error, dispatch, navigate],
+  );
 
   return (
     <Paper elevation={2} className="w-2/5 p-8">
@@ -82,14 +99,18 @@ const LoginPage = () => {
             error={!!error.email}
             helperText={error.email || ''}
             label="Email*"
-            value={email}
-            onChange={(e) => handleChangeEmail(e)}
+            id="email"
+            value={credentials.email}
+            onChange={handleChange}
           />
           <br />
           <FormControl variant="outlined" error={!!error.password} fullWidth>
             <InputLabel>Mật khẩu*</InputLabel>
             <OutlinedInput
+              id="password"
               type={showPassword ? 'text' : 'password'}
+              value={credentials.password}
+              onChange={handleChange}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
@@ -102,8 +123,6 @@ const LoginPage = () => {
                 </InputAdornment>
               }
               label="Mật khẩu"
-              value={password}
-              onChange={(e) => handleChangePassword(e)}
             />
             <FormHelperText>{error.password || ''}</FormHelperText>
           </FormControl>
