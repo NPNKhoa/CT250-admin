@@ -1,18 +1,20 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import Divider from '@mui/material/Divider';
 
 import JoditEditor from 'jodit-react';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import BannerList from './BannerList';
+
 import PriceFilterList from './PriceFilterList';
 
 import ActionModal from '../common/ActionModal';
 import systemConfigModalContentData from '../../configs/modalContentData/SystemConfigModalContentData';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { updateSystemConfig } from '../../redux/thunk/systemConfigThunk';
+import {
+  getAllBanners,
+  updateSystemConfig,
+} from '../../redux/thunk/systemConfigThunk';
 import { toast } from 'react-toastify';
 import { useEditMode } from '../../hooks/useEditMode';
 import ParagraphSkeleton from '../common/ParagraphSkeleton';
@@ -21,6 +23,7 @@ import FounderList from './FounderList';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { addCoreValue } from '../../redux/thunk/coreValueThunk';
 import { addFounder } from '../../redux/thunk/founderThunk';
+import EditableBannerComponent from './EditableBannerComponent';
 
 const EditableView = () => {
   const editor = useRef(null);
@@ -34,6 +37,12 @@ const EditableView = () => {
   );
   const loading = useSelector((state) => state.systemConfigs.loading);
   const systemConfigError = useSelector((state) => state.systemConfigs.error);
+  const banners = useSelector((state) => state.systemConfigs.banners);
+
+  useEffect(() => {
+    dispatch(getAllBanners());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [tempData, setTempData] = useState({
     founder: null,
@@ -144,33 +153,6 @@ const EditableView = () => {
     }),
     [newConfigs?.shopIntroduction],
   );
-
-  // Drag and Drop logic
-  const onDragEnd = (result) => {
-    const { destination, source } = result;
-
-    if (!destination) {
-      return;
-    }
-
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index == source.index
-    ) {
-      return;
-    }
-
-    const updatedBanner = Array.from(newConfigs?.bannerImgPath);
-
-    const [movedBanner] = updatedBanner.splice(source.index, 1);
-
-    updatedBanner.splice(destination.index, 0, movedBanner);
-
-    setTempData((prevData) => ({
-      ...prevData,
-      bannerImgPath: updatedBanner,
-    }));
-  };
 
   return (
     <Stack spacing={4} className="mt-2">
@@ -317,27 +299,11 @@ const EditableView = () => {
           </Button>
         </div>
         <span className="italic text-zinc-700 opacity-70">
-          Bạn có thể kéo thả các ảnh để thay đổi thứ tự các banner, sau đó click{' '}
-          {'"Lưu"'} để áp dụng thay đổi
+          Bạn có thể kéo thả các ảnh để thay đổi thứ tự các banner, cập nhật các
+          banner đang chạy, sau đó click {'"Lưu"'} để áp dụng thay đổi
         </span>
         <div className="mt-8">
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="banners-droppable">
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps}>
-                  <BannerList
-                    banners={
-                      Array.isArray(tempData.banners) &&
-                      tempData.banners.length !== 0
-                        ? tempData.banners
-                        : currentConfigs?.banners
-                    }
-                  />
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <EditableBannerComponent banners={banners} />
         </div>
       </div>
       <Divider />

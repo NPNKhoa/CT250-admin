@@ -71,6 +71,36 @@ class SystemConfigService {
       throw error;
     }
   }
+
+  async updateActiveBanners(banners) {
+    try {
+      const response = await this.api.put('/banners/active', banners);
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.log(error.message || error);
+      throw error;
+    }
+  }
+
+  async getAllBanners() {
+    try {
+      const response = await this.api.get('/banners');
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }
 
 export default new SystemConfigService();
