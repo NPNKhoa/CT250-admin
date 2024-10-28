@@ -5,6 +5,10 @@ import Logo from './Logo';
 import { Link } from 'react-router-dom';
 
 const SideBar = () => {
+  const logout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  };
   return (
     <div
       className="absolute left-0 top-0 flex h-screen w-1/5 flex-col items-start justify-start bg-slate-200"
@@ -15,7 +19,7 @@ const SideBar = () => {
       <SideBarItemList />
 
       <div className="absolute bottom-0 left-0 w-full border-t-2 border-slate-400 bg-slate-200 pb-6 pt-4">
-        <Button className="w-full" sx={{ padding: '1rem' }} variant="text">
+        <Button onClick={logout} className="w-full" sx={{ padding: '1rem' }} variant="text">
           <span className="flex w-1/2 items-center justify-between">
             <Link to={'/login'}>
               Đăng xuất <LogoutIcon />
