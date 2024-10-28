@@ -13,6 +13,8 @@ import coreValueSlice from './slice/coreValueSlice';
 import founderSlice from './slice/founderSlice';
 import orderSlice from './slice/orderSlice';
 import categorySlice from './slice/categorySlice';
+import userSlice from './slice/userSlice';
+import authSlice from './slice/authSlice';
 
 const store = configureStore({
   reducer: {
@@ -30,6 +32,8 @@ const store = configureStore({
     founders: founderSlice,
     order: orderSlice,
     category: categorySlice,
+    users: userSlice,
+    auth: authSlice,
   },
 });
 

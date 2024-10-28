@@ -3,8 +3,29 @@ import SideBar from '../components/common/SideBar';
 import Header from '../components/common/Header';
 import { useLocation } from 'react-router-dom';
 import pages from '../configs/sidebarElements';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCredentials } from '../redux/slice/authSlice';
+import { getLoggedInUser } from '../redux/thunk/userThunk';
 
 const CommonLayout = ({ children }) => {
+  const dispatch = useDispatch();
+  const userExist = useSelector((state) => state.users?.user);
+  console.log(userExist);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken && accessToken) {
+      dispatch(setCredentials({ accessToken, refreshToken }));
+    }
+
+    if (accessToken) {
+      dispatch(getLoggedInUser(accessToken));
+    }
+  }, [dispatch]);
+
   const currentPath = useLocation().pathname;
 
   const findLabelInChildren = (childItems, currentPath) => {
@@ -52,7 +73,10 @@ const CommonLayout = ({ children }) => {
     <div className="flex h-screen w-screen items-start justify-start">
       <SideBar />
       <div>
-        <Header currentPage={currentPageName} loggedInUserName={'Khoa'} />
+        <Header
+          currentPage={currentPageName}
+          loggedInUserName={userExist?.fullname}
+        />
         <div className="no-scrollbar absolute bottom-0 right-0 h-6/7 w-4/5 overflow-auto p-4 pb-0">
           {children}
         </div>
