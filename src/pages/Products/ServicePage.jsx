@@ -98,6 +98,9 @@ const ServicePage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
       {
         field: 'createdAt',
@@ -106,6 +109,9 @@ const ServicePage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
     ],
     [],
@@ -116,12 +122,8 @@ const ServicePage = () => {
       services.map((service, index) => ({
         ...service,
         id: index + 1,
-        updatedAt: service.updatedAt
-          ? new Date(service.updatedAt).toLocaleDateString('vi-VN')
-          : '',
-        createdAt: service.createdAt
-          ? new Date(service.createdAt).toLocaleDateString('vi-VN')
-          : '',
+        updatedAt: service.updatedAt,
+        createdAt: service.createdAt,
       })),
     [services],
   );

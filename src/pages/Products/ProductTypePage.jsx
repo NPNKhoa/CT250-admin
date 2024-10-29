@@ -90,6 +90,9 @@ const ProductTypePage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
       {
         field: 'createdAt',
@@ -98,6 +101,9 @@ const ProductTypePage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
     ],
     [],
@@ -108,12 +114,8 @@ const ProductTypePage = () => {
       productTypes.map((productType, index) => ({
         ...productType,
         id: index + 1,
-        updatedAt: productType.updatedAt
-          ? new Date(productType.updatedAt).toLocaleDateString('vi-VN')
-          : '',
-        createdAt: productType.createdAt
-          ? new Date(productType.createdAt).toLocaleDateString('vi-VN')
-          : '',
+        updatedAt: productType.updatedAt,
+        createdAt: productType.createdAt,
       })),
     [productTypes],
   );

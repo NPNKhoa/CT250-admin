@@ -92,6 +92,9 @@ const SpecificationPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
       {
         field: 'createdAt',
@@ -100,6 +103,9 @@ const SpecificationPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
     ],
     [],
@@ -110,12 +116,8 @@ const SpecificationPage = () => {
       specifications.map((specification, index) => ({
         ...specification,
         id: index + 1,
-        updatedAt: specification.updatedAt
-          ? new Date(specification.updatedAt).toLocaleDateString('vi-VN')
-          : '',
-        createdAt: specification.createdAt
-          ? new Date(specification.createdAt).toLocaleDateString('vi-VN')
-          : '',
+        updatedAt: specification.updatedAt,
+        createdAt: specification.createdAt,
       })),
     [specifications],
   );
