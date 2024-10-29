@@ -88,3 +88,23 @@ export const getAllBanners = createAsyncThunk(
     }
   },
 );
+
+export const addBanner = createAsyncThunk(
+  'systemConfigs/addBanner',
+  async (params, thunkAPI) => {
+    try {
+      const data = await systemConfigService.addBanner(params);
+
+      console.log(data);
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      return data;
+    } catch (error) {
+      console.log(error);
+      thunkAPI.rejectWithValue(error?.message);
+    }
+  },
+);

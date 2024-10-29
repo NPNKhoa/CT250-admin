@@ -1,8 +1,8 @@
 import ChangeLogo from '../../components/modalContents/ChangeLogo';
-import ChangeBanners from '../../components/modalContents/ChangeBanners';
 import AddPriceFilter from '../../components/modalContents/AddPriceFilter';
 import AddCoreValue from '../../components/modalContents/AddCoreValue';
 import AddFounder from '../../components/modalContents/AddFounder';
+import AddBanner from '../../components/modalContents/AddBanner';
 
 const systemConfigModalContentData = {
   logo: {
@@ -11,7 +11,7 @@ const systemConfigModalContentData = {
   },
   banners: {
     title: 'Cập nhật banner',
-    content: (props) => <ChangeBanners {...props} />,
+    content: (props) => <AddBanner {...props} />,
   },
   priceFilter: {
     title: 'Thêm mới bộ lọc giá',

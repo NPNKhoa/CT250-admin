@@ -10,6 +10,8 @@ import { updateActiveBanners } from '../../redux/thunk/systemConfigThunk';
 const EditableBannerComponent = ({ banners }) => {
   const dispatch = useDispatch();
 
+  console.log(banners);
+
   const initialActiveBanners = useMemo(
     () =>
       Array.isArray(banners) &&
@@ -36,14 +38,11 @@ const EditableBannerComponent = ({ banners }) => {
     setOldBanners(initialOldBanners);
   }, [initialActiveBanners, initialOldBanners]);
 
-  // Xử lý kéo thả
   const onDragEnd = (result) => {
     const { source, destination } = result;
 
-    // Nếu không có đích đến, thoát hàm
     if (!destination) return;
 
-    // Nếu kéo thả trong cùng một khu vực, gọi reorder
     if (source.droppableId === destination.droppableId) {
       console.log(source.droppableId);
       const items = reorder(
@@ -58,7 +57,6 @@ const EditableBannerComponent = ({ banners }) => {
         setOldBanners(items);
       }
     } else {
-      // Nếu kéo thả từ một danh sách sang danh sách khác
       const result = move(
         source.droppableId === 'activeBanners' ? activeBanners : oldBanners,
         source.droppableId === 'activeBanners' ? oldBanners : activeBanners,
@@ -66,7 +64,6 @@ const EditableBannerComponent = ({ banners }) => {
         destination,
       );
 
-      // Cập nhật cả hai state
       setActiveBanners(result.active);
       dispatch(
         updateActiveBanners({ actives: result.active, olds: result.old }),
@@ -227,33 +224,25 @@ const reorder = (list, startIndex, endIndex) => {
   return result;
 };
 
-// Hàm move để di chuyển giữa 2 danh sách
 const move = (source, destination, droppableSource, droppableDestination) => {
   const sourceClone = Array.from(source);
   const destClone = Array.from(destination);
 
-  // Tạo một bản sao mới của đối tượng để đảm bảo nó không read-only
   const removed = { ...sourceClone.splice(droppableSource.index, 1)[0] };
 
-  // Cập nhật thuộc tính isActiveBanner cho bản sao mới
   if (droppableSource.droppableId === 'activeBanners') {
-    removed.isActiveBanner = false; // Chuyển từ active sang old
+    removed.isActiveBanner = false;
   } else {
-    removed.isActiveBanner = true; // Chuyển từ old sang active
+    removed.isActiveBanner = true;
   }
 
   destClone.splice(droppableDestination.index, 0, removed);
 
-  // Trả về 2 danh sách mới đã cập nhật
   return {
     active:
-      droppableSource.droppableId === 'activeBanners'
-        ? sourceClone // Nếu kéo từ activeBanners, cập nhật activeBanners bằng sourceClone
-        : destClone, // Nếu kéo từ oldBanners, cập nhật activeBanners bằng destClone
+      droppableSource.droppableId === 'activeBanners' ? sourceClone : destClone,
     old:
-      droppableSource.droppableId === 'activeBanners'
-        ? destClone // Nếu kéo từ activeBanners, cập nhật oldBanners bằng destClone
-        : sourceClone, // Nếu kéo từ oldBanners, cập nhật oldBanners bằng sourceClone
+      droppableSource.droppableId === 'activeBanners' ? destClone : sourceClone,
   };
 };
 

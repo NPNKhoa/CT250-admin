@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
+  addBanner,
   backup,
   getAllBanners,
   getCurrentSystemConfig,
@@ -85,6 +86,21 @@ const systemConfigSlice = createSlice({
         state.banners = action.payload;
       })
       .addCase(getAllBanners.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // add banner
+    builder
+      .addCase(addBanner.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addBanner.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log(action);
+        state.banners.push(action.payload);
+      })
+      .addCase(addBanner.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

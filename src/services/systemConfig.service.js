@@ -101,6 +101,30 @@ class SystemConfigService {
       throw error;
     }
   }
+
+  async addBanner(files) {
+    try {
+      const formData = new FormData();
+
+      console.log(files);
+
+      Array.isArray(files) &&
+        files.forEach((file) => {
+          formData.append('bannerImgPath', file);
+        });
+
+      const response = await this.api.post('/banners', formData);
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }
 
 export default new SystemConfigService();
