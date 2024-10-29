@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ModalConfirmDelete from '../common/ConfirmationDeleteModal';
 import { useDispatch } from 'react-redux';
 import { updateActiveBanners } from '../../redux/thunk/systemConfigThunk';
+import systemConfigService from '../../services/systemConfig.service';
 
 const EditableBannerComponent = ({ banners }) => {
   const dispatch = useDispatch();
@@ -92,6 +93,7 @@ const EditableBannerComponent = ({ banners }) => {
         oldBanners.filter((banner) => banner._id !== bannerToDelete._id),
       );
     }
+    systemConfigService.deleteBanner(bannerToDelete._id);
     handleCloseModal();
   };
 

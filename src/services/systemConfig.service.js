@@ -125,6 +125,21 @@ class SystemConfigService {
       throw error;
     }
   }
+
+  async deleteBanner(id) {
+    try {
+      const response = await this.api.delete(`/banners/${id}`);
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }
 
 export default new SystemConfigService();
