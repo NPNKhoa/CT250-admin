@@ -29,7 +29,7 @@ const FeedbackNotification = () => {
       try {
         const latestFeedbackData = await feedbackService.getLatestFeedback(); // Lấy dữ liệu feedback mới nhất từ service
 
-        console.log(latestFeedbackData);
+        // console.log(latestFeedbackData);
 
         if (latestFeedbackData) {
           const newFeedbackList = latestFeedbackData.filter(

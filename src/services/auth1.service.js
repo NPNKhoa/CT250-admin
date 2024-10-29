@@ -14,5 +14,41 @@ class AuthService1 {
       throw error;
     }
   }
+
+  async getAllRoles(accessToken) {
+    try {
+      return await this.api.get('/roles', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.error ||
+        'Lỗi khi lấy dữ liệu người dùng đã đăng nhập';
+      console.error('Lỗi:', errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
+
+  async updateRole(roleId, accessToken) {
+    try {
+      const response = await this.api.put(
+        '/updaterole',
+        { newRoleId: roleId },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.error || 'Lỗi khi cập nhật vai trò người dùng';
+      console.error('Lỗi:', errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
 }
 export default new AuthService1();
