@@ -31,11 +31,11 @@ class AuthService1 {
     }
   }
 
-  async updateRole(roleId, accessToken) {
+  async updateRole(data, accessToken) {
     try {
       const response = await this.api.put(
         '/updaterole',
-        { newRoleId: roleId },
+        data,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,

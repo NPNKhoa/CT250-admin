@@ -4,6 +4,7 @@ import TableComponent from '../../components/common/TableComponent';
 import ActionHeader from '../../components/common/ActionHeader';
 import { Eye } from 'lucide-react';
 import auth1Service from '../../services/auth1.service';
+import { toast } from 'react-toastify';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -36,13 +37,13 @@ const UserManagement = () => {
     try {
       if (selectedUser && updatedRoleId) {
         // Gọi service để cập nhật vai trò người dùng
-        await auth1Service.updateRole(updatedRoleId, accessToken);
+        await auth1Service.updateRole({userId: selectedUser._id, newRoleId: updatedRoleId}, accessToken);
 
         // Cập nhật thành công, thực hiện các hành động cần thiết
         setSelectedUser(null); // Đóng modal sau khi lưu thành công
-        alert('Vai trò đã được cập nhật thành công.');
+        toast.success('Vai trò đã được cập nhật thành công.');
       } else {
-        alert('Vui lòng chọn vai trò trước khi lưu.');
+        toast.error('Vui lòng chọn vai trò trước khi lưu.');
       }
     } catch (error) {
       console.error('Lỗi khi cập nhật vai trò:', error);
@@ -58,6 +59,7 @@ const UserManagement = () => {
         setLoading(true);
         const response = await UserService.getAllUsers();
         const formattedUsers = response.data.map((user, index) => ({
+          _id: user._id,
           id: index + 1,
           avatar: user.avatarImagePath,
           fullname: user.fullname,
