@@ -7,6 +7,7 @@ import {
   updateActiveBanners,
   updateSystemConfig,
 } from '../thunk/systemConfigThunk';
+import { toast } from 'react-toastify';
 
 const initialState = {
   currentConfigs: {},
@@ -97,8 +98,10 @@ const systemConfigSlice = createSlice({
       })
       .addCase(addBanner.fulfilled, (state, action) => {
         state.loading = false;
-        console.log(action);
         state.banners.push(action.payload);
+        toast.success(
+          'Thêm banner thành công. Bấm "Lưu thay đổi" để cập nhật!',
+        );
       })
       .addCase(addBanner.rejected, (state, action) => {
         state.loading = false;
