@@ -93,7 +93,16 @@ const TableComponent = ({
               fontSize: '16px',
             },
           },
+          // '& .even': {
+          //   backgroundColor: '#9DBDFF', // Màu nền cho dòng chẵn
+          // },
+          // '& .odd': {
+          //   backgroundColor: '#ffffff', // Màu nền cho dòng lẻ
+          // },
         }}
+        getRowClassName={(params) =>
+          params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
+        }
         disableColumnMenu
         disableDensitySelector
         getRowHeight={() => 'auto'}

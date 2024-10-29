@@ -94,6 +94,9 @@ const BrandPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
       {
         field: 'createdAt',
@@ -102,6 +105,9 @@ const BrandPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
     ],
     [],
@@ -112,12 +118,8 @@ const BrandPage = () => {
       brands.map((brand, index) => ({
         ...brand,
         id: index + 1,
-        updatedAt: brand.updatedAt
-          ? new Date(brand.updatedAt).toLocaleDateString('vi-VN')
-          : '',
-        createdAt: brand.createdAt
-          ? new Date(brand.createdAt).toLocaleDateString('vi-VN')
-          : '',
+        updatedAt: brand.updatedAt,
+        createdAt: brand.createdAt,
       })),
     [brands],
   );

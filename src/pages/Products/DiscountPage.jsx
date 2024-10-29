@@ -92,6 +92,9 @@ const DiscountPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
       {
         field: 'discountExpiredDate',
@@ -100,6 +103,9 @@ const DiscountPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
       {
         field: 'updatedAt',
@@ -108,6 +114,9 @@ const DiscountPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
       {
         field: 'createdAt',
@@ -116,6 +125,9 @@ const DiscountPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
     ],
     [],
@@ -126,18 +138,10 @@ const DiscountPage = () => {
       discounts.map((discount, index) => ({
         ...discount,
         id: index + 1,
-        discountStartDate: discount.discountStartDate
-          ? new Date(discount.discountStartDate).toLocaleDateString('vi-VN')
-          : '',
-        discountExpiredDate: discount.discountExpiredDate
-          ? new Date(discount.discountExpiredDate).toLocaleDateString('vi-VN')
-          : '',
-        updatedAt: discount.updatedAt
-          ? new Date(discount.updatedAt).toLocaleDateString('vi-VN')
-          : '',
-        createdAt: discount.createdAt
-          ? new Date(discount.createdAt).toLocaleDateString('vi-VN')
-          : '',
+        discountStartDate: discount.discountStartDate,
+        discountExpiredDate: discount.discountExpiredDate,
+        updatedAt: discount.updatedAt,
+        createdAt: discount.createdAt,
       })),
     [discounts],
   );

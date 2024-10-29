@@ -127,6 +127,9 @@ const PromotionPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
       {
         field: 'promotionExpiredDate',
@@ -135,6 +138,9 @@ const PromotionPage = () => {
         flex: 2,
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => (
+          new Date(params.value).toLocaleDateString('vi-VN')
+        ),
       },
     ],
     [],
@@ -145,12 +151,8 @@ const PromotionPage = () => {
       promotions.map((promotion, index) => ({
         ...promotion,
         id: index + 1,
-        promotionStartDate: promotion.promotionStartDate
-          ? new Date(promotion.promotionStartDate).toLocaleDateString('vi-VN')
-          : '',
-        promotionExpiredDate: promotion.promotionExpiredDate
-          ? new Date(promotion.promotionExpiredDate).toLocaleDateString('vi-VN')
-          : '',
+        promotionStartDate: promotion.promotionStartDate,
+        promotionExpiredDate: promotion.promotionExpiredDate,
         gifts: promotion.productIds.map((product) => product.productName),
         services: promotion.serviceIds.map((service) => service.serviceName),
       })),
