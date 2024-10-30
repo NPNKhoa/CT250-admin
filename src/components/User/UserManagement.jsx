@@ -25,11 +25,22 @@ const UserManagement = () => {
   };
 
   const handleRoleChange = (newRole, roleId) => {
+    setUpdatedRoleId(roleId); // Lưu role ID mới vào `updatedRoleId`
+
+    // Cập nhật `selectedUser` với vai trò mới
     setSelectedUser((prevUser) => ({
       ...prevUser,
       role: { ...prevUser.role, role: newRole },
     }));
-    setUpdatedRoleId(roleId); // Lưu role ID mới vào `updatedRoleId`
+
+    // Cập nhật danh sách `users` để phản ánh vai trò mới của người dùng
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === selectedUser._id
+          ? { ...user, role: { ...user.role, role: newRole } }
+          : user,
+      ),
+    );
   };
 
   // Gọi API để lưu vai trò đã chọn
@@ -37,7 +48,10 @@ const UserManagement = () => {
     try {
       if (selectedUser && updatedRoleId) {
         // Gọi service để cập nhật vai trò người dùng
-        await auth1Service.updateRole({userId: selectedUser._id, newRoleId: updatedRoleId}, accessToken);
+        await auth1Service.updateRole(
+          { userId: selectedUser._id, newRoleId: updatedRoleId },
+          accessToken,
+        );
 
         // Cập nhật thành công, thực hiện các hành động cần thiết
         setSelectedUser(null); // Đóng modal sau khi lưu thành công

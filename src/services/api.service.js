@@ -29,7 +29,10 @@ class ApiService {
     try {
       const response = await fetch(url, options);
 
-      if (response.status === 401 && response.error === 'Token expired!') {
+      if (
+        response.status === 401 &&
+        response.json().error === 'Token expired!'
+      ) {
         const newToken = await this.refreshToken();
 
         if (newToken) {
