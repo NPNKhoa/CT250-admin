@@ -11,7 +11,7 @@ class UserService {
       params.append('limit', limit);
       return await this.api.get(`?${params.toString()}`);
     } catch (error) {
-      console.error('Lỗi khi lấy tất cả đơn hàng:', error);
+      console.error('Lỗi khi lấy thông tin tất cả người dùng: ', error);
       throw error;
     }
   }
@@ -24,11 +24,8 @@ class UserService {
         },
       });
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.error ||
-        'Lỗi khi lấy dữ liệu người dùng đã đăng nhập';
-      console.error('Lỗi:', errorMessage);
-      throw new Error(errorMessage);
+      console.error('Lỗi khi lấy thông tin người dùng đã đăng nhập:', error);
+      throw error;
     }
   }
 }
