@@ -65,7 +65,7 @@ const UserManagement = () => {
           fullname: user.fullname,
           email: user.email,
           role: user.role,
-          createdAt: new Date(user.createdAt).toLocaleDateString('vi-VN'),
+          createdAt: user.createdAt,
         }));
         setUsers(formattedUsers);
       } catch (err) {
@@ -170,8 +170,12 @@ const UserManagement = () => {
         field: 'createdAt',
         headerName: 'Ngày tạo',
         flex: 1,
+        type: 'Date',
         headerAlign: 'center',
         align: 'center',
+        renderCell: (params) => {
+          return new Date(params.value).toLocaleDateString('vi-VN');
+        },
       },
       {
         field: 'action',
