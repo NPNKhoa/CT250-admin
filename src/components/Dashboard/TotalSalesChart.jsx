@@ -74,7 +74,7 @@ const TotalSalesChart = ({
         <CardHeader
           title={
             <span className="text-xl font-semibold italic">
-              {`Doanh mục sản phẩm ${
+              {`Danh mục sản phẩm ${
                 timeFrame === 'day'
                   ? `từ ${
                       time?.startDate
