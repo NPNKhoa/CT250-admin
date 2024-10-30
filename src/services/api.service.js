@@ -30,8 +30,9 @@ class ApiService {
       const response = await fetch(url, options);
 
       if (
-        response.status === 401 &&
-        response.json().error === 'Token expired!'
+        response.status === 401
+        // &&
+        // response.json().error === 'Token expired!'
       ) {
         const newToken = await this.refreshToken();
 
@@ -64,7 +65,7 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+      const response = await fetch(`http://localhost:5000/api/v1/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
