@@ -33,7 +33,7 @@ const ActionHeader = ({
         )}
         {onUpdate && (
           <button
-            className="flex items-center rounded bg-primary px-2 py-1 text-xs text-white hover:bg-hover-primary md:px-4 md:py-2 md:text-base"
+            className="flex items-center rounded bg-green-600 px-2 py-1 text-xs text-white hover:bg-green-700 md:px-4 md:py-2 md:text-base"
             onClick={onUpdate}
           >
             <FilePenLine strokeWidth={1} className="mr-2" />
@@ -42,7 +42,7 @@ const ActionHeader = ({
         )}
         {onDelete && (
           <button
-            className="flex items-center rounded bg-primary px-2 py-1 text-xs text-white hover:bg-hover-primary md:px-4 md:py-2 md:text-base"
+            className="flex items-center rounded bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700 md:px-4 md:py-2 md:text-base"
             onClick={() => onDelete(selectedRows)}
           >
             <Trash2 strokeWidth={1} className="mr-2" />
