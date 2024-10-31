@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import SideBar from '../components/common/SideBar';
 import Header from '../components/common/Header';
 import { useLocation } from 'react-router-dom';
-import pages from '../configs/sidebarElements';
+import useRoutes from '../configs/sidebarElements'; // Cập nhật import
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials } from '../redux/slice/authSlice';
@@ -12,7 +12,6 @@ import PrivateRoute from '../configs/PrivateRoute';
 const CommonLayout = ({ children }) => {
   const dispatch = useDispatch();
   const userExist = useSelector((state) => state.users?.user);
-  console.log(userExist);
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
@@ -28,6 +27,7 @@ const CommonLayout = ({ children }) => {
   }, [dispatch]);
 
   const currentPath = useLocation().pathname;
+  const pages = useRoutes(); // Lấy pages từ useRoutes
 
   const findLabelInChildren = (childItems, currentPath) => {
     for (const child of childItems) {

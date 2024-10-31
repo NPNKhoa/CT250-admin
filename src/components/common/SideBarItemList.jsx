@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import SideBarItem from './SideBarItem';
-import itemList from '../../configs/sidebarElements.jsx';
+import useRoutes from '../../configs/sidebarElements.jsx';
 
 const SideBarItemList = () => {
   const [isToggled, setIsToggled] = useState({});
@@ -12,6 +12,7 @@ const SideBarItemList = () => {
         [key]: !prevState[key],
       }));
   };
+  const itemList = useRoutes();
 
   return (
     <div className="no-scrollbar h-3/4 w-full overflow-auto py-2 pl-4 pr-6">
