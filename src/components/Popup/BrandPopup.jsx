@@ -90,7 +90,7 @@ const BrandPopup = ({ isOpen, onClose, data }) => {
             multiline
           />
           <Box className="mt-4 flex justify-end space-x-2">
-            <Button variant="contained" color="secondary" onClick={onClose}>
+            <Button onClick={onClose}>
               Hủy
             </Button>
             <Button variant="contained" color="primary" type="submit">
