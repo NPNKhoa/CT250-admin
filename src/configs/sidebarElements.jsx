@@ -4,6 +4,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
+import GradeIcon from '@mui/icons-material/Grade';
 import {
   BrandPage,
   DiscountPage,
@@ -20,6 +21,7 @@ import {
   CategoryPage,
 } from '../pages';
 import { useSelector } from 'react-redux';
+import RatingPage from '../pages/RatingPage';
 
 // Tạo component để lấy role người dùng và định nghĩa routes
 const useRoutes = () => {
@@ -97,6 +99,14 @@ const useRoutes = () => {
       element: <OrderPage />,
       icon: <ListAltIcon />,
       label: 'Quản lý Đơn hàng',
+      childItems: [],
+    },
+    {
+      id: uuidv4(),
+      path: '/rating',
+      element: <RatingPage />,
+      icon: <GradeIcon />,
+      label: 'Quản lý Đánh giá',
       childItems: [],
     },
   ];
