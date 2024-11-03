@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Rating, IconButton } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { Rating, IconButton, Button, TextField, Modal } from '@mui/material';
+import { RemoveRedEye, Delete, Reply } from '@mui/icons-material';
 import commentService from '../services/comment.service';
 import ActionHeader from '../components/common/ActionHeader';
 import TableComponent from '../components/common/TableComponent';
+import { Send } from 'lucide-react';
 
 const RatingPage = () => {
   const [ratings, setRatings] = useState([]);
@@ -60,6 +61,12 @@ const RatingPage = () => {
     }
   };
 
+  // Đóng modal và xóa dữ liệu chỉnh sửa
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditData(null);
+  };
+
   const rows = useMemo(
     () =>
       ratings.map((rating) => ({
@@ -67,10 +74,7 @@ const RatingPage = () => {
         action: (
           <div>
             <IconButton color="primary" onClick={() => handleEdit(rating)}>
-              <Edit />
-            </IconButton>
-            <IconButton color="error" onClick={() => handleDelete(rating._id)}>
-              <Delete />
+              <RemoveRedEye />
             </IconButton>
           </div>
         ),
@@ -83,35 +87,22 @@ const RatingPage = () => {
       {
         field: 'id',
         headerName: 'ID',
-        flex: 0.5,
+        flex: 0.3,
         headerAlign: 'center',
         align: 'center',
       },
-      {
-        field: 'productImage',
-        headerName: 'Ảnh sản phẩm',
-        flex: 1,
-        headerAlign: 'center',
-        align: 'center',
-        renderCell: (params) => (
-          <img
-            src={params.row.productImage}
-            alt="product"
-            className="h-10 w-10 rounded-full"
-          />
-        ),
-      },
+
       {
         field: 'productName',
         headerName: 'Tên sản phẩm',
-        flex: 1,
+        flex: 2,
         headerAlign: 'center',
         align: 'left',
       },
       {
         field: 'fullname',
         headerName: 'Người đánh giá',
-        flex: 1,
+        flex: 1.8,
         headerAlign: 'center',
         align: 'left',
       },
@@ -145,20 +136,14 @@ const RatingPage = () => {
       },
       {
         field: 'action',
-        headerName: 'Hành động',
+        headerName: 'Thao tác',
         flex: 1,
         headerAlign: 'center',
         align: 'center',
         renderCell: (params) => (
           <div>
             <IconButton color="primary" onClick={() => handleEdit(params.row)}>
-              <Edit />
-            </IconButton>
-            <IconButton
-              color="error"
-              onClick={() => handleDelete(params.row._id)}
-            >
-              <Delete />
+              <RemoveRedEye />
             </IconButton>
           </div>
         ),
@@ -168,6 +153,20 @@ const RatingPage = () => {
   );
 
   const paginationModel = { page: 0, pageSize: 5 };
+
+  const [isReplying, setIsReplying] = useState(false);
+  const [replyText, setReplyText] = useState('');
+
+  const handleReplySubmit = async () => {
+    try {
+      await commentService.replyToComment(editData._id, replyText);
+      setReplyText('');
+      setIsReplying(false);
+      closeModal();
+    } catch (err) {
+      console.error('Failed to submit reply:', err);
+    }
+  };
 
   return (
     <div>
@@ -180,6 +179,115 @@ const RatingPage = () => {
         paginationModel={paginationModel}
         handleSelected={() => {}}
       />
+
+      {/* Modal chi tiết đánh giá */}
+      <Modal open={isModalOpen} onClose={closeModal}>
+        <div className="mx-auto my-20 max-w-xl rounded-md bg-white p-6 shadow-lg">
+          <div className="flex justify-between">
+            <h2 className="mb-6 text-center text-2xl font-semibold">
+              Chi tiết đánh giá
+            </h2>
+            <Button
+              variant="outlined"
+              className="h-8"
+              color="primary"
+              onClick={closeModal}
+            >
+              X
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {editData?.productImage && (
+              <img
+                src={editData.productImage}
+                alt="Product"
+                className="h-auto w-2/5 rounded-md shadow-md"
+              />
+            )}
+            <div className="flex flex-col space-y-2">
+              <div className="flex gap-3 rounded-md border border-gray-300 p-2 font-medium">
+                Tên sản phẩm: {editData?.productName || 'Chưa có thông tin'}
+              </div>
+
+              <div className="flex gap-3 rounded-md border border-gray-300 p-2 font-medium">
+                Người đánh giá: {editData?.fullname || 'Chưa có thông tin'}
+              </div>
+
+              <div className="flex gap-3 rounded-md border border-gray-300 p-2 font-medium">
+                Đánh giá:{' '}
+                <Rating name="rating" value={editData?.star || 0} readOnly />
+              </div>
+
+              <div className="flex gap-3 rounded-md border border-gray-300 p-2 font-medium">
+                Ngày tạo:{' '}
+                {editData?.createdAt
+                  ? new Date(editData.createdAt).toLocaleDateString('vi-VN')
+                  : 'Chưa có thông tin'}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="my-3 min-h-[80px] rounded-md border border-gray-300 p-2 font-medium">
+              Nhận xét:{''} {editData?.comment || 'Chưa có nhận xét'}
+            </div>
+          </div>
+
+          {isReplying && (
+            <>
+              <div className="flex items-center gap-2">
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={2}
+                  variant="outlined"
+                  placeholder="Nhập câu trả lời của bạn"
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  className="flex-1" // Để nút có thể linh hoạt với chiều rộng
+                  InputProps={{
+                    style: {
+                      borderRadius: '8px', // Bo góc cho TextField
+                      paddingRight: '50px', // Để không bị chèn nút
+                    },
+                  }}
+                />
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={handleReplySubmit}
+                  style={{
+                    borderRadius: '8px', // Bo góc cho nút
+                    padding: '8px 16px', // Thêm padding cho nút
+                    minWidth: '50px',
+                  }}
+                  startIcon={<Send />}
+                >
+                  Gửi
+                </Button>
+              </div>
+            </>
+          )}
+
+          <div className="mt-3 flex justify-end gap-4">
+            <Button
+              color="primary"
+              variant="outlined"
+              onClick={() => setIsReplying(!isReplying)}
+            >
+              {isReplying ? 'Hủy' : 'Trả lời'}
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => handleDelete(editData._id)}
+            >
+              Xóa
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
