@@ -53,6 +53,21 @@ class CommentService {
       throw new Error(error.response?.data?.message || 'Error adding reply'); // Thông báo lỗi
     }
   }
+
+  async deleteComment(reviewId, accessToken) {
+    try {
+      const response = await this.api.delete(`/${reviewId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message || 'Error deleting comment',
+      );
+    }
+  }
 }
 
 export default new CommentService();
