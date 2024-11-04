@@ -20,6 +20,7 @@ import AuthorizationPage from './AuthorizationPage';
 import StatPage from './StatPage';
 import ServicePage from './Products/ServicePage.jsx';
 import CategoryPage from './Products/CategoryPage';
+import ArticlePage from './ArticlePage';
 
 export {
   NotFoundPage,
@@ -43,4 +44,5 @@ export {
   StatPage,
   ServicePage,
   CategoryPage,
+  ArticlePage,
 };

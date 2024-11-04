@@ -5,6 +5,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import GradeIcon from '@mui/icons-material/Grade';
+import ArticleIcon from '@mui/icons-material/Article';
 import {
   BrandPage,
   DiscountPage,
@@ -19,6 +20,7 @@ import {
   VoucherPage,
   ServicePage,
   CategoryPage,
+  ArticlePage,
 } from '../pages';
 import { useSelector } from 'react-redux';
 import RatingPage from '../pages/RatingPage';
@@ -107,6 +109,14 @@ const useRoutes = () => {
       element: <RatingPage />,
       icon: <GradeIcon />,
       label: 'Quản lý Đánh giá',
+      childItems: [],
+    },
+    {
+      id: uuidv4(),
+      path: '/article',
+      element: <ArticlePage />,
+      icon: <ArticleIcon />,
+      label: 'Quản lý Bài viết',
       childItems: [],
     },
   ];
