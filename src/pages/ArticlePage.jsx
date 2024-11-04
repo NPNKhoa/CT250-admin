@@ -30,7 +30,7 @@ const ArticlePage = () => {
 
   const handleUpdate = () => {
     if (selectedRows.length !== 1) {
-      toast.error('Vui lòng chọn 1 thương hiệu để cập nhật!');
+      toast.error('Vui lòng chọn 1 bài viết để cập nhật!');
     } else {
       setIsPopupOpen(true);
     }
@@ -38,13 +38,13 @@ const ArticlePage = () => {
 
   const handleDelete = (ids) => {
     if (ids.length === 0) {
-      toast.error('Vui lòng chọn ít nhất một thương hiệu để xóa');
+      toast.error('Vui lòng chọn ít nhất một bài viết để xóa');
       return;
     }
 
     setAlertConfig({
       open: true,
-      title: 'Bạn có chắc chắn muốn xóa những thương hiệu đã chọn không?',
+      title: 'Bạn có chắc chắn muốn xóa những bài viết đã chọn không?',
       action: async () => {
         try {
           await Promise.all(
@@ -144,7 +144,7 @@ const ArticlePage = () => {
   return (
     <div>
       <ActionHeader
-        title="Thương hiệu"
+        title="Bài viết"
         onAdd={() => {
           setSelectedRows([]);
           setIsPopupOpen(true);
