@@ -36,6 +36,23 @@ class CommentService {
       throw error;
     }
   }
+
+  async addReply(reviewId, replyContent, accessToken) {
+    try {
+      const response = await this.api.post(
+        `/${reviewId}`, // Thay đổi endpoint cho phù hợp với API
+        { replyContent }, // Gửi đúng nội dung
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Xác thực bằng token
+          },
+        },
+      );
+      return response.data; // Trả về dữ liệu nhận được từ API
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Error adding reply'); // Thông báo lỗi
+    }
+  }
 }
 
 export default new CommentService();

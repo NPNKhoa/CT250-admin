@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Rating, IconButton, Button, TextField, Modal } from '@mui/material';
-import { RemoveRedEye, Delete, Reply } from '@mui/icons-material';
+import { RemoveRedEye } from '@mui/icons-material';
 import commentService from '../services/comment.service';
 import ActionHeader from '../components/common/ActionHeader';
 import TableComponent from '../components/common/TableComponent';
@@ -28,6 +28,7 @@ const RatingPage = () => {
           star: comment.rating,
           comment: comment.comment,
           createdAt: new Date(comment.createdAt),
+          replies: comment.replies,
         }));
         setRatings(formattedComments);
       } catch (err) {
@@ -156,15 +157,29 @@ const RatingPage = () => {
 
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState('');
-
+  const accessToken = localStorage.getItem('accessToken');
   const handleReplySubmit = async () => {
+    if (!replyText.trim()) return;
+
     try {
-      await commentService.replyToComment(editData._id, replyText);
-      setReplyText('');
-      setIsReplying(false);
-      closeModal();
+      const replyResponse = await commentService.addReply(
+        editData._id,
+        replyText,
+        accessToken,
+      );
+
+      setRatings((prevRatings) =>
+        prevRatings.map((rating) =>
+          rating._id === editData._id
+            ? { ...rating, replies: [...rating.replies, replyResponse] } // Cập nhật lại danh sách replies
+            : rating,
+        ),
+      );
+
+      setReplyText(''); // Đặt lại nội dung trả lời
+      setIsReplying(false); // Ẩn khung trả lời
     } catch (err) {
-      console.error('Failed to submit reply:', err);
+      console.error('Failed to add reply:', err);
     }
   };
 
@@ -182,7 +197,7 @@ const RatingPage = () => {
 
       {/* Modal chi tiết đánh giá */}
       <Modal open={isModalOpen} onClose={closeModal}>
-        <div className="mx-auto my-20 max-w-xl rounded-md bg-white p-6 shadow-lg">
+        <div className="mx-auto my-10 max-w-xl rounded-md bg-white p-6 shadow-lg">
           <div className="flex justify-between">
             <h2 className="mb-6 text-center text-2xl font-semibold">
               Chi tiết đánh giá
@@ -202,7 +217,7 @@ const RatingPage = () => {
               <img
                 src={editData.productImage}
                 alt="Product"
-                className="h-auto w-2/5 rounded-md shadow-md"
+                className="h-[30vh] w-2/5 rounded-md shadow-md"
               />
             )}
             <div className="flex flex-col space-y-2">
@@ -229,9 +244,34 @@ const RatingPage = () => {
           </div>
 
           <div>
+            {' '}
             <div className="my-3 min-h-[80px] rounded-md border border-gray-300 p-2 font-medium">
               Nhận xét:{''} {editData?.comment || 'Chưa có nhận xét'}
             </div>
+            {editData?.replies.length > 0 && (
+              <div className="my-3 min-h-[80px] rounded-md border border-gray-300 p-2 font-medium">
+                <h3 className="text-lg font-semibold">Đã trả lời:</h3>
+                {editData.replies.map((reply, index) => (
+                  <div key={index} className="flex flex-col gap-2">
+                    <div className="flex-col gap-3 rounded-md border border-gray-300 p-2 font-medium">
+                      <div className="flex justify-between">
+                        <div className="">
+                          Người trả lời: {reply?.user || 'Chưa có thông tin'}
+                        </div>
+                        <div className="">
+                          Ngày tạo:{' '}
+                          {new Date(reply.createdAt).toLocaleDateString(
+                            'vi-VN',
+                          ) || 'Chưa có thông tin'}{' '}
+                        </div>
+                        <br />
+                      </div>
+                      Nội dung: {reply.content || 'Chưa có thông tin'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {isReplying && (
