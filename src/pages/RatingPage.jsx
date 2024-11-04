@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Rating, IconButton, Button, TextField, Modal } from '@mui/material';
 import { RemoveRedEye } from '@mui/icons-material';
 import commentService from '../services/comment.service';
 import ActionHeader from '../components/common/ActionHeader';
 import TableComponent from '../components/common/TableComponent';
 import { Send } from 'lucide-react';
+import { toast } from 'react-toastify';
+import AlertDialog from '../components/common/AlertDialog';
 
 const RatingPage = () => {
   const [ratings, setRatings] = useState([]);
@@ -13,32 +15,41 @@ const RatingPage = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Lấy danh sách đánh giá từ API
-  useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        setLoading(true);
-        const data = await commentService.getAllComments();
-        const formattedComments = data.data.map((comment, index) => ({
-          _id: comment.id,
-          id: index + 1,
-          productImage: comment.productImage[0],
-          productName: comment.productName,
-          fullname: comment.reviewer,
-          star: comment.rating,
-          comment: comment.comment,
-          createdAt: new Date(comment.createdAt),
-          replies: comment.replies,
-        }));
-        setRatings(formattedComments);
-      } catch (err) {
-        setError('Failed to fetch comments');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [isReplying, setIsReplying] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const accessToken = localStorage.getItem('accessToken');
 
+  const [alertConfig, setAlertConfig] = useState({
+    open: false,
+    title: '',
+    action: null,
+  });
+
+  // Lấy danh sách đánh giá từ API
+  const fetchComments = async () => {
+    try {
+      setLoading(true);
+      const data = await commentService.getAllComments();
+      const formattedComments = data.data.map((comment, index) => ({
+        _id: comment.id,
+        id: index + 1,
+        productImage: comment.productImage[0],
+        productName: comment.productName,
+        fullname: comment.reviewer,
+        star: comment.rating,
+        comment: comment.comment,
+        createdAt: new Date(comment.createdAt),
+        replies: comment.replies,
+      }));
+      setRatings(formattedComments);
+    } catch (err) {
+      setError('Failed to fetch comments');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchComments();
   }, []);
 
@@ -52,14 +63,23 @@ const RatingPage = () => {
 
   // Xử lý xóa đánh giá
   const handleDelete = async (id) => {
-    try {
-      await commentService.deleteComment(id);
-      setRatings((prevRatings) =>
-        prevRatings.filter((rating) => rating._id !== id),
-      );
-    } catch (err) {
-      console.error('Failed to delete comment:', err);
-    }
+    setAlertConfig({
+      open: true,
+      title: 'Bạn có chắc chắn muốn xóa những sản phẩm đã chọn không?',
+      action: async () => {
+        try {
+          await commentService.deleteComment(id);
+          setRatings((prevRatings) =>
+            prevRatings.filter((rating) => rating._id !== id),
+          );
+          toast.success('Đã xóa đánh giá');
+          setModalOpen(false);
+        } catch (err) {
+          toast.error('Lỗi khi xóa đánh giá');
+          console.error('Failed to delete comment:', err);
+        }
+      },
+    });
   };
 
   // Đóng modal và xóa dữ liệu chỉnh sửa
@@ -155,11 +175,11 @@ const RatingPage = () => {
 
   const paginationModel = { page: 0, pageSize: 5 };
 
-  const [isReplying, setIsReplying] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  const accessToken = localStorage.getItem('accessToken');
   const handleReplySubmit = async () => {
-    if (!replyText.trim()) return;
+    if (!replyText.trim()) {
+      toast.error('Vui lòng nhập nội dung trả lời');
+      return;
+    }
 
     try {
       const replyResponse = await commentService.addReply(
@@ -178,13 +198,16 @@ const RatingPage = () => {
 
       setReplyText(''); // Đặt lại nội dung trả lời
       setIsReplying(false); // Ẩn khung trả lời
+      fetchComments(); // Lấy lại danh sách đánh giá
+      toast.success('Đã trả lời đánh giá');
     } catch (err) {
       console.error('Failed to add reply:', err);
+      toast.error('Lỗi khi trả lời đánh giá');
     }
   };
 
   return (
-    <div>
+    <>
       <ActionHeader title="Quản lý đánh giá" />
       <TableComponent
         checkbox={false}
@@ -194,7 +217,29 @@ const RatingPage = () => {
         paginationModel={paginationModel}
         handleSelected={() => {}}
       />
-
+      <AlertDialog
+        open={alertConfig.open}
+        onClose={() => setAlertConfig({ ...alertConfig, open: false })}
+        title={alertConfig.title}
+        actions={
+          <Fragment>
+            <Button
+              onClick={() => setAlertConfig({ ...alertConfig, open: false })}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={() => {
+                setAlertConfig({ ...alertConfig, open: false });
+                alertConfig.action && alertConfig.action();
+              }}
+              autoFocus
+            >
+              Chắc chắn
+            </Button>
+          </Fragment>
+        }
+      />
       {/* Modal chi tiết đánh giá */}
       <Modal open={isModalOpen} onClose={closeModal}>
         <div className="mx-auto my-10 max-w-xl rounded-md bg-white p-6 shadow-lg">
@@ -260,13 +305,13 @@ const RatingPage = () => {
                         </div>
                         <div className="">
                           Ngày tạo:{' '}
-                          {new Date(reply.createdAt).toLocaleDateString(
+                          {new Date(reply?.createdAt).toLocaleDateString(
                             'vi-VN',
                           ) || 'Chưa có thông tin'}{' '}
                         </div>
                         <br />
                       </div>
-                      Nội dung: {reply.content || 'Chưa có thông tin'}
+                      Nội dung: {reply?.content || 'Chưa có thông tin'}
                     </div>
                   </div>
                 ))}
@@ -328,7 +373,7 @@ const RatingPage = () => {
           </div>
         </div>
       </Modal>
-    </div>
+    </>
   );
 };
 
