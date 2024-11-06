@@ -22,6 +22,24 @@ class FeedbackService {
       throw error;
     }
   }
+
+  async checkIfLoyalCustomer(senderEmail) {
+    try {
+      return await this.api.get('/check', { senderEmail });
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra khách hàng trung thành:', error);
+      throw error;
+    }
+  }
+
+  async replyEmail(feedbackId, answer) {
+    try {
+      return await this.api.post('/reply', { feedbackId, answer });
+    } catch (error) {
+      console.error('Lỗi khi trả lời email:', error);
+      throw error;
+    }
+  }
 }
 
 export default new FeedbackService();
