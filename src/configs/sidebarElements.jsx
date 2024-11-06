@@ -6,6 +6,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import GradeIcon from '@mui/icons-material/Grade';
 import ChatIcon from '@mui/icons-material/Chat';
+import ArticleIcon from '@mui/icons-material/Article';
 
 import {
   BrandPage,
@@ -21,6 +22,7 @@ import {
   VoucherPage,
   ServicePage,
   CategoryPage,
+  ArticlePage,
 } from '../pages';
 import { useSelector } from 'react-redux';
 import RatingPage from '../pages/RatingPage';
@@ -118,6 +120,14 @@ const useRoutes = () => {
       element: <FeedbackPage />,
       icon: <ChatIcon />,
       label: 'Quản lý Phản hồi',
+      childItems: [],
+    },
+         {
+      id: uuidv4(),
+     path: '/article',
+      element: <ArticlePage />,
+      icon: <ArticleIcon />,
+      label: 'Quản lý Bài viết',
       childItems: [],
     },
   ];
