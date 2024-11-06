@@ -5,7 +5,9 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import GradeIcon from '@mui/icons-material/Grade';
+import ChatIcon from '@mui/icons-material/Chat';
 import ArticleIcon from '@mui/icons-material/Article';
+
 import {
   BrandPage,
   DiscountPage,
@@ -24,6 +26,7 @@ import {
 } from '../pages';
 import { useSelector } from 'react-redux';
 import RatingPage from '../pages/RatingPage';
+import FeedbackPage from '../pages/FeedbackPage';
 
 // Tạo component để lấy role người dùng và định nghĩa routes
 const useRoutes = () => {
@@ -113,7 +116,15 @@ const useRoutes = () => {
     },
     {
       id: uuidv4(),
-      path: '/article',
+      path: '/feedback',
+      element: <FeedbackPage />,
+      icon: <ChatIcon />,
+      label: 'Quản lý Phản hồi',
+      childItems: [],
+    },
+         {
+      id: uuidv4(),
+     path: '/article',
       element: <ArticlePage />,
       icon: <ArticleIcon />,
       label: 'Quản lý Bài viết',
