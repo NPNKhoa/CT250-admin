@@ -13,6 +13,15 @@ class FeedbackService {
       throw error;
     }
   }
+
+  async getAllFeedback() {
+    try {
+      return await this.api.get('/all');
+    } catch (error) {
+      console.error('Lỗi khi lấy phản hồi:', error);
+      throw error;
+    }
+  }
 }
 
 export default new FeedbackService();
