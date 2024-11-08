@@ -8,10 +8,7 @@ import { useBeforeUnload, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-import {
-  backup,
-  getCurrentSystemConfig,
-} from '../redux/thunk/systemConfigThunk';
+import { backup } from '../redux/thunk/systemConfigThunk';
 
 const SettingsPage = () => {
   const dispatch = useDispatch();
@@ -48,7 +45,9 @@ const SettingsPage = () => {
   const handleBlockedNavigation = useCallback(
     (path) => {
       if (shouldAlert) {
-        const confirmWindow = window.confirm('Chắc chưa bạn êiii');
+        const confirmWindow = window.confirm(
+          'Nếu rời khỏi, thay đổi của bạn sẽ không được lưu',
+        );
         console.log(confirmWindow);
         if (confirmWindow) {
           setShouldAlert(false);
@@ -62,12 +61,6 @@ const SettingsPage = () => {
     },
     [navigate, shouldAlert],
   );
-
-  // Fetching data
-  useEffect(() => {
-    dispatch(getCurrentSystemConfig());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (error) {

@@ -44,6 +44,8 @@ const EditableView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [tmpImg, setTmpImg] = useState('');
+
   const [tempData, setTempData] = useState({
     founder: null,
     coreValue: null,
@@ -75,6 +77,11 @@ const EditableView = () => {
 
   // Handle Change files logic
   const handleChangeModalContent = (key, value) => {
+    if (key === 'shopLogoImgPath') {
+      setTmpImg(value);
+      return;
+    }
+
     setNewConfigs((prevData) => ({
       ...prevData,
       [key]: value,
@@ -82,6 +89,14 @@ const EditableView = () => {
   };
 
   const handleSaveModalContent = (key, value) => {
+    console.log(key, value);
+
+    if (key === 'shopLogoImgPath') {
+      setNewConfigs((prevConfigs) => ({
+        ...prevConfigs,
+        shopLogoImgPath: value,
+      }));
+    }
     setTempData((prevData) => ({
       ...prevData,
       [key]: value,
@@ -109,6 +124,7 @@ const EditableView = () => {
 
   // Handle Save Change
   const handleSaveChange = () => {
+    console.log(newConfigs);
     // dispatch system config
     dispatch(
       updateSystemConfig({
@@ -175,7 +191,7 @@ const EditableView = () => {
             ) : (
               <img
                 src={
-                  tempData.shopLogoImgPath ||
+                  tmpImg ||
                   'http://localhost:5000/' + currentConfigs?.shopLogoImgPath
                 }
                 alt="logo"
