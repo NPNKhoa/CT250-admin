@@ -8,10 +8,7 @@ import { useBeforeUnload, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-import {
-  backup,
-  getCurrentSystemConfig,
-} from '../redux/thunk/systemConfigThunk';
+import { backup } from '../redux/thunk/systemConfigThunk';
 
 const SettingsPage = () => {
   const dispatch = useDispatch();
@@ -64,12 +61,6 @@ const SettingsPage = () => {
     },
     [navigate, shouldAlert],
   );
-
-  // Fetching data
-  // useEffect(() => {
-  //   dispatch(getCurrentSystemConfig());
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
 
   useEffect(() => {
     if (error) {
