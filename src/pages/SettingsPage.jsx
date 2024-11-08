@@ -48,7 +48,9 @@ const SettingsPage = () => {
   const handleBlockedNavigation = useCallback(
     (path) => {
       if (shouldAlert) {
-        const confirmWindow = window.confirm('Chắc chưa bạn êiii');
+        const confirmWindow = window.confirm(
+          'Nếu rời khỏi, thay đổi của bạn sẽ không được lưu',
+        );
         console.log(confirmWindow);
         if (confirmWindow) {
           setShouldAlert(false);
@@ -64,10 +66,10 @@ const SettingsPage = () => {
   );
 
   // Fetching data
-  useEffect(() => {
-    dispatch(getCurrentSystemConfig());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  //   dispatch(getCurrentSystemConfig());
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   useEffect(() => {
     if (error) {
