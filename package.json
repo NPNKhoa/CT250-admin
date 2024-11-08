@@ -39,6 +39,7 @@
     "react-router-dom": "^6.26.1",
     "react-toastify": "^10.0.5",
     "recharts": "^2.12.7",
+    "redux-persist": "^6.0.0",
     "uuid": "^10.0.0",
     "xlsx": "^0.18.5"
   },
