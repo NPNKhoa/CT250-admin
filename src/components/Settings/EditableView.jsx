@@ -89,8 +89,6 @@ const EditableView = () => {
   };
 
   const handleSaveModalContent = (key, value) => {
-    console.log(key, value);
-
     if (key === 'shopLogoImgPath') {
       setNewConfigs((prevConfigs) => ({
         ...prevConfigs,
@@ -124,7 +122,6 @@ const EditableView = () => {
 
   // Handle Save Change
   const handleSaveChange = () => {
-    console.log(newConfigs);
     // dispatch system config
     dispatch(
       updateSystemConfig({
