@@ -11,8 +11,6 @@ import systemConfigService from '../../services/systemConfig.service';
 const EditableBannerComponent = ({ banners }) => {
   const dispatch = useDispatch();
 
-  console.log(banners);
-
   const initialActiveBanners = useMemo(
     () =>
       Array.isArray(banners) &&

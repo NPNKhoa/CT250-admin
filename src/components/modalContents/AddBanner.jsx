@@ -28,7 +28,7 @@ const AddBanner = ({ onCancel }) => {
           const newFiles = Array.from(files);
           setUploadedFiles(newFiles);
           newFiles.forEach((file) => {
-            toast.success(`Tải lên thành công: ${file.name}`);
+            toast.success(`Tải lên thành công: ${file?.name}`);
           });
         }}
         types={allowedTypes}
