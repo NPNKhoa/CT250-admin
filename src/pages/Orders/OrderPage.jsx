@@ -528,36 +528,88 @@ const OrderPage = () => {
                   {selectedOrder.orderDetail?.map((item) => (
                     <div
                       key={item._id}
-                      className="flex items-center space-x-4 py-2"
+                      className="flex flex-col space-y-4 py-2"
                     >
-                      <img
-                        src={item.product.productImagePath?.[0] || ''}
-                        alt={item.product.productName}
-                        className="h-16 w-16 rounded-md object-cover"
-                      />
-                      <div>
-                        <h3 className="text-gray-900">
-                          {item.product.productName}
-                        </h3>
-                        <p className="text-gray-500">
-                          Số lượng: {item.quantity}
-                        </p>
-                        <p className="text-sm text-gray-400 line-through sm:text-base">
-                          {item?.product.discount && (
-                            <>
+                      <div className="flex items-center space-x-4">
+                        <img
+                          src={
+                            item.product.productImagePath?.[0]?.startsWith(
+                              'http',
+                            )
+                              ? item.product.productImagePath[0]
+                              : // eslint-disable-next-line no-constant-binary-expression
+                                `http://localhost:5000/${item.product.productImagePath?.[0]?.replace(/\\/g, '/')}` ||
+                                ''
+                          }
+                          alt={item.product.productName || 'Sản phẩm không tên'}
+                          className="h-16 w-16 rounded-md object-cover"
+                        />
+                        <div>
+                          <h3 className="text-gray-900">
+                            {item.product.productName}
+                          </h3>
+                          <p className="text-gray-500">
+                            Số lượng: {item.quantity}
+                          </p>
+                          {item.product.discount && (
+                            <p className="text-sm text-gray-400 line-through sm:text-base">
                               {toVietnamCurrencyFormat(
                                 item.itemPrice * item.quantity,
                               )}
-                            </>
+                            </p>
                           )}
-                        </p>
-                        <p>
-                          {toVietnamCurrencyFormat(
-                            item.itemPrice *
-                              item.quantity *
-                              (1 - item.product.discount.discountPercent / 100),
-                          )}
-                        </p>
+                          <p className="font-bold text-primary">
+                            {toVietnamCurrencyFormat(
+                              item.itemPrice *
+                                item.quantity *
+                                (1 -
+                                  (item.product.discount?.discountPercent ||
+                                    0) /
+                                    100),
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      {/* Phần quà tặng kèm */}
+                      <div className="ml-10 mt-2">
+                        <h4 className="text-lg font-semibold text-gray-800">
+                          Quà tặng kèm:
+                        </h4>
+                        {item.product.promotion?.productIds?.length > 0 ? (
+                          <ul className="list-disc pl-5">
+                            {item.product.promotion.productIds.map(
+                              (gift, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-center text-gray-600"
+                                >
+                                  <img
+                                    src={
+                                      gift.productImagePath?.[0]?.startsWith(
+                                        'http',
+                                      )
+                                        ? gift.productImagePath[0]
+                                        : `http://localhost:5000/${gift.productImagePath?.[0]?.replace(/\\/g, '/')}`
+                                    }
+                                    alt={
+                                      gift.productName || 'Quà tặng không tên'
+                                    }
+                                    className="mr-2 h-10 w-10 rounded-md object-cover"
+                                  />
+                                  <span>
+                                    {gift.productName || 'Không có tên'} (trị
+                                    giá:{' '}
+                                    {toVietnamCurrencyFormat(gift.price || 0)})
+                                  </span>
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        ) : (
+                          <p className="italic text-gray-500">
+                            Không có quà tặng kèm.
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}

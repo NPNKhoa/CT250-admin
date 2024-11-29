@@ -294,7 +294,9 @@ const UserManagement = () => {
                   <div className="flex items-center">
                     <strong className="w-24 text-gray-800">Ngày tạo:</strong>
                     <span className="text-gray-600">
-                      {selectedUser.createdAt}
+                      {new Date(selectedUser.createdAt).toLocaleDateString(
+                        'vi-VN',
+                      )}
                     </span>
                   </div>
                 </div>
