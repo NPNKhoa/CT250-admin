@@ -316,6 +316,19 @@ const OrderPage = () => {
 
   const handleStatusChange = (event) => {
     const newStatus = event.target.value;
+
+    // Kiểm tra nếu trạng thái đơn hàng là "Đã hủy" hoặc "Đã giao hàng"
+    if (
+      selectedOrder.orderStatus === 'Đã hủy' ||
+      selectedOrder.orderStatus === 'Đã giao hàng'
+    ) {
+      toast.error(
+        'Không thể thay đổi trạng thái vì đơn hàng đã hủy hoặc đã giao.',
+      );
+      return;
+    }
+
+    // Nếu trạng thái hợp lệ, cập nhật trạng thái
     setOrderStatus(newStatus);
     updateOrderStatusHandler(selectedOrder._id, getOrderStatusId(newStatus));
   };
