@@ -100,13 +100,13 @@ const SettingsPage = () => {
           <Typography variant="h6">Chế độ chỉnh sửa: </Typography>
           <Switch checked={isEditable} onChange={handleChangeEditMode} />
         </div>
-        <Button
+        {/* <Button
           variant="contained"
           color="error"
           onClick={() => dispatch(backup())}
         >
           Phục hồi dữ liệu
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
